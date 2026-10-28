@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#047857"/>
+      <stop offset="50%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a7f3d0"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  
+  <!-- Rounded Base Background -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle inner glowing ring -->
+  <circle cx="256" cy="256" r="190" fill="none" stroke="#ffffff" stroke-width="4" stroke-opacity="0.15" />
+
+  <!-- Main Wallet & Sprout Shield -->
+  <g filter="url(#shadow)" transform="translate(0, 0)">
+    <!-- Stylized Wallet Card Body -->
+    <rect x="116" y="166" width="280" height="180" rx="32" fill="#ffffff" fill-opacity="0.95"/>
+    <!-- Wallet Flap / Accent band -->
+    <path d="M 116 216 L 396 216" stroke="#059669" stroke-width="6" stroke-opacity="0.2"/>
+    
+    <!-- Organic Sprouting Leaf Monogram representing growth & vegetal theme -->
+    <path d="M 256 120 C 310 130 350 180 340 240 C 330 290 280 310 256 310 C 232 310 182 290 172 240 C 162 180 202 130 256 120 Z" fill="url(#bgGrad)" fill-opacity="0.9"/>
+    <path d="M 256 140 Q 256 220 280 270" stroke="url(#leafGrad)" stroke-width="8" stroke-linecap="round" fill="none"/>
+    
+    <!-- Central Coin Badge -->
+    <circle cx="340" cy="256" r="28" fill="#10b981"/>
+    <circle cx="340" cy="256" r="22" fill="#ffffff"/>
+    <text x="340" y="264" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="22" fill="#047857" text-anchor="middle">O</text>
+  </g>
+</svg>

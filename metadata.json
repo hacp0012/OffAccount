@@ -1,0 +1,8 @@
+{
+  "name": "OffAccount",
+  "description": "Application PWA hors-ligne de gestion financière, comptes, dépenses mensuelles, graphiques et dettes en FRw, FC et USD.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

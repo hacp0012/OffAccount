@@ -1,0 +1,6 @@
+{
+  "summary":  "Detailed architectural and UX implementation plan for OffMoney, a 100% front-end offline-first Progressive Web App (PWA) for personal finance management in FRw and FC. Covers IndexedDB persistence (Dexie.js), multi-account balancing, income/expense tracking, account transfers, multiple shopping lists with dynamic checkout & debt allocation, receivables and debt tracking with repayment histories, and complete JSON backup/restore.",
+  "updatedAt":  "2026-10-28T19:55:20.220273639Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}
