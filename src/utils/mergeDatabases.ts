@@ -38,21 +38,18 @@ export interface MergeResult {
 
 function getTimestamp(record: SyncRecord): number {
   const ts = record.updatedAt ?? record.createdAt ?? "1970-01-01T00:00:00Z";
-  const time = new Date(ts).getTime();
-  return Number.isNaN(time) ? 0 : time;
+  return new Date(ts).getTime();
 }
 
 function mergeTable<T extends SyncRecord>(
   localRecords: T[],
-  remoteRecords: T[] = [],
+  remoteRecords: T[],
 ): { toUpsert: T[]; added: number; updated: number; deleted: number } {
-  const safeRemote = Array.isArray(remoteRecords) ? remoteRecords : [];
   const localMap = new Map<string, T>(localRecords.map((r) => [r.id, r]));
   const toUpsert: T[] = [];
   let added = 0, updated = 0, deleted = 0;
 
-  for (const remote of safeRemote) {
-    if (!remote || !remote.id) continue;
+  for (const remote of remoteRecords) {
     const local = localMap.get(remote.id);
     if (!local) {
       toUpsert.push(remote);
@@ -98,7 +95,6 @@ export async function exportLocalDatabaseForSync(deviceId: string): Promise<P2PS
 }
 
 export async function mergeDatabases(remote: P2PSyncPayload): Promise<MergeResult> {
-  const remoteData = remote?.data || ({} as Partial<P2PSyncPayload["data"]>);
   const [localAccounts, localTransactions, localShoppingLists, localShoppingItems, localDebts, localSettings, localCategories] =
     await Promise.all([
       db.accounts.toArray(),
@@ -110,13 +106,13 @@ export async function mergeDatabases(remote: P2PSyncPayload): Promise<MergeResul
       db.categories.toArray(),
     ]);
 
-  const accountsMerge     = mergeTable(localAccounts      as any, remoteData.accounts);
-  const transactionsMerge = mergeTable(localTransactions  as any, remoteData.transactions);
-  const listsMerge        = mergeTable(localShoppingLists as any, remoteData.shoppingLists);
-  const itemsMerge        = mergeTable(localShoppingItems as any, remoteData.shoppingItems);
-  const debtsMerge        = mergeTable(localDebts         as any, remoteData.debts);
-  const settingsMerge     = mergeTable(localSettings      as any, remoteData.settings);
-  const categoriesMerge   = mergeTable(localCategories    as any, remoteData.categories);
+  const accountsMerge     = mergeTable(localAccounts      as any, remote.data.accounts);
+  const transactionsMerge = mergeTable(localTransactions  as any, remote.data.transactions);
+  const listsMerge        = mergeTable(localShoppingLists as any, remote.data.shoppingLists);
+  const itemsMerge        = mergeTable(localShoppingItems as any, remote.data.shoppingItems);
+  const debtsMerge        = mergeTable(localDebts         as any, remote.data.debts);
+  const settingsMerge     = mergeTable(localSettings      as any, remote.data.settings);
+  const categoriesMerge   = mergeTable(localCategories    as any, remote.data.categories);
 
   await db.transaction(
     "rw",

@@ -58,7 +58,7 @@ export interface UseP2PSyncReturn {
 }
 
 const STATUS_MESSAGES: Record<SyncStatus, string> = {
-  idle:         "En attente",
+  idle:         "En attente de connexion",
   initializing: "Initialisation du pair P2P...",
   ready:        "Prêt — en attente de connexion",
   connecting:   "Connexion au pair distant...",
@@ -123,7 +123,7 @@ export function useP2PSync(): UseP2PSyncReturn {
         const msg = rawData as any;
         if (!msg) return;
 
-        // Détection du format de message
+        // Détection du format de message (nouveau protocole typé ou legacy)
         const isRequest = msg.type === "SYNC_REQUEST" || (!msg.type && msg.data);
         const isResponse = msg.type === "SYNC_RESPONSE";
         const isComplete = msg.type === "SYNC_COMPLETE";

@@ -19,11 +19,14 @@ import {
   Moon,
   Monitor,
   Palette,
+  ArrowRightLeft,
+  Sliders,
 } from 'lucide-react';
 import { SUPPORTED_CURRENCIES } from '../../utils/currencies';
 import { useAppCurrency } from '../../context/CurrencyContext';
 import { useTheme, type ThemeMode } from '../../context/ThemeContext';
 import { ConfirmModal } from '../ConfirmModal';
+import { P2PSyncSettings } from './P2PSyncSettings';
 
 interface SettingsViewProps {
   stats: {
@@ -38,6 +41,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
   const { currency, currencyInfo, setCurrency } = useAppCurrency();
   const { theme, resolvedTheme, setTheme } = useTheme();
 
+  const [activeTab, setActiveTab] = useState<'general' | 'p2p'>('general');
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [notification, setNotification] = useState<{
@@ -208,35 +212,68 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
           Paramètres & Personnalisation
         </h1>
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Thème visuel, devise globale et sauvegardes de vos données.
+          Thème visuel, devise globale, synchronisation P2P et sauvegardes de vos données.
         </p>
       </div>
 
-      {/* Notification Toast */}
-      {notification && (
-        <div
-          className={`p-3 sm:p-4 rounded-2xl flex items-start gap-2.5 text-xs font-semibold shadow-xs transition-all ${
-            notification.type === 'success'
-              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800'
-              : 'bg-rose-50 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200 border border-rose-200 dark:border-rose-800'
+      {/* Main Tabs: Général vs Synchronisation P2P */}
+      <div className="bg-slate-100 dark:bg-slate-800/80 rounded-2xl p-1 grid grid-cols-2 gap-1">
+        <button
+          onClick={() => setActiveTab('general')}
+          className={`py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeTab === 'general'
+              ? 'bg-white dark:bg-slate-900 shadow-sm text-slate-900 dark:text-white'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
           }`}
         >
-          {notification.type === 'success' ? (
-            <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-          ) : (
-            <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+          <Sliders className="w-3.5 h-3.5" />
+          <span>Général & Sauvegardes</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('p2p')}
+          className={`py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeTab === 'p2p'
+              ? 'bg-white dark:bg-slate-900 shadow-sm text-slate-900 dark:text-white'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+          }`}
+        >
+          <ArrowRightLeft className="w-3.5 h-3.5" />
+          <span>Synchronisation P2P</span>
+        </button>
+      </div>
+
+      {/* Render P2P Sync Page if activeTab is p2p */}
+      {activeTab === 'p2p' && <P2PSyncSettings />}
+
+      {/* Render General Settings if activeTab is general */}
+      {activeTab === 'general' && (
+        <>
+          {/* Notification Toast */}
+          {notification && (
+            <div
+              className={`p-3 sm:p-4 rounded-2xl flex items-start gap-2.5 text-xs font-semibold shadow-xs transition-all ${
+                notification.type === 'success'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800'
+                  : 'bg-rose-50 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200 border border-rose-200 dark:border-rose-800'
+              }`}
+            >
+              {notification.type === 'success' ? (
+                <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+              )}
+              <div className="flex-1">
+                <span>{notification.message}</span>
+              </div>
+              <button
+                onClick={() => setNotification(null)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-xs cursor-pointer"
+              >
+                Fermer
+              </button>
+            </div>
           )}
-          <div className="flex-1">
-            <span>{notification.message}</span>
-          </div>
-          <button
-            onClick={() => setNotification(null)}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-xs cursor-pointer"
-          >
-            Fermer
-          </button>
-        </div>
-      )}
 
       {/* 1. THEME SWITCHER (Mode Clair, Sombre, Système) */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
@@ -512,6 +549,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
         confirmLabel="Tout effacer"
         isDestructive={true}
       />
+        </>
+      )}
     </div>
   );
 };
