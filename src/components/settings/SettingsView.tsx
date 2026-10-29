@@ -17,10 +17,13 @@ import {
   Coins,
   Check,
   Search,
+  ArrowRightLeft,
+  Settings2,
 } from 'lucide-react';
 import { SUPPORTED_CURRENCIES, type CurrencyInfo } from '../../utils/currencies';
 import { useAppCurrency } from '../../context/CurrencyContext';
 import { ConfirmModal } from '../ConfirmModal';
+import { P2PSyncSettings } from './P2PSyncSettings';
 
 interface SettingsViewProps {
   stats: {
@@ -31,8 +34,11 @@ interface SettingsViewProps {
   };
 }
 
+type SettingsTab = 'general' | 'p2p';
+
 export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
   const { currency, currencyInfo, setCurrency } = useAppCurrency();
+  const [activeTab, setActiveTab] = useState<SettingsTab>('general');
 
   const [currencySearch, setCurrencySearch] = useState('');
   const [isExporting, setIsExporting] = useState(false);
@@ -191,9 +197,41 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
           Paramètres & Configuration
         </h1>
         <p className="text-xs text-slate-500">
-          Choisissez la devise globale de votre application et gérez vos sauvegardes.
+          Gérez votre devise, vos sauvegardes et la synchronisation entre appareils.
         </p>
       </div>
+
+      {/* Tab Navigation */}
+      <div className="bg-slate-100 rounded-2xl p-1 grid grid-cols-2 gap-1">
+        <button
+          onClick={() => setActiveTab('general')}
+          className={`py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeTab === 'general'
+              ? 'bg-white shadow-sm text-slate-900'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <Settings2 className="w-3.5 h-3.5" />
+          Paramètres
+        </button>
+        <button
+          onClick={() => setActiveTab('p2p')}
+          className={`py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeTab === 'p2p'
+              ? 'bg-white shadow-sm text-slate-900'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <ArrowRightLeft className="w-3.5 h-3.5" />
+          Sync P2P
+        </button>
+      </div>
+
+      {/* Render P2P tab directly */}
+      {activeTab === 'p2p' && <P2PSyncSettings />}
+
+      {/* Render general settings only when on that tab */}
+      {activeTab === 'general' && <>
 
       {/* Notification Toast */}
       {notification && (
@@ -473,6 +511,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
         confirmLabel="Tout effacer"
         isDestructive={true}
       />
+      </>
+      }
     </div>
   );
 };
