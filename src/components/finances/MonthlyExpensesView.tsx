@@ -1,11 +1,11 @@
-import React, { useState, useMemo } from 'react';
-import type { Transaction, Account } from '../../types';
-import { formatMoney, formatDate } from '../../utils/formatters';
-import { db } from '../../db/database';
-import { useAppCurrency } from '../../context/CurrencyContext';
-import { ConfirmModal } from '../ConfirmModal';
-import { CategoriesManagerModal } from './CategoriesManagerModal';
-import { TransactionDetailModal } from './TransactionDetailModal';
+import React, { useState, useMemo } from "react";
+import type { Transaction, Account } from "../../types";
+import { formatMoney, formatDate } from "../../utils/formatters";
+import { db } from "../../db/database";
+import { useAppCurrency } from "../../context/CurrencyContext";
+import { ConfirmModal } from "../ConfirmModal";
+import { CategoriesManagerModal } from "./CategoriesManagerModal";
+import { TransactionDetailModal } from "./TransactionDetailModal";
 import {
   ChevronLeft,
   ChevronRight,
@@ -23,8 +23,8 @@ import {
   Search,
   Filter,
   Tag,
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface MonthlyExpensesViewProps {
   transactions: Transaction[];
@@ -32,40 +32,36 @@ interface MonthlyExpensesViewProps {
   onOpenNewTransaction: () => void;
 }
 
-export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
-  transactions,
-  accounts,
-  onOpenNewTransaction,
-}) => {
+export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({ transactions, accounts, onOpenNewTransaction }) => {
   const navigate = useNavigate();
   const { currency, currencyInfo } = useAppCurrency();
 
   // Current month default: "2026-10"
   const now = new Date();
-  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
   const [selectedMonthKey, setSelectedMonthKey] = useState<string>(currentMonthKey);
-  const [typeFilter, setTypeFilter] = useState<'all' | 'expense' | 'income'>('all');
+  const [typeFilter, setTypeFilter] = useState<"all" | "expense" | "income">("all");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
-  const [search, setSearch] = useState('');
+  const [selectedAccountId, setSelectedAccountId] = useState<string>("all");
+  const [search, setSearch] = useState("");
   const [txToDelete, setTxToDelete] = useState<Transaction | null>(null);
   const [selectedTxForDetail, setSelectedTxForDetail] = useState<Transaction | null>(null);
   const [isCatManagerOpen, setIsCatManagerOpen] = useState(false);
 
   // Month navigation helpers
-  const [selectedYear, selectedMonthNum] = selectedMonthKey.split('-').map(Number);
+  const [selectedYear, selectedMonthNum] = selectedMonthKey.split("-").map(Number);
 
   const handlePrevMonth = () => {
     const d = new Date(selectedYear, selectedMonthNum - 2, 1);
-    const newKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const newKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     setSelectedMonthKey(newKey);
     setSelectedCategory(null);
   };
 
   const handleNextMonth = () => {
     const d = new Date(selectedYear, selectedMonthNum, 1);
-    const newKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const newKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     setSelectedMonthKey(newKey);
     setSelectedCategory(null);
   };
@@ -76,9 +72,9 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
   };
 
   const monthDate = new Date(selectedYear, selectedMonthNum - 1, 1);
-  const monthName = monthDate.toLocaleDateString('fr-FR', {
-    month: 'long',
-    year: 'numeric',
+  const monthName = monthDate.toLocaleDateString("fr-FR", {
+    month: "long",
+    year: "numeric",
   });
   const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
   const isCurrentMonth = selectedMonthKey === currentMonthKey;
@@ -96,8 +92,8 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
     let inc = 0;
     let exp = 0;
     monthTransactions.forEach((tx) => {
-      if (tx.type === 'income') inc += tx.amount;
-      if (tx.type === 'expense') exp += tx.amount;
+      if (tx.type === "income") inc += tx.amount;
+      if (tx.type === "expense") exp += tx.amount;
     });
     return {
       totalIncome: inc,
@@ -105,6 +101,11 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
       netSavings: inc - exp,
     };
   }, [monthTransactions]);
+
+  const totalAvailableBalance = useMemo(
+    () => accounts.reduce((total, account) => total + (account.balance || 0), 0),
+    [accounts],
+  );
 
   // Unique categories in this month for filter chips
   const monthCategories = useMemo(() => {
@@ -118,9 +119,9 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
   // Filtered transactions for the feed
   const filteredTransactions = useMemo(() => {
     return monthTransactions.filter((tx) => {
-      if (typeFilter !== 'all' && tx.type !== typeFilter) return false;
+      if (typeFilter !== "all" && tx.type !== typeFilter) return false;
       if (selectedCategory && tx.category !== selectedCategory) return false;
-      if (selectedAccountId !== 'all' && tx.accountId !== selectedAccountId) return false;
+      if (selectedAccountId !== "all" && tx.accountId !== selectedAccountId) return false;
       if (search.trim()) {
         const q = search.toLowerCase();
         const matchLabel = tx.label?.toLowerCase().includes(q);
@@ -131,15 +132,36 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
     });
   }, [monthTransactions, typeFilter, selectedCategory, selectedAccountId, search]);
 
+  const groupedTransactions = useMemo(() => {
+    const groups = new Map<string, Transaction[]>();
+    const sortedTransactions = [...filteredTransactions].sort(
+      (a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt),
+    );
+
+    sortedTransactions.forEach((tx) => {
+      const group = groups.get(tx.date);
+      if (group) {
+        group.push(tx);
+      } else {
+        groups.set(tx.date, [tx]);
+      }
+    });
+
+    return Array.from(groups, ([date, dayTransactions]) => ({
+      date,
+      transactions: dayTransactions,
+    }));
+  }, [filteredTransactions]);
+
   const confirmDeleteTransaction = async () => {
     if (!txToDelete) return;
     try {
-      await db.transaction('rw', [db.accounts, db.transactions], async () => {
+      await db.transaction("rw", [db.accounts, db.transactions], async () => {
         await db.transactions.delete(txToDelete.id);
         const targetAccount = accounts.find((a) => a.id === txToDelete.accountId);
         if (targetAccount) {
           const adj =
-            txToDelete.type === 'expense'
+            txToDelete.type === "expense"
               ? targetAccount.balance + txToDelete.amount
               : targetAccount.balance - txToDelete.amount;
           await db.accounts.update(targetAccount.id, {
@@ -150,12 +172,12 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
       });
       setTxToDelete(null);
     } catch (err) {
-      console.error('Failed to delete transaction:', err);
+      console.error("Failed to delete transaction:", err);
     }
   };
 
   const getAccountName = (id: string) => {
-    return accounts.find((a) => a.id === id)?.name || 'Compte';
+    return accounts.find((a) => a.id === id)?.name || "Compte";
   };
 
   return (
@@ -168,7 +190,7 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
               Dépenses & Flux Mensuels
             </h1>
             <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
-              {isCurrentMonth ? 'En cours' : 'Archive'}
+              {isCurrentMonth ? "En cours" : "Archive"}
             </span>
           </div>
           <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -178,9 +200,19 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
 
         {/* Compact action buttons: 3 columns on mobile, flex row on tablet/desktop */}
         <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-1.5 sm:gap-2">
+          {/* Button to Categories Management */}
+          <button
+            onClick={() => setIsCatManagerOpen(true)}
+            className="flex items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition active:scale-95 cursor-pointer shadow-2xs"
+            title="Ajouter, modifier ou supprimer des catégories"
+            aria-label="Gérer les catégories"
+          >
+            <Tag className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
+          </button>
+
           {/* Button to Accounts Management Page */}
           <button
-            onClick={() => navigate('/accounts')}
+            onClick={() => navigate("/accounts")}
             className="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 text-xs font-bold transition active:scale-95 cursor-pointer shadow-2xs"
             title="Gérer exclusivement vos comptes"
           >
@@ -188,19 +220,9 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
             <span className="truncate">Comptes</span>
           </button>
 
-          {/* Button to Categories Management */}
-          <button
-            onClick={() => setIsCatManagerOpen(true)}
-            className="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 text-xs font-bold transition active:scale-95 cursor-pointer shadow-2xs"
-            title="Ajouter, modifier ou supprimer des catégories"
-          >
-            <Tag className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
-            <span className="truncate">Catégories</span>
-          </button>
-
           {/* Button to Expense Charts Page */}
           <button
-            onClick={() => navigate('/expenses/charts')}
+            onClick={() => navigate("/expenses/charts")}
             className="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/70 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-900 dark:text-emerald-300 text-xs font-bold transition active:scale-95 cursor-pointer shadow-2xs"
             title="Consulter les diagrammes et graphiques"
           >
@@ -238,7 +260,7 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
               </h2>
             </div>
             <span className="text-[10px] text-slate-400 dark:text-slate-500 block leading-tight">
-              {isCurrentMonth ? 'Mois en cours' : 'Mois archivé'}
+              {isCurrentMonth ? "Mois en cours" : "Mois archivé"}
             </span>
           </div>
         </div>
@@ -268,9 +290,7 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
         {/* Total Expenses */}
         <div className="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-semibold text-slate-400 dark:text-slate-400 truncate">
-              Dépenses
-            </span>
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-400 dark:text-slate-400 truncate">Dépenses</span>
             <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
               <TrendingDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
@@ -279,16 +299,15 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
             {formatMoney(totalExpense, currency)}
           </div>
           <span className="text-[9px] sm:text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate block">
-            {monthTransactions.filter((t) => t.type === 'expense').length} débit{monthTransactions.filter((t) => t.type === 'expense').length > 1 ? 's' : ''}
+            {monthTransactions.filter((t) => t.type === "expense").length} débit
+            {monthTransactions.filter((t) => t.type === "expense").length > 1 ? "s" : ""}
           </span>
         </div>
 
         {/* Total Income */}
         <div className="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-semibold text-slate-400 dark:text-slate-400 truncate">
-              Revenus
-            </span>
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-400 dark:text-slate-400 truncate">Revenus</span>
             <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
               <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
@@ -297,7 +316,11 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
             {formatMoney(totalIncome, currency)}
           </div>
           <span className="text-[9px] sm:text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate block">
-            {monthTransactions.filter((t) => t.type === 'income').length} crédit{monthTransactions.filter((t) => t.type === 'income').length > 1 ? 's' : ''}
+            Disponible dans les comptes : {formatMoney(totalAvailableBalance, currency)}
+          </span>
+          <span className="text-[9px] sm:text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate block">
+            {monthTransactions.filter((t) => t.type === "income").length} crédit
+            {monthTransactions.filter((t) => t.type === "income").length > 1 ? "s" : ""}
           </span>
         </div>
 
@@ -310,8 +333,8 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
             <div
               className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 ${
                 netSavings >= 0
-                  ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300'
-                  : 'bg-rose-100 dark:bg-rose-950/70 text-rose-800 dark:text-rose-300'
+                  ? "bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300"
+                  : "bg-rose-100 dark:bg-rose-950/70 text-rose-800 dark:text-rose-300"
               }`}
             >
               <PiggyBank className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -319,14 +342,14 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
           </div>
           <div
             className={`text-sm sm:text-xl font-black tabular-nums tracking-tight mt-1 truncate ${
-              netSavings >= 0 ? 'text-emerald-800 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-400'
+              netSavings >= 0 ? "text-emerald-800 dark:text-emerald-300" : "text-rose-600 dark:text-rose-400"
             }`}
           >
-            {netSavings >= 0 ? '+' : ''}
+            {netSavings >= 0 ? "+" : ""}
             {formatMoney(netSavings, currency)}
           </div>
           <span className="text-[9px] sm:text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate block">
-            {netSavings >= 0 ? 'Excédent' : 'Déficit'}
+            {netSavings >= 0 ? "Excédent" : "Déficit"}
           </span>
         </div>
       </div>
@@ -340,7 +363,7 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
               Historique des Opérations
             </h2>
             <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500">
-              {filteredTransactions.length} opération{filteredTransactions.length > 1 ? 's' : ''} sur {capitalizedMonth}
+              {filteredTransactions.length} opération{filteredTransactions.length > 1 ? "s" : ""} sur {capitalizedMonth}
             </p>
           </div>
 
@@ -360,31 +383,31 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
             {/* Type Filter */}
             <div className="flex items-center gap-0.5 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
               <button
-                onClick={() => setTypeFilter('all')}
+                onClick={() => setTypeFilter("all")}
                 className={`px-2 py-0.5 text-[11px] font-semibold rounded-md transition cursor-pointer ${
-                  typeFilter === 'all'
-                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400'
+                  typeFilter === "all"
+                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs"
+                    : "text-slate-600 dark:text-slate-400"
                 }`}
               >
                 Tout
               </button>
               <button
-                onClick={() => setTypeFilter('expense')}
+                onClick={() => setTypeFilter("expense")}
                 className={`px-2 py-0.5 text-[11px] font-semibold rounded-md transition cursor-pointer ${
-                  typeFilter === 'expense'
-                    ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400'
+                  typeFilter === "expense"
+                    ? "bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-xs"
+                    : "text-slate-600 dark:text-slate-400"
                 }`}
               >
                 Dépenses
               </button>
               <button
-                onClick={() => setTypeFilter('income')}
+                onClick={() => setTypeFilter("income")}
                 className={`px-2 py-0.5 text-[11px] font-semibold rounded-md transition cursor-pointer ${
-                  typeFilter === 'income'
-                    ? 'bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-300 shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400'
+                  typeFilter === "income"
+                    ? "bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-300 shadow-xs"
+                    : "text-slate-600 dark:text-slate-400"
                 }`}
               >
                 Revenus
@@ -404,8 +427,8 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
               onClick={() => setSelectedCategory(null)}
               className={`text-[11px] px-2 py-0.5 rounded-lg transition cursor-pointer whitespace-nowrap ${
                 selectedCategory === null
-                  ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-bold'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-bold"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
               }`}
             >
               Tous
@@ -416,8 +439,8 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
                 onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
                 className={`text-[11px] px-2 py-0.5 rounded-lg transition cursor-pointer whitespace-nowrap ${
                   selectedCategory === cat
-                    ? 'bg-emerald-700 dark:bg-emerald-600 text-white font-bold shadow-xs'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    ? "bg-emerald-700 dark:bg-emerald-600 text-white font-bold shadow-xs"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                 }`}
               >
                 {cat}
@@ -445,97 +468,108 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
               </p>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
                 {search || selectedCategory
-                  ? 'Modifiez vos filtres de recherche.'
+                  ? "Modifiez vos filtres de recherche."
                   : 'Cliquez sur "Opération" pour enregistrer votre premier achat.'}
               </p>
             </div>
           ) : (
-            filteredTransactions.map((tx) => {
-              const isExpense = tx.type === 'expense';
-              const isIncome = tx.type === 'income';
+            groupedTransactions.map((group) => (
+              <section key={group.date}>
+                <h3 className="flex items-center gap-1.5 py-2 text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400">
+                  <CalendarDays className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+                  {formatDate(group.date)}
+                  <span className="font-medium text-slate-400 dark:text-slate-500">
+                    · {group.transactions.length} opération{group.transactions.length > 1 ? "s" : ""}
+                  </span>
+                </h3>
+                <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                  {group.transactions.map((tx) => {
+                    const isExpense = tx.type === "expense";
+                    const isIncome = tx.type === "income";
 
-              return (
-                <div
-                  key={tx.id}
-                  onClick={() => setSelectedTxForDetail(tx)}
-                  className="py-2.5 px-1 sm:px-2 flex items-center justify-between gap-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors cursor-pointer group"
-                >
-                  <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
-                    <div
-                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                        isExpense
-                          ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400'
-                          : isIncome
-                          ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400'
-                          : 'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400'
-                      }`}
-                    >
-                      {isExpense ? (
-                        <TrendingDown className="w-4 h-4" />
-                      ) : isIncome ? (
-                        <TrendingUp className="w-4 h-4" />
-                      ) : (
-                        <ArrowDownLeft className="w-4 h-4" />
-                      )}
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
-                        {tx.label}
-                      </p>
-                      <div className="flex items-center gap-1 text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 mt-0.5 truncate">
-                        <span className="font-semibold text-slate-600 dark:text-slate-400 truncate max-w-[90px] sm:max-w-none">
-                          {getAccountName(tx.accountId)}
-                        </span>
-                        <span aria-hidden="true">·</span>
-                        <span
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedCategory(tx.category);
-                          }}
-                          className="hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer underline decoration-dotted truncate max-w-[80px] sm:max-w-none"
-                        >
-                          {tx.category}
-                        </span>
-                        <span aria-hidden="true">·</span>
-                        <span className="shrink-0">{formatDate(tx.date)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                    <div className="text-right">
+                    return (
                       <div
-                        className={`text-xs sm:text-sm font-extrabold tabular-nums tracking-tight ${
-                          isExpense ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'
-                        }`}
+                        key={tx.id}
+                        onClick={() => setSelectedTxForDetail(tx)}
+                        className="py-2.5 px-1 sm:px-2 flex items-center justify-between gap-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors cursor-pointer group"
                       >
-                        {isExpense ? '-' : '+'}
-                        {formatMoney(tx.amount, currency)}
-                      </div>
-                      {tx.shoppingListId && (
-                        <span className="text-[9px] text-emerald-600 dark:text-emerald-400 font-semibold block">
-                          via Courses
-                        </span>
-                      )}
-                    </div>
+                        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
+                          <div
+                            className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                              isExpense
+                                ? "bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400"
+                                : isIncome
+                                  ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400"
+                                  : "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400"
+                            }`}
+                          >
+                            {isExpense ? (
+                              <TrendingDown className="w-4 h-4" />
+                            ) : isIncome ? (
+                              <TrendingUp className="w-4 h-4" />
+                            ) : (
+                              <ArrowDownLeft className="w-4 h-4" />
+                            )}
+                          </div>
 
-                    {/* Delete button: accessible on mobile without needing hover */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setTxToDelete(tx);
-                      }}
-                      className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
-                      title="Supprimer cette opération"
-                      aria-label="Supprimer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">{tx.label}</p>
+                            <div className="flex items-center gap-1 text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 mt-0.5 truncate">
+                              <span className="font-semibold text-slate-600 dark:text-slate-400 truncate max-w-[90px] sm:max-w-none">
+                                {getAccountName(tx.accountId)}
+                              </span>
+                              <span aria-hidden="true">·</span>
+                              <span
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedCategory(tx.category);
+                                }}
+                                className="hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer underline decoration-dotted truncate max-w-[80px] sm:max-w-none"
+                              >
+                                {tx.category}
+                              </span>
+                              <span aria-hidden="true">·</span>
+                              <span className="shrink-0">{formatDate(tx.date)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                          <div className="text-right">
+                            <div
+                              className={`text-xs sm:text-sm font-extrabold tabular-nums tracking-tight ${
+                                isExpense ? "text-rose-600 dark:text-rose-400" : "text-emerald-700 dark:text-emerald-400"
+                              }`}
+                            >
+                              {isExpense ? "-" : "+"}
+                              {formatMoney(tx.amount, currency)}
+                            </div>
+                            {tx.shoppingListId && (
+                              <span className="text-[9px] text-emerald-600 dark:text-emerald-400 font-semibold block">
+                                via Courses
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Delete button: accessible on mobile without needing hover */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setTxToDelete(tx);
+                            }}
+                            className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+                            title="Supprimer cette opération"
+                            aria-label="Supprimer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })
+              </section>
+            ))
           )}
         </div>
       </div>
@@ -564,15 +598,12 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
       />
 
       {/* Categories Manager Modal */}
-      <CategoriesManagerModal
-        isOpen={isCatManagerOpen}
-        onClose={() => setIsCatManagerOpen(false)}
-      />
+      <CategoriesManagerModal isOpen={isCatManagerOpen} onClose={() => setIsCatManagerOpen(false)} />
 
       {/* Mobile Floating Action Button (FAB) */}
       <button
         onClick={onOpenNewTransaction}
-        className="sm:hidden fixed bottom-20 right-4 z-30 w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-700 to-emerald-500 text-white shadow-xl shadow-emerald-950/40 flex items-center justify-center active:scale-90 transition-transform cursor-pointer border-2 border-white/20"
+        className="sm:hidden fixed bottom-20 right-4 z-30 w-14 h-14 rounded-full bg-emerald-600 text-white shadow-xl shadow-emerald-950/40 flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
         aria-label="Nouvelle opération"
         title="Ajouter une opération"
       >

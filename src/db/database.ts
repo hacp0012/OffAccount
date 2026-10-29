@@ -69,61 +69,152 @@ export class OffMoneyDatabase extends Dexie {
 
 export const db = new OffMoneyDatabase();
 
+const APP_INITIALIZED_SETTING_ID = 'app_initialized';
+const FIRST_RUN_PENDING_SETTING_ID = 'first_run_pending';
+
+export function createDefaultCategories(): Category[] {
+  const now = new Date().toISOString();
+  return [
+    ...DEFAULT_EXPENSE_CATEGORIES.map((category, index) => ({
+      id: `cat_exp_${index + 1}`,
+      name: category.name,
+      type: 'expense' as const,
+      color: category.color,
+      icon: category.icon,
+      isDefault: true,
+      createdAt: now,
+    })),
+    ...DEFAULT_INCOME_CATEGORIES.map((category, index) => ({
+      id: `cat_inc_${index + 1}`,
+      name: category.name,
+      type: 'income' as const,
+      color: category.color,
+      icon: category.icon,
+      isDefault: true,
+      createdAt: now,
+    })),
+    ...DEFAULT_SHOPPING_CATEGORIES.map((category, index) => ({
+      id: `cat_shop_${index + 1}`,
+      name: category.name,
+      type: 'shopping' as const,
+      color: category.color,
+      icon: category.icon,
+      isDefault: true,
+      createdAt: now,
+    })),
+  ];
+}
+
 export async function ensureDefaultCategories(): Promise<void> {
   try {
     const count = await db.categories.count();
-    const now = new Date().toISOString();
 
     if (count === 0) {
-      const defaults: Category[] = [
-        ...DEFAULT_EXPENSE_CATEGORIES.map((c, i) => ({
-          id: `cat_exp_${i + 1}`,
-          name: c.name,
-          type: 'expense' as const,
-          color: c.color,
-          icon: c.icon,
-          isDefault: true,
-          createdAt: now,
-        })),
-        ...DEFAULT_INCOME_CATEGORIES.map((c, i) => ({
-          id: `cat_inc_${i + 1}`,
-          name: c.name,
-          type: 'income' as const,
-          color: c.color,
-          icon: c.icon,
-          isDefault: true,
-          createdAt: now,
-        })),
-        ...DEFAULT_SHOPPING_CATEGORIES.map((c, i) => ({
-          id: `cat_shop_${i + 1}`,
-          name: c.name,
-          type: 'shopping' as const,
-          color: c.color,
-          icon: c.icon,
-          isDefault: true,
-          createdAt: now,
-        })),
-      ];
-      await db.categories.bulkAdd(defaults);
+      await db.categories.bulkAdd(createDefaultCategories());
     } else {
       // Check if shopping categories already exist in case existing db only had expense/income
       const shoppingCount = await db.categories.where('type').equals('shopping').count();
       if (shoppingCount === 0) {
-        const defaults: Category[] = DEFAULT_SHOPPING_CATEGORIES.map((c, i) => ({
-          id: `cat_shop_${i + 1}`,
-          name: c.name,
-          type: 'shopping' as const,
-          color: c.color,
-          icon: c.icon,
-          isDefault: true,
-          createdAt: now,
-        }));
-        await db.categories.bulkAdd(defaults);
+        const shoppingCategories = createDefaultCategories().filter(
+          (category) => category.type === 'shopping',
+        );
+        await db.categories.bulkAdd(shoppingCategories);
       }
     }
   } catch (err) {
     console.error('Error ensuring default categories:', err);
   }
+}
+
+export async function initializeDatabase(): Promise<boolean> {
+  if (await db.settings.get(APP_INITIALIZED_SETTING_ID)) {
+    await ensureDefaultCategories();
+    return true;
+  }
+
+  if (await db.settings.get(FIRST_RUN_PENDING_SETTING_ID)) {
+    await ensureDefaultCategories();
+    return false;
+  }
+
+  const tableCounts = await Promise.all([
+    db.accounts.count(),
+    db.transactions.count(),
+    db.shoppingLists.count(),
+    db.shoppingItems.count(),
+    db.debts.count(),
+    db.settings.count(),
+    db.categories.count(),
+  ]);
+  const hasExistingData = tableCounts.some((count) => count > 0);
+
+  if (hasExistingData) {
+    await ensureDefaultCategories();
+    await db.settings.put({
+      id: APP_INITIALIZED_SETTING_ID,
+      defaultCurrency: 'FRw',
+    });
+  } else {
+    await db.transaction('rw', [db.settings, db.categories], async () => {
+      await db.categories.bulkAdd(createDefaultCategories());
+      await db.settings.put({
+        id: FIRST_RUN_PENDING_SETTING_ID,
+        defaultCurrency: 'FRw',
+      });
+    });
+    return false;
+  }
+
+  return true;
+}
+
+export async function completeFirstRun(useDemoData: boolean): Promise<void> {
+  if (!(await db.settings.get(FIRST_RUN_PENDING_SETTING_ID))) {
+    throw new Error('La configuration initiale est déjà terminée.');
+  }
+
+  await resetDatabaseToBlank();
+  if (useDemoData) {
+    await seedDemoData();
+  }
+}
+
+export async function resetDatabaseToBlank(): Promise<void> {
+  await db.transaction(
+    'rw',
+    [
+      db.accounts,
+      db.transactions,
+      db.shoppingLists,
+      db.shoppingItems,
+      db.debts,
+      db.settings,
+      db.categories,
+    ],
+    async () => {
+      await Promise.all([
+        db.accounts.clear(),
+        db.transactions.clear(),
+        db.shoppingLists.clear(),
+        db.shoppingItems.clear(),
+        db.debts.clear(),
+        db.settings.clear(),
+        db.categories.clear(),
+      ]);
+      await db.categories.bulkAdd(createDefaultCategories());
+      await db.settings.bulkPut([
+        {
+          id: 'default_config',
+          defaultCurrency: 'FRw',
+          userName: 'Utilisateur OffAccount',
+        },
+        {
+          id: APP_INITIALIZED_SETTING_ID,
+          defaultCurrency: 'FRw',
+        },
+      ]);
+    },
+  );
 }
 
 // Seed initial realistic data for quick exploration

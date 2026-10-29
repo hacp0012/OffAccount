@@ -15,7 +15,7 @@ export default defineConfig(() => {
         injectRegister: 'auto',
         includeAssets: [
           'apple-touch-icon.png',
-          'icon.svg',
+          'icon.png',
           'pwa-192x192.png',
           'pwa-512x512.png',
           'pwa-maskable-512x512.png',
@@ -53,6 +53,12 @@ export default defineConfig(() => {
               type: 'image/png',
               purpose: 'maskable',
             },
+            {
+              src: 'icon.png',
+              sizes: '668x633',
+              type: 'image/png',
+              purpose: 'any',
+            },
           ],
           shortcuts: [
             {
@@ -60,28 +66,28 @@ export default defineConfig(() => {
               short_name: 'Dépenses',
               description: 'Consulter et enregistrer vos transactions',
               url: './#/expenses',
-              icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }],
+              icons: [{ src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' }],
             },
             {
               name: 'Courses & Achats',
               short_name: 'Courses',
               description: 'Gérer vos listes d\'achats et budgets',
               url: './#/shopping',
-              icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }],
+              icons: [{ src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' }],
             },
             {
               name: 'Dettes & Créances',
               short_name: 'Dettes',
               description: 'Suivre vos dettes et remboursements',
               url: './#/debts',
-              icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }],
+              icons: [{ src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' }],
             },
             {
               name: 'Synchronisation P2P',
               short_name: 'Sync P2P',
               description: 'Transférer vos données entre appareils',
               url: './#/settings',
-              icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }],
+              icons: [{ src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' }],
             },
           ],
         },
@@ -139,4 +145,3 @@ export default defineConfig(() => {
     },
   };
 });
-

@@ -93,7 +93,7 @@ export const AccountsManagementView: React.FC<AccountsManagementViewProps> = ({
       </div>
 
       {/* Net Balance Recap Strip */}
-      <div className="bg-gradient-to-br from-emerald-800 to-slate-900 dark:from-emerald-900 dark:to-slate-950 text-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-xs flex items-center justify-between">
+      <div className="bg-emerald-900 dark:bg-slate-950 text-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-xs flex items-center justify-between">
         <div>
           <span className="text-[10px] sm:text-xs font-bold text-emerald-300 uppercase tracking-wide block mb-0.5">
             Solde Total Global ({currencyInfo.name})

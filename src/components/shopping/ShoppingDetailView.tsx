@@ -319,7 +319,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
 
       {/* Sticky Bottom CTA for "Payer et enregistrer" */}
       {!isCompleted && items.length > 0 && (
-        <div className="fixed bottom-16 md:bottom-4 left-0 right-0 p-3 sm:p-4 bg-gradient-to-t from-white dark:from-slate-950 via-white/95 dark:via-slate-950/95 to-transparent pointer-events-none z-30">
+        <div className="fixed bottom-16 md:bottom-4 left-0 right-0 p-3 sm:p-4 bg-white/95 dark:bg-slate-950/95 pointer-events-none z-30">
           <div className="max-w-md md:max-w-xl mx-auto pointer-events-auto">
             <button
               onClick={() => setIsPayModalOpen(true)}

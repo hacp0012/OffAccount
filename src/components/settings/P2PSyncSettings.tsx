@@ -209,7 +209,7 @@ export const P2PSyncSettings: React.FC = () => {
           </div>
           <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-indigo-500 to-sky-400 rounded-full transition-all duration-300"
+              className="h-full bg-sky-500 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -392,7 +392,7 @@ export const P2PSyncSettings: React.FC = () => {
         disabled={!canSync || isLoading}
         className={`w-full py-4 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2.5 cursor-pointer ${
           canSync && !isLoading
-            ? "bg-gradient-to-r from-indigo-600 to-sky-500 hover:from-indigo-700 hover:to-sky-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none active:scale-[0.98]"
+            ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none active:scale-[0.98]"
             : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed"
         }`}
       >

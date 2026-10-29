@@ -125,7 +125,7 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
       </div>
 
       {/* Global Dynamic Cost Summary Banner */}
-      <div className="bg-gradient-to-br from-emerald-800 to-emerald-950 text-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-sm border border-emerald-700/50">
+      <div className="bg-emerald-900 text-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-sm">
         <div className="flex items-center justify-between mb-1.5 sm:mb-2">
           <div className="flex items-center gap-1.5 sm:gap-2">
             <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-300" />
@@ -326,7 +326,7 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
       {/* Mobile Floating Action Button (FAB) */}
       <button
         onClick={() => setIsCreateModalOpen(true)}
-        className="sm:hidden fixed bottom-20 right-4 z-30 w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-700 to-emerald-500 text-white shadow-xl shadow-emerald-950/40 flex items-center justify-center active:scale-90 transition-transform cursor-pointer border-2 border-white/20"
+        className="sm:hidden fixed bottom-20 right-4 z-30 w-14 h-14 rounded-full bg-emerald-600 text-white shadow-xl shadow-emerald-950/40 flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
         aria-label="Nouvelle liste"
         title="Ajouter une nouvelle liste"
       >

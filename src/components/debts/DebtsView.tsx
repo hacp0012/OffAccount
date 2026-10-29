@@ -126,8 +126,8 @@ export const DebtsView: React.FC<DebtsViewProps> = ({ debts, accounts }) => {
       <div
         className={`rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 text-white shadow-sm transition-colors border ${
           isReceivable
-            ? 'bg-gradient-to-br from-emerald-800 to-emerald-950 border-emerald-700/50'
-            : 'bg-gradient-to-br from-rose-900 to-slate-950 border-rose-800/50'
+            ? 'bg-emerald-900'
+            : 'bg-rose-950'
         }`}
       >
         <div className="flex items-center justify-between mb-1.5 sm:mb-2">

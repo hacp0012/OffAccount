@@ -103,7 +103,7 @@ export const AccountsDashboard: React.FC<AccountsDashboardProps> = ({
   return (
     <div className="space-y-5 pb-24">
       {/* Net Wealth Multi-Currency Hero Card */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-800 via-emerald-900 to-slate-950 text-white rounded-3xl p-5 sm:p-6 shadow-md border border-emerald-950">
+      <div className="relative overflow-hidden bg-emerald-900 text-white rounded-3xl p-5 sm:p-6 shadow-md">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
@@ -117,21 +117,21 @@ export const AccountsDashboard: React.FC<AccountsDashboardProps> = ({
             
             {/* Display the 3 distinct currencies cleanly */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-              <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-3 border border-white/10">
+              <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-3">
                 <span className="text-[11px] text-emerald-200 block font-medium">Franc Rwandais</span>
                 <div className="text-lg sm:text-xl font-black tabular-nums tracking-tight mt-0.5">
                   {formatMoney(netBalances.FRw, 'FRw')}
                 </div>
               </div>
 
-              <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-3 border border-white/10">
+              <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-3">
                 <span className="text-[11px] text-emerald-200 block font-medium">Franc Congolais</span>
                 <div className="text-lg sm:text-xl font-black tabular-nums tracking-tight mt-0.5">
                   {formatMoney(netBalances.FC, 'FC')}
                 </div>
               </div>
 
-              <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-3 border border-white/10">
+              <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-3">
                 <span className="text-[11px] text-emerald-200 block font-medium">Dollar US</span>
                 <div className="text-lg sm:text-xl font-black tabular-nums tracking-tight mt-0.5">
                   {formatMoney(netBalances.USD, 'USD')}
@@ -151,7 +151,7 @@ export const AccountsDashboard: React.FC<AccountsDashboardProps> = ({
             </button>
             <button
               onClick={onOpenTransfer}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-700/80 hover:bg-emerald-700 text-white font-bold text-xs border border-emerald-500/30 transition active:scale-95 cursor-pointer"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition active:scale-95 cursor-pointer"
             >
               <ArrowLeftRight className="w-4 h-4 text-emerald-200" />
               <span>Virement</span>

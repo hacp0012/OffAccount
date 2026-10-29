@@ -1,13 +1,50 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Google Sans", "Google Sans Text", "Product Sans", "Plus Jakarta Sans", Arial, sans-serif;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
+
+html {
+  color-scheme: light;
+  scrollbar-color: #94a3b8 transparent;
+  scrollbar-width: thin;
+}
+
+html.dark {
+  color-scheme: dark;
+  scrollbar-color: #475569 transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #94a3b8;
+  border: 3px solid transparent;
+  border-radius: 9999px;
+  background-clip: content-box;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background-color: #475569;
+}
 
 @layer base {
   body {
-    font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: "Google Sans", "Google Sans Text", "Product Sans", "Plus Jakarta Sans", Arial, sans-serif;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     overscroll-behavior-y: none;
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
   }
 
   input, textarea, select {
@@ -27,4 +64,62 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+div[class*="rounded"][class*="border"] {
+  border-width: 0 !important;
+}
+
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  html,
+  body,
+  #root {
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  #root > div {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  main {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  main > div {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #report-print-root {
+    width: 100% !important;
+    max-width: none !important;
+    color: black !important;
+  }
+
+  #report-print-root * {
+    color: black !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  #report-print-root tr {
+    break-inside: avoid;
+  }
 }

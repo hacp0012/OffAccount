@@ -63,13 +63,13 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
         initialType === 'income'
           ? DEFAULT_INCOME_CATEGORIES.map((c) => c.name)
           : DEFAULT_EXPENSE_CATEGORIES.map((c) => c.name);
-      setCategory(currentCategories[0] || defaultCats[0]);
+      setCategory(defaultCats[0]);
       setLabel('');
       setDate(new Date().toISOString().split('T')[0]);
       setIsQuickAddingCat(false);
       setQuickCatName('');
     }
-  }, [isOpen, initialType, preselectedAccountId, accounts, currentCategories]);
+  }, [isOpen, initialType, preselectedAccountId, accounts]);
 
   const selectedAccount = accounts.find((a) => a.id === accountId);
 

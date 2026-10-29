@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { X } from 'lucide-react';
+import { useModalHistory } from '../hooks/useModalHistory';
 
 interface ModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface ModalProps {
   description?: string;
   children: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
+  dismissible?: boolean;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -18,7 +20,9 @@ export const Modal: React.FC<ModalProps> = ({
   description,
   children,
   maxWidth = 'md',
+  dismissible = true,
 }) => {
+  const requestClose = useModalHistory(isOpen, onClose, dismissible);
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' ? window.innerWidth < 640 : false
   );
@@ -28,20 +32,6 @@ export const Modal: React.FC<ModalProps> = ({
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
 
   const maxWidthClass = {
     sm: 'sm:max-w-sm',
@@ -61,7 +51,7 @@ export const Modal: React.FC<ModalProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
             className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs"
-            onClick={onClose}
+            onClick={requestClose}
             aria-hidden="true"
           />
 
@@ -87,7 +77,7 @@ export const Modal: React.FC<ModalProps> = ({
                 ? { type: 'spring', damping: 28, stiffness: 320 }
                 : { duration: 0.18, ease: [0.16, 1, 0.3, 1] }
             }
-            className={`relative z-10 w-full ${maxWidthClass} bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 flex flex-col max-h-[92vh] overflow-hidden`}
+            className={`fixed inset-x-0 bottom-0 z-10 w-full ${maxWidthClass} bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 flex flex-col max-h-[92vh] overflow-hidden sm:relative sm:inset-auto`}
             role="dialog"
             aria-modal="true"
           >
@@ -108,13 +98,15 @@ export const Modal: React.FC<ModalProps> = ({
                   </p>
                 )}
               </div>
-              <button
-                onClick={onClose}
-                className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-                aria-label="Fermer"
-              >
-                <X className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
+              {dismissible && (
+                <button
+                  onClick={requestClose}
+                  className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                  aria-label="Fermer"
+                >
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+              )}
             </div>
 
             {/* Scrollable Content */}

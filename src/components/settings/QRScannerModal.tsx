@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Camera, X, AlertTriangle, FlipHorizontal } from "lucide-react";
+import { useModalHistory } from "../../hooks/useModalHistory";
 
 interface QRScannerModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
   onClose,
   onScan,
 }) => {
+  const requestClose = useModalHistory(isOpen, onClose);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animFrameRef = useRef<number | null>(null);
@@ -132,7 +134,7 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
             className="fixed inset-0 bg-black/75 backdrop-blur-sm"
-            onClick={onClose}
+            onClick={requestClose}
           />
 
           <motion.div
@@ -149,7 +151,7 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
                 <span>Scanner le QR Code du Pair</span>
               </div>
               <button
-                onClick={onClose}
+                onClick={requestClose}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 <X className="w-5 h-5" />
@@ -178,7 +180,7 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
                     <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-white rounded-br-xl" />
 
                     {/* Animated scan bar */}
-                    <div className="absolute inset-x-2 h-0.5 bg-gradient-to-r from-indigo-500 via-sky-400 to-indigo-500 animate-pulse top-1/2 -translate-y-1/2 shadow-[0_0_8px_#38bdf8]" />
+                    <div className="absolute inset-x-2 h-0.5 bg-sky-400 animate-pulse top-1/2 -translate-y-1/2 shadow-[0_0_8px_#38bdf8]" />
                   </div>
                 </div>
               )}
@@ -209,7 +211,7 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
 
               <button
                 type="button"
-                onClick={onClose}
+                onClick={requestClose}
                 className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition cursor-pointer"
               >
                 Fermer

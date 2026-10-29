@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { Download, Share2, PlusSquare, X } from 'lucide-react';
+import { useModalHistory } from '../hooks/useModalHistory';
 
 export const PWAInstallButton: React.FC = () => {
   const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
   const [showIOSGuide, setShowIOSGuide] = useState(false);
+  const closeIOSGuide = useModalHistory(showIOSGuide, () => setShowIOSGuide(false));
 
   // If already running in standalone mode, do not show button
   if (isInstalled) {
@@ -38,12 +40,12 @@ export const PWAInstallButton: React.FC = () => {
         </button>
 
         {showIOSGuide && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-200">
-            <div className="w-full max-w-sm rounded-3xl bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-2xl border border-slate-100 dark:border-slate-800">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-200">
+            <div className="fixed inset-x-0 bottom-0 w-full max-w-sm rounded-t-3xl sm:rounded-3xl bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-2xl border border-slate-100 dark:border-slate-800 sm:relative sm:inset-auto">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Installer OffAccount sur iPhone / iPad</h3>
                 <button
-                  onClick={() => setShowIOSGuide(false)}
+                  onClick={closeIOSGuide}
                   className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                 >
                   <X className="w-5 h-5" />
@@ -69,7 +71,7 @@ export const PWAInstallButton: React.FC = () => {
               </div>
 
               <button
-                onClick={() => setShowIOSGuide(false)}
+                onClick={closeIOSGuide}
                 className="mt-5 w-full rounded-xl bg-emerald-700 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-emerald-800 transition active:scale-98 cursor-pointer"
               >
                 Compris

@@ -3,7 +3,7 @@ import {
   exportDatabaseToJSON,
   importDatabaseFromJSON,
 } from '../../utils/formatters';
-import { seedDemoData, db } from '../../db/database';
+import { resetDatabaseToBlank, seedDemoData } from '../../db/database';
 import {
   Download,
   Upload,
@@ -19,14 +19,18 @@ import {
   Moon,
   Monitor,
   Palette,
-  ArrowRightLeft,
-  Sliders,
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  Bell,
+  Printer,
 } from 'lucide-react';
 import { SUPPORTED_CURRENCIES } from '../../utils/currencies';
 import { useAppCurrency } from '../../context/CurrencyContext';
 import { useTheme, type ThemeMode } from '../../context/ThemeContext';
 import { ConfirmModal } from '../ConfirmModal';
 import { P2PSyncSettings } from './P2PSyncSettings';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface SettingsViewProps {
   stats: {
@@ -40,8 +44,10 @@ interface SettingsViewProps {
 export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
   const { currency, currencyInfo, setCurrency } = useAppCurrency();
   const { theme, resolvedTheme, setTheme } = useTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isAdvanced = location.pathname === '/settings/advanced';
 
-  const [activeTab, setActiveTab] = useState<'general' | 'p2p'>('general');
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [notification, setNotification] = useState<{
@@ -57,30 +63,32 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
 
   const handleExport = async () => {
     setIsExporting(true);
+    let downloadUrl: string | null = null;
     try {
       const jsonContent = await exportDatabaseToJSON();
       const blob = new Blob([jsonContent], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
+      downloadUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
       const now = new Date();
       const dateTag = now.toISOString().split('T')[0];
-      link.href = url;
+      link.href = downloadUrl;
       link.download = `offaccount-sauvegarde-${dateTag}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url);
 
       setNotification({
         type: 'success',
         message: 'Sauvegarde JSON téléchargée avec succès sur votre appareil.',
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setNotification({
         type: 'error',
-        message: `Erreur d'exportation : ${err.message || 'Échec du téléchargement.'}`,
+        message: `Erreur d'exportation : ${err instanceof Error ? err.message : 'Échec du téléchargement.'}`,
       });
     } finally {
+      const urlToRevoke = downloadUrl;
+      if (urlToRevoke) window.setTimeout(() => URL.revokeObjectURL(urlToRevoke), 1000);
       setIsExporting(false);
     }
   };
@@ -89,91 +97,65 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const fileInput = e.currentTarget;
+    if (!window.confirm(`Importer "${file.name}" remplacera les données actuelles. Voulez-vous continuer ?`)) {
+      fileInput.value = '';
+      return;
+    }
+
     setIsImporting(true);
     try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const text = event.target?.result as string;
-        if (!text) {
-          setNotification({ type: 'error', message: 'Fichier vide ou illisible.' });
-          setIsImporting(false);
-          return;
-        }
+      const text = await file.text();
+      if (!text.trim()) {
+        setNotification({ type: 'error', message: 'Fichier vide ou illisible.' });
+        return;
+      }
 
-        const result = await importDatabaseFromJSON(text);
-        if (result.success) {
-          setNotification({ type: 'success', message: result.message });
-        } else {
-          setNotification({ type: 'error', message: result.message });
-        }
-        setIsImporting(false);
-      };
-      reader.readAsText(file);
-    } catch (err: any) {
+      const result = await importDatabaseFromJSON(text);
+      setNotification({
+        type: result.success ? 'success' : 'error',
+        message: result.message,
+      });
+    } catch (err: unknown) {
       setNotification({
         type: 'error',
-        message: `Erreur lors de l'import : ${err.message}`,
+        message: `Erreur lors de l'import : ${err instanceof Error ? err.message : 'Fichier illisible.'}`,
       });
-      setIsImporting(false);
     } finally {
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      setIsImporting(false);
+      fileInput.value = '';
     }
   };
 
   const executeResetToDemo = async () => {
     try {
-      await db.transaction(
-        'rw',
-        [
-          db.accounts,
-          db.transactions,
-          db.shoppingLists,
-          db.shoppingItems,
-          db.debts,
-          db.settings,
-        ],
-        async () => {
-          await Promise.all([
-            db.accounts.clear(),
-            db.transactions.clear(),
-            db.shoppingLists.clear(),
-            db.shoppingItems.clear(),
-            db.debts.clear(),
-            db.settings.clear(),
-          ]);
-        }
-      );
+      await resetDatabaseToBlank();
       await seedDemoData();
+      setShowDemoResetConfirm(false);
       setNotification({
         type: 'success',
         message: 'Données de démonstration rechargées avec succès !',
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setNotification({
         type: 'error',
-        message: `Erreur de réinitialisation : ${err.message}`,
+        message: `Erreur de réinitialisation : ${err instanceof Error ? err.message : 'Erreur inconnue.'}`,
       });
     }
   };
 
   const executeClearAll = async () => {
     try {
-      await Promise.all([
-        db.accounts.clear(),
-        db.transactions.clear(),
-        db.shoppingLists.clear(),
-        db.shoppingItems.clear(),
-        db.debts.clear(),
-        db.settings.clear(),
-      ]);
+      await resetDatabaseToBlank();
+      setShowClearConfirm(false);
       setNotification({
         type: 'success',
-        message: 'Base de données réinitialisée à blanc.',
+        message: 'Base réinitialisée. Les catégories par défaut sont prêtes et vos données ne seront pas recréées au prochain démarrage.',
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setNotification({
         type: 'error',
-        message: `Erreur : ${err.message}`,
+        message: `Erreur : ${err instanceof Error ? err.message : 'Erreur inconnue.'}`,
       });
     }
   };
@@ -207,50 +189,33 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
   return (
     <div className="space-y-3.5 sm:space-y-5 pb-20 max-w-4xl mx-auto">
       {/* Title */}
-      <div>
+      <div className="flex items-start justify-between gap-3">
+        <div>
         <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Paramètres & Personnalisation
+          {isAdvanced ? 'Paramètres avancés' : 'Paramètres standards'}
         </h1>
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Thème visuel, devise globale, synchronisation P2P et sauvegardes de vos données.
+          {isAdvanced
+            ? 'Synchronisation, sauvegardes et réinitialisation de vos données.'
+            : 'Personnalisez le thème, la devise et les préférences de l’application.'}
         </p>
-      </div>
-
-      {/* Main Tabs: Général vs Synchronisation P2P */}
-      <div className="bg-slate-100 dark:bg-slate-800/80 rounded-2xl p-1 grid grid-cols-2 gap-1">
+        </div>
         <button
-          onClick={() => setActiveTab('general')}
-          className={`py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
-            activeTab === 'general'
-              ? 'bg-white dark:bg-slate-900 shadow-sm text-slate-900 dark:text-white'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-          }`}
+          type="button"
+          onClick={() => navigate(isAdvanced ? '/settings' : '/settings/advanced')}
+          className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 text-xs font-bold text-emerald-800 dark:text-emerald-300 shadow-xs hover:bg-emerald-50 dark:hover:bg-slate-800 transition cursor-pointer"
         >
-          <Sliders className="w-3.5 h-3.5" />
-          <span>Général & Sauvegardes</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('p2p')}
-          className={`py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
-            activeTab === 'p2p'
-              ? 'bg-white dark:bg-slate-900 shadow-sm text-slate-900 dark:text-white'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-          }`}
-        >
-          <ArrowRightLeft className="w-3.5 h-3.5" />
-          <span>Synchronisation P2P</span>
+          {isAdvanced ? <ArrowLeft className="w-4 h-4" /> : null}
+          <span>{isAdvanced ? 'Standards' : 'Avancés'}</span>
+          {!isAdvanced ? <ArrowRight className="w-4 h-4" /> : null}
         </button>
       </div>
 
-      {/* Render P2P Sync Page if activeTab is p2p */}
-      {activeTab === 'p2p' && <P2PSyncSettings />}
+      {isAdvanced && <P2PSyncSettings />}
 
-      {/* Render General Settings if activeTab is general */}
-      {activeTab === 'general' && (
-        <>
-          {/* Notification Toast */}
-          {notification && (
+      <>
+        {/* Notification Toast */}
+        {isAdvanced && notification && (
             <div
               className={`p-3 sm:p-4 rounded-2xl flex items-start gap-2.5 text-xs font-semibold shadow-xs transition-all ${
                 notification.type === 'success'
@@ -275,6 +240,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
             </div>
           )}
 
+      {!isAdvanced && <>
       {/* 1. THEME SWITCHER (Mode Clair, Sombre, Système) */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
         <div className="flex items-center gap-2.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
@@ -446,7 +412,67 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
         </div>
       </div>
 
+      {/* Advanced settings navigation */}
+      <button
+        type="button"
+        onClick={() => navigate('/reports')}
+        className="w-full p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
+      >
+        <span className="flex items-center gap-3">
+          <Printer className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+          <span>
+            <span className="block text-sm font-bold text-slate-900 dark:text-white">Rapports et impression</span>
+            <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">Filtrez et imprimez dépenses, courses ou dettes</span>
+          </span>
+        </span>
+        <ArrowRight className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+      </button>
+
+      <button
+        type="button"
+        onClick={() => navigate('/settings/notifications')}
+        className="w-full p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
+      >
+        <span className="flex items-center gap-3">
+          <Bell className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+          <span>
+            <span className="block text-sm font-bold text-slate-900 dark:text-white">Rappels et notifications</span>
+            <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">Configurez votre rappel quotidien de dépenses</span>
+          </span>
+        </span>
+        <ArrowRight className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+      </button>
+
+      <button
+        type="button"
+        onClick={() => navigate('/presentation')}
+        className="w-full p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
+      >
+        <span className="flex items-center gap-3">
+          <BookOpen className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+          <span>
+            <span className="block text-sm font-bold text-slate-900 dark:text-white">Présentation de l’application</span>
+            <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">Découvrez les principales fonctionnalités de OA</span>
+          </span>
+        </span>
+        <ArrowRight className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+      </button>
+
+      <button
+        type="button"
+        onClick={() => navigate('/settings/advanced')}
+        className="w-full p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
+      >
+        <span>
+          <span className="block text-sm font-bold text-slate-900 dark:text-white">Paramètres avancés</span>
+          <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">Synchronisation, sauvegardes et réinitialisation</span>
+        </span>
+        <ArrowRight className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+      </button>
+      </>}
+
       {/* 4. Export & Import Backup Panels */}
+      {isAdvanced && <>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
         {/* Export Panel */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
@@ -549,8 +575,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
         confirmLabel="Tout effacer"
         isDestructive={true}
       />
-        </>
-      )}
+      </>}
+      </>
     </div>
   );
 };

@@ -4,9 +4,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation, type Location } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, seedDemoData } from './db/database';
+import { AnimatePresence, motion } from 'motion/react';
+import { completeFirstRun, db, initializeDatabase } from './db/database';
 import type { ShoppingList } from './types';
 import { Navigation } from './components/Navigation';
 import { OfflineIndicator } from './components/OfflineIndicator';
@@ -17,22 +18,69 @@ import { ShoppingListsOverview } from './components/shopping/ShoppingListsOvervi
 import { ShoppingDetailView } from './components/shopping/ShoppingDetailView';
 import { DebtsView } from './components/debts/DebtsView';
 import { SettingsView } from './components/settings/SettingsView';
+import { NotificationsSettingsView } from './components/settings/NotificationsSettingsView';
+import { ReportsView } from './components/reports/ReportsView';
+import { PresentationView } from './components/PresentationView';
 import { CurrencyProvider } from './context/CurrencyContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { TransactionFormModal } from './components/accounts/TransactionFormModal';
 import { TransferModal } from './components/accounts/TransferModal';
+import { useDailyReminderScheduler } from './hooks/useDailyReminder';
+
+const PageTransition: React.FC<{
+  children: (location: Location) => React.ReactNode;
+}> = ({ children }) => {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, x: 12 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -12 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+      >
+        {children(location)}
+      </motion.div>
+    </AnimatePresence>
+  );
+};
 
 export default function App() {
   const [selectedShoppingList, setSelectedShoppingList] = useState<ShoppingList | null>(null);
+  const [initializationStatus, setInitializationStatus] = useState<
+    'loading' | 'setup' | 'ready' | 'error'
+  >('loading');
+  const [initializationError, setInitializationError] = useState<string | null>(null);
+  useDailyReminderScheduler(initializationStatus === 'ready');
 
   // Global modal triggers
   const [isNewTxOpen, setIsNewTxOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
 
-  // Initialize seed demo data on mount if database empty
+  const initializeApp = async () => {
+    setInitializationStatus('loading');
+    setInitializationError(null);
+    try {
+      const isInitialized = await initializeDatabase();
+      setInitializationStatus(isInitialized ? 'ready' : 'setup');
+    } catch (error) {
+      setInitializationError(
+        error instanceof Error ? error.message : 'Erreur inconnue lors du chargement.'
+      );
+      setInitializationStatus('error');
+    }
+  };
+
   useEffect(() => {
-    seedDemoData().catch((err) => console.error('Failed to seed demo data:', err));
+    void initializeApp();
   }, []);
+
+  const finishFirstRun = async (useDemoData: boolean) => {
+    await completeFirstRun(useDemoData);
+    setInitializationStatus('ready');
+  };
 
   // Reactive Live Queries from IndexedDB
   const accounts = useLiveQuery(() => db.accounts.toArray()) || [];
@@ -60,7 +108,7 @@ export default function App() {
     <ThemeProvider>
       <CurrencyProvider>
         <HashRouter>
-          <div className="min-h-screen bg-[#f8faf8] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans antialiased selection:bg-emerald-600 selection:text-white transition-colors duration-150">
+          <div className="h-dvh min-h-0 overflow-hidden bg-[#f8faf8] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans selection:bg-emerald-600 selection:text-white transition-colors duration-150 print:h-auto print:min-h-0 print:overflow-visible print:bg-white print:text-black">
             {/* Offline Status Badge */}
             <OfflineIndicator />
 
@@ -71,8 +119,42 @@ export default function App() {
             />
 
             {/* Main Routed Viewport - Ultra-compact margins on mobile for maximum readability */}
-            <main className="flex-1 max-w-6xl w-full mx-auto px-2 sm:px-6 pt-2 sm:pt-4">
-            <Routes>
+            <main className="flex-1 min-h-0 w-full overflow-y-auto overscroll-contain print:flex-none print:overflow-visible">
+              <div className="max-w-6xl w-full mx-auto px-2 sm:px-6 pt-2 sm:pt-4">
+            {initializationStatus === 'loading' ? (
+              <div className="py-16 text-center text-sm text-slate-500 dark:text-slate-400">
+                Préparation de votre espace…
+              </div>
+            ) : initializationStatus === 'error' ? (
+              <div className="mx-auto max-w-lg py-16 text-center">
+                <p className="text-sm font-semibold text-rose-700 dark:text-rose-300">
+                  Impossible d’ouvrir la base de données : {initializationError}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void initializeApp()}
+                  className="mt-4 rounded-xl bg-emerald-700 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-800"
+                >
+                  Réessayer
+                </button>
+              </div>
+            ) : (
+            <PageTransition>
+              {(location) => initializationStatus === 'setup' ? (
+            <Routes location={location}>
+              <Route
+                path="/presentation"
+                element={
+                  <PresentationView
+                    isFirstRun
+                    onCompleteFirstRun={finishFirstRun}
+                  />
+                }
+              />
+              <Route path="*" element={<Navigate to="/presentation" replace />} />
+            </Routes>
+              ) : (
+            <Routes location={location}>
               {/* Redirect root to expenses */}
               <Route path="/" element={<Navigate to="/expenses" replace />} />
 
@@ -148,10 +230,44 @@ export default function App() {
                   />
                 }
               />
+              <Route
+                path="/settings/advanced"
+                element={
+                  <SettingsView
+                    stats={{
+                      accountsCount: accounts.length,
+                      transactionsCount: transactions.length,
+                      shoppingListsCount: shoppingLists.length,
+                      debtsCount: debts.length,
+                    }}
+                  />
+                }
+              />
+              <Route path="/presentation" element={<PresentationView />} />
+              <Route
+                path="/settings/notifications"
+                element={<NotificationsSettingsView />}
+              />
+              <Route
+                path="/reports"
+                element={
+                  <ReportsView
+                    accounts={accounts}
+                    transactions={transactions}
+                    shoppingLists={shoppingLists}
+                    shoppingItems={shoppingItems}
+                    debts={debts}
+                  />
+                }
+              />
 
               {/* Catch-all redirect */}
               <Route path="*" element={<Navigate to="/expenses" replace />} />
             </Routes>
+              )}
+            </PageTransition>
+            )}
+              </div>
           </main>
 
           {/* Global Modals */}
