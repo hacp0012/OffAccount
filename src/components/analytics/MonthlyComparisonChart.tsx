@@ -33,28 +33,28 @@ export const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({
   const chartHeight = height - paddingBottom;
 
   return (
-    <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+      <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-3">
         <div>
-          <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white tracking-tight">
             Comparatif des 6 Derniers Mois
           </h3>
-          <p className="text-xs text-slate-400">Revenus vs Dépenses par mois</p>
+          <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500">Revenus vs Dépenses par mois</p>
         </div>
 
-        <div className="flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-emerald-600" />
-            <span className="text-slate-600 font-medium">Revenus</span>
+        <div className="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-xs">
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-xs bg-emerald-600" />
+            <span className="text-slate-600 dark:text-slate-400 font-medium">Revenus</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-rose-500" />
-            <span className="text-slate-600 font-medium">Dépenses</span>
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-xs bg-rose-500" />
+            <span className="text-slate-600 dark:text-slate-400 font-medium">Dépenses</span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-6 gap-2 pt-2 items-end h-40">
+      <div className="grid grid-cols-6 gap-1.5 sm:gap-2 pt-2 items-end h-36 sm:h-40">
         {data.map((m) => {
           const isSelected = m.monthKey === selectedMonthKey;
           const incomeHeight = Math.max(4, (m.income / maxVal) * chartHeight);
@@ -64,23 +64,23 @@ export const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({
             <div
               key={m.monthKey}
               onClick={() => onSelectMonth(m.monthKey)}
-              className={`flex flex-col items-center justify-end h-full p-1.5 rounded-2xl transition cursor-pointer ${
+              className={`flex flex-col items-center justify-end h-full p-1 sm:p-1.5 rounded-xl sm:rounded-2xl transition cursor-pointer ${
                 isSelected
-                  ? 'bg-emerald-50/80 ring-1 ring-emerald-300'
-                  : 'hover:bg-slate-50'
+                  ? 'bg-emerald-50/80 dark:bg-emerald-950/40 ring-1 ring-emerald-300 dark:ring-emerald-700'
+                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/60'
               }`}
             >
               {/* Bars side by side */}
-              <div className="flex items-end gap-1 w-full justify-center h-28">
+              <div className="flex items-end gap-1 w-full justify-center h-24 sm:h-28">
                 {/* Income Bar */}
                 <div
-                  className="w-3 sm:w-4 rounded-t-md bg-emerald-600 transition-all hover:bg-emerald-500"
+                  className="w-2.5 sm:w-4 rounded-t-md bg-emerald-600 transition-all hover:bg-emerald-500"
                   style={{ height: `${incomeHeight}px` }}
                   title={`Revenus ${m.monthLabel}: ${formatMoney(m.income, currency)}`}
                 />
                 {/* Expense Bar */}
                 <div
-                  className="w-3 sm:w-4 rounded-t-md bg-rose-500 transition-all hover:bg-rose-400"
+                  className="w-2.5 sm:w-4 rounded-t-md bg-rose-500 transition-all hover:bg-rose-400"
                   style={{ height: `${expenseHeight}px` }}
                   title={`Dépenses ${m.monthLabel}: ${formatMoney(m.expense, currency)}`}
                 />
@@ -88,8 +88,10 @@ export const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({
 
               {/* Month label */}
               <span
-                className={`text-[10px] sm:text-xs mt-2 truncate font-bold ${
-                  isSelected ? 'text-emerald-800 font-extrabold' : 'text-slate-500'
+                className={`text-[9px] sm:text-xs mt-1.5 sm:mt-2 truncate font-bold ${
+                  isSelected
+                    ? 'text-emerald-700 dark:text-emerald-400 font-extrabold'
+                    : 'text-slate-500 dark:text-slate-400'
                 }`}
               >
                 {m.monthLabel.split(' ')[0]}

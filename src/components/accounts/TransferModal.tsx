@@ -116,20 +116,20 @@ export const TransferModal: React.FC<TransferModalProps> = ({
       title="Transférer des fonds"
       description="Déplacez de l'argent entre vos comptes (ex: Banque ➔ Mobile Money / Espèces)."
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
         {/* Source Account */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Compte d'origine (débité) *
           </label>
           <select
             value={fromAccountId}
             onChange={(e) => setFromAccountId(e.target.value)}
             required
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-white"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
           >
             {accounts.map((acc) => (
-              <option key={acc.id} value={acc.id}>
+              <option key={acc.id} value={acc.id} className="dark:bg-slate-800 text-slate-900 dark:text-white">
                 {acc.name} — Solde: {formatMoney(acc.balance, acc.currency)}
               </option>
             ))}
@@ -138,7 +138,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
 
         {/* Visual arrow connector */}
         <div className="flex justify-center -my-1">
-          <div className="p-2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+          <div className="p-2 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800">
             <ArrowDown className="w-4 h-4 sm:hidden" />
             <ArrowRight className="w-4 h-4 hidden sm:block" />
           </div>
@@ -146,19 +146,19 @@ export const TransferModal: React.FC<TransferModalProps> = ({
 
         {/* Destination Account */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Compte de destination (crédité) *
           </label>
           <select
             value={toAccountId}
             onChange={(e) => setToAccountId(e.target.value)}
             required
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-white"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
           >
             {accounts
               .filter((acc) => acc.id !== fromAccountId)
               .map((acc) => (
-                <option key={acc.id} value={acc.id}>
+                <option key={acc.id} value={acc.id} className="dark:bg-slate-800 text-slate-900 dark:text-white">
                   {acc.name} — Solde: {formatMoney(acc.balance, acc.currency)}
                 </option>
               ))}
@@ -167,7 +167,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
 
         {/* Amount to transfer */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Montant débité {fromAcc ? `(${fromAcc.currency})` : ''} *
           </label>
           <input
@@ -178,17 +178,17 @@ export const TransferModal: React.FC<TransferModalProps> = ({
             placeholder="0"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-base font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
           />
         </div>
 
         {/* If different currencies, ask for received amount */}
         {isDifferentCurrency && (
-          <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200">
-            <label className="block text-xs font-bold text-amber-900 mb-1">
+          <div className="p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800">
+            <label className="block text-xs font-bold text-amber-900 dark:text-amber-300 mb-1">
               Montant reçu sur le compte cible ({toAcc?.currency}) *
             </label>
-            <p className="text-[11px] text-amber-700 mb-2">
+            <p className="text-[11px] text-amber-700 dark:text-amber-400 mb-2">
               Conversion de devise : précisez le montant effectif reçu après change ou frais.
             </p>
             <input
@@ -199,14 +199,14 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               placeholder="Montant après conversion"
               value={receivedAmount}
               onChange={(e) => setReceivedAmount(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl border border-amber-300 bg-white text-sm font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
+              className="w-full px-3.5 py-2 rounded-xl border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
             />
           </div>
         )}
 
         {/* Date */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Date du virement
           </label>
           <input
@@ -214,13 +214,13 @@ export const TransferModal: React.FC<TransferModalProps> = ({
             required
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-white"
+            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
           />
         </div>
 
         {/* Notes */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Motif / Référence (optionnel)
           </label>
           <input
@@ -228,7 +228,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
             placeholder="ex: Retrait distributeur pour espèces du week-end"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
           />
         </div>
 
@@ -237,14 +237,14 @@ export const TransferModal: React.FC<TransferModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+            className="flex-1 py-2.5 sm:py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
           >
             Annuler
           </button>
           <button
             type="submit"
             disabled={isSaving || !amount || fromAccountId === toAccountId}
-            className="flex-1 py-3 text-sm font-bold text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 rounded-xl shadow-sm transition active:scale-98 cursor-pointer"
+            className="flex-1 py-2.5 sm:py-3 text-sm font-bold text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 rounded-xl shadow-sm transition active:scale-98 cursor-pointer"
           >
             {isSaving ? 'Traitement...' : 'Effectuer le virement'}
           </button>

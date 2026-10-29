@@ -144,23 +144,23 @@ export const PayAndRecordModal: React.FC<PayAndRecordModalProps> = ({
     >
       <form onSubmit={handleConfirm} className="space-y-4">
         {/* Recapitulation box */}
-        <div className="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 flex items-center justify-between">
+        <div className="p-3 sm:p-3.5 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800 flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-emerald-800">
+            <span className="text-xs font-bold text-emerald-900 dark:text-emerald-300">
               Total à payer ({itemsToPay.length} article{itemsToPay.length > 1 ? 's' : ''})
             </span>
-            <p className="text-[11px] text-emerald-700 mt-0.5">
+            <p className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5">
               {checkedItems.length > 0 ? 'Articles cochés uniquement' : 'Tous les articles de la liste'}
             </p>
           </div>
-          <div className="text-lg font-black text-emerald-950 tabular-nums">
+          <div className="text-base sm:text-lg font-black text-emerald-950 dark:text-emerald-200 tabular-nums">
             {formatMoney(calculatedTotal, list.currency)}
           </div>
         </div>
 
         {/* Selected payment account */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Compte de paiement (débité) *
           </label>
           <div className="relative">
@@ -168,10 +168,10 @@ export const PayAndRecordModal: React.FC<PayAndRecordModalProps> = ({
               value={selectedAccountId}
               onChange={(e) => setSelectedAccountId(e.target.value)}
               required
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-white"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             >
               {accounts.map((acc) => (
-                <option key={acc.id} value={acc.id}>
+                <option key={acc.id} value={acc.id} className="dark:bg-slate-800">
                   {acc.name} ({acc.currency}) — Solde: {formatMoney(acc.balance, acc.currency)}
                 </option>
               ))}
@@ -181,7 +181,7 @@ export const PayAndRecordModal: React.FC<PayAndRecordModalProps> = ({
 
         {/* Custom amount override if actual register ticket slightly differed */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Montant effectif payé ({list.currency}) *
           </label>
           <input
@@ -191,16 +191,16 @@ export const PayAndRecordModal: React.FC<PayAndRecordModalProps> = ({
             required
             value={customTotal}
             onChange={(e) => setCustomTotal(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-base font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
           />
-          <p className="text-[11px] text-slate-400 mt-1">
+          <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-1">
             Vous pouvez ajuster le montant réel si le ticket de caisse diffère légèrement.
           </p>
         </div>
 
         {/* Reimbursement / Debt Module Interconnection */}
-        <div className="pt-2 border-t border-slate-100">
-          <label className="flex items-start gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200/80 cursor-pointer hover:bg-slate-100/70 transition">
+        <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+          <label className="flex items-start gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800 transition">
             <input
               type="checkbox"
               checked={enableReimbursement}
@@ -208,24 +208,24 @@ export const PayAndRecordModal: React.FC<PayAndRecordModalProps> = ({
               className="mt-1 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
             />
             <div>
-              <span className="text-xs font-bold text-slate-900 block">
+              <span className="text-xs font-bold text-slate-900 dark:text-white block">
                 Isoler une part à rembourser (Créance)
               </span>
-              <span className="text-[11px] text-slate-500">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">
                 Avez-vous acheté des articles pour quelqu'un d'autre ? Une fiche sera créée dans le module Dettes.
               </span>
             </div>
           </label>
 
           {enableReimbursement && (
-            <div className="mt-3 p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-3 animate-in fade-in duration-150">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
-                <UserPlus className="w-4 h-4 text-amber-700" />
+            <div className="mt-3 p-3.5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800 space-y-3 animate-in fade-in duration-150">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-300">
+                <UserPlus className="w-4 h-4 text-amber-700 dark:text-amber-400" />
                 <span>Détails du débiteur (qui doit vous rembourser)</span>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-amber-950 mb-1">
+                <label className="block text-xs font-semibold text-amber-950 dark:text-amber-200 mb-1">
                   Nom de la personne *
                 </label>
                 <input
@@ -234,13 +234,13 @@ export const PayAndRecordModal: React.FC<PayAndRecordModalProps> = ({
                   placeholder="ex: Patrick, Voisin, Collègue..."
                   value={debtPersonName}
                   onChange={(e) => setDebtPersonName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-amber-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-2 rounded-xl border border-amber-200 dark:border-amber-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-semibold text-amber-950 mb-1">
+                  <label className="block text-xs font-semibold text-amber-950 dark:text-amber-200 mb-1">
                     Montant à rembourser ({list.currency}) *
                   </label>
                   <input
@@ -251,25 +251,25 @@ export const PayAndRecordModal: React.FC<PayAndRecordModalProps> = ({
                     placeholder={customTotal}
                     value={debtAmount}
                     onChange={(e) => setDebtAmount(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-amber-200 bg-white text-xs font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2 rounded-xl border border-amber-200 dark:border-amber-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-amber-950 mb-1">
+                  <label className="block text-xs font-semibold text-amber-950 dark:text-amber-200 mb-1">
                     Date limite de remboursement
                   </label>
                   <input
                     type="date"
                     value={debtDueDate}
                     onChange={(e) => setDebtDueDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-amber-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2 rounded-xl border border-amber-200 dark:border-amber-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-amber-950 mb-1">
+                <label className="block text-xs font-semibold text-amber-950 dark:text-amber-200 mb-1">
                   Téléphone (optionnel)
                 </label>
                 <input
@@ -277,7 +277,7 @@ export const PayAndRecordModal: React.FC<PayAndRecordModalProps> = ({
                   placeholder="+250 ... ou +243 ..."
                   value={debtPersonPhone}
                   onChange={(e) => setDebtPersonPhone(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-amber-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-2 rounded-xl border border-amber-200 dark:border-amber-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
             </div>
@@ -289,14 +289,14 @@ export const PayAndRecordModal: React.FC<PayAndRecordModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+            className="flex-1 py-2.5 sm:py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
           >
             Annuler
           </button>
           <button
             type="submit"
             disabled={isProcessing || !selectedAccount || (enableReimbursement && !debtPersonName.trim())}
-            className="flex-1 py-3 text-sm font-bold text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 rounded-xl shadow-sm transition active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 sm:py-3 text-sm font-bold text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 rounded-xl shadow-sm transition active:scale-98 cursor-pointer flex items-center justify-center gap-2"
           >
             <CheckCircle2 className="w-4 h-4" />
             <span>{isProcessing ? 'Enregistrement...' : 'Payer & Enregistrer'}</span>

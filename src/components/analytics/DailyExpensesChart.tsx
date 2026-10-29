@@ -36,13 +36,13 @@ export const DailyExpensesChart: React.FC<DailyExpensesChartProps> = ({
   const chartHeight = height - paddingBottom - paddingTop;
 
   return (
-    <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-3">
         <div>
-          <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white tracking-tight">
             Rythme des Dépenses Journalières
           </h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500">
             Évolution jour par jour sur le mois
           </p>
         </div>
@@ -51,20 +51,20 @@ export const DailyExpensesChart: React.FC<DailyExpensesChartProps> = ({
         <div className="text-right">
           {hoveredDay ? (
             <div>
-              <span className="text-[11px] font-semibold text-slate-500">
+              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
                 Jour {hoveredDay.day} :
               </span>{' '}
-              <span className="text-xs font-black text-rose-600 tabular-nums">
+              <span className="text-xs font-black text-rose-600 dark:text-rose-400 tabular-nums">
                 {formatMoney(hoveredDay.amount, currency)}
               </span>
-              <span className="text-[10px] text-slate-400 ml-1">
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-1">
                 ({hoveredDay.count} op.)
               </span>
             </div>
           ) : (
             <div>
-              <span className="text-[11px] font-medium text-slate-400">Moyenne :</span>{' '}
-              <span className="text-xs font-bold text-slate-700 tabular-nums">
+              <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">Moyenne :</span>{' '}
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300 tabular-nums">
                 {formatMoney(dailyAverage, currency)} / jour
               </span>
             </div>

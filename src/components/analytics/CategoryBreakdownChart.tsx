@@ -41,9 +41,9 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
 
   if (categories.length === 0 || totalExpense <= 0) {
     return (
-      <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs text-center text-slate-400 py-12">
-        <p className="text-sm font-semibold text-slate-600">Aucune dépense sur ce mois</p>
-        <p className="text-xs text-slate-400 mt-1">Vos dépenses par catégorie s'afficheront ici.</p>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs text-center text-slate-400 dark:text-slate-500 py-10 sm:py-12">
+        <p className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">Aucune dépense sur ce mois</p>
+        <p className="text-[11px] sm:text-xs text-slate-400 dark:text-slate-500 mt-1">Vos dépenses par catégorie s'afficheront ici.</p>
       </div>
     );
   }
@@ -58,13 +58,13 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
   const highlightedData = categories.find((c) => c.category === currentHighlight);
 
   return (
-    <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+      <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800 mb-3">
         <div>
-          <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white tracking-tight">
             Répartition par Catégorie
           </h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500">
             {categories.length} catégorie{categories.length > 1 ? 's' : ''} de dépenses
           </p>
         </div>
@@ -72,9 +72,9 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
         {selectedCategory && onSelectCategory && (
           <button
             onClick={() => onSelectCategory(null)}
-            className="text-xs font-semibold text-emerald-700 hover:underline cursor-pointer"
+            className="text-[11px] sm:text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer"
           >
-            Réinitialiser le filtre
+            Réinitialiser
           </button>
         )}
       </div>
@@ -162,10 +162,10 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
                 onMouseLeave={() => setHoveredCategory(null)}
                 className={`p-2 rounded-xl transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-emerald-50 ring-1 ring-emerald-300'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/60 ring-1 ring-emerald-300 dark:ring-emerald-700'
                     : isHovered
-                    ? 'bg-slate-50'
-                    : 'hover:bg-slate-50/60'
+                    ? 'bg-slate-100 dark:bg-slate-800'
+                    : 'hover:bg-slate-50 dark:hover:bg-slate-800/60'
                 }`}
               >
                 <div className="flex items-center justify-between text-xs mb-1">
@@ -174,10 +174,10 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
                       className="w-2.5 h-2.5 rounded-full shrink-0"
                       style={{ backgroundColor: color }}
                     />
-                    <span className="font-bold text-slate-800 truncate">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 truncate">
                       {cat.category}
                     </span>
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500">
                       ({cat.count} op.)
                     </span>
                   </div>

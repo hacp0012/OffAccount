@@ -117,19 +117,19 @@ export const DebtFormModal: React.FC<DebtFormModalProps> = ({
       }
       description="Consignez les engagements financiers avec vos proches ou créanciers."
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
         {/* Direction Switcher: They owe me vs I owe them */}
-        <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-xl">
+        <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
           <button
             type="button"
             onClick={() => setDirection('they_owe_me')}
             className={`flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition cursor-pointer ${
               direction === 'they_owe_me'
-                ? 'bg-white text-emerald-800 shadow-xs'
-                : 'text-slate-500 hover:text-slate-800'
+                ? 'bg-white dark:bg-slate-700 text-emerald-800 dark:text-emerald-300 shadow-xs'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
-            <ArrowDownLeft className="w-4 h-4 text-emerald-600" />
+            <ArrowDownLeft className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>On me doit (Créance)</span>
           </button>
           <button
@@ -137,18 +137,18 @@ export const DebtFormModal: React.FC<DebtFormModalProps> = ({
             onClick={() => setDirection('i_owe_them')}
             className={`flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition cursor-pointer ${
               direction === 'i_owe_them'
-                ? 'bg-white text-rose-700 shadow-xs'
-                : 'text-slate-500 hover:text-slate-800'
+                ? 'bg-white dark:bg-slate-700 text-rose-700 dark:text-rose-300 shadow-xs'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
-            <ArrowUpRight className="w-4 h-4 text-rose-600" />
+            <ArrowUpRight className="w-4 h-4 text-rose-600 dark:text-rose-400" />
             <span>Je dois (Dette)</span>
           </button>
         </div>
 
         {/* Person Name */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Nom de la personne ou entreprise *
           </label>
           <input
@@ -157,14 +157,14 @@ export const DebtFormModal: React.FC<DebtFormModalProps> = ({
             placeholder="ex: Jean de Dieu, Marie, Garage Central..."
             value={personName}
             onChange={(e) => setPersonName(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
           />
         </div>
 
         {/* Amount & Currency */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
               Montant total *
             </label>
             <input
@@ -175,17 +175,17 @@ export const DebtFormModal: React.FC<DebtFormModalProps> = ({
               placeholder="0"
               value={totalAmount}
               onChange={(e) => setTotalAmount(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-base font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
               Devise
             </label>
-            <div className="h-[42px] px-3.5 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between text-xs">
-              <span className="text-slate-500 font-medium">Devise active :</span>
-              <span className="font-black text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-md">
+            <div className="h-[42px] px-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 rounded-xl flex items-center justify-between text-xs">
+              <span className="text-slate-500 dark:text-slate-400 font-medium">Devise active :</span>
+              <span className="font-black text-emerald-800 dark:text-emerald-300 bg-emerald-100/70 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md">
                 {currency}
               </span>
             </div>
@@ -195,7 +195,7 @@ export const DebtFormModal: React.FC<DebtFormModalProps> = ({
         {/* Phone & Due Date */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
               Numéro de téléphone (optionnel)
             </label>
             <input
@@ -203,26 +203,26 @@ export const DebtFormModal: React.FC<DebtFormModalProps> = ({
               placeholder="+250 ... / +243 ..."
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
               Date limite convenue
             </label>
             <input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition bg-white"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             />
           </div>
         </div>
 
         {/* Notes */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Motif / Contexte
           </label>
           <input
@@ -230,7 +230,7 @@ export const DebtFormModal: React.FC<DebtFormModalProps> = ({
             placeholder="ex: Prêt d'urgence pour frais scolaires"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
           />
         </div>
 
@@ -239,14 +239,14 @@ export const DebtFormModal: React.FC<DebtFormModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+            className="flex-1 py-2.5 sm:py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
           >
             Annuler
           </button>
           <button
             type="submit"
             disabled={isSaving || !personName.trim() || !totalAmount}
-            className="flex-1 py-3 text-sm font-bold text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 rounded-xl shadow-sm transition active:scale-98 cursor-pointer"
+            className="flex-1 py-2.5 sm:py-3 text-sm font-bold text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 rounded-xl shadow-sm transition active:scale-98 cursor-pointer"
           >
             {isSaving ? 'Enregistrement...' : debtToEdit ? 'Mettre à jour' : 'Créer la fiche'}
           </button>

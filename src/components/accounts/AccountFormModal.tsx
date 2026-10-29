@@ -98,10 +98,10 @@ export const AccountFormModal: React.FC<AccountFormModalProps> = ({
       title={accountToEdit ? 'Modifier le compte' : 'Créer un nouveau compte'}
       description="Ajoutez un portefeuille Mobile Money, compte bancaire ou poche d'espèces."
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
         {/* Account Name */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Nom du compte *
           </label>
           <input
@@ -110,42 +110,42 @@ export const AccountFormModal: React.FC<AccountFormModalProps> = ({
             placeholder="ex: MTN MoMo, Airtel Money, Espèces..."
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
           />
         </div>
 
         {/* Account Type & Global Currency */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
               Type de compte
             </label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value as AccountType)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-white"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             >
-              <option value="mobile_money">Mobile Money</option>
-              <option value="bank">Compte Bancaire</option>
-              <option value="cash">Espèces (Cash)</option>
-              <option value="savings">Épargne / Coffre</option>
+              <option value="mobile_money" className="dark:bg-slate-800">Mobile Money</option>
+              <option value="bank" className="dark:bg-slate-800">Compte Bancaire</option>
+              <option value="cash" className="dark:bg-slate-800">Espèces (Cash)</option>
+              <option value="savings" className="dark:bg-slate-800">Épargne / Coffre</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
               Devise (Définie dans Paramètres)
             </label>
-            <div className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-emerald-800 flex items-center justify-between">
+            <div className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-sm font-bold text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
               <span>{currencyInfo.name}</span>
-              <span className="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-900">{currency}</span>
+              <span className="text-xs px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200">{currency}</span>
             </div>
           </div>
         </div>
 
         {/* Balance Input */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Solde {accountToEdit ? 'actuel' : 'initial'} ({currency})
           </label>
           <input
@@ -153,13 +153,13 @@ export const AccountFormModal: React.FC<AccountFormModalProps> = ({
             step="any"
             value={balance}
             onChange={(e) => setBalance(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-semibold tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
           />
         </div>
 
         {/* Color picker */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
             Couleur d'identification
           </label>
           <div className="flex flex-wrap gap-2">
@@ -170,7 +170,7 @@ export const AccountFormModal: React.FC<AccountFormModalProps> = ({
                 onClick={() => setColor(c.value)}
                 style={{ backgroundColor: c.value }}
                 className={`w-7 h-7 rounded-full transition-all cursor-pointer ${
-                  color === c.value ? 'ring-2 ring-offset-2 ring-slate-900 scale-110' : 'opacity-80 hover:opacity-100'
+                  color === c.value ? 'ring-2 ring-offset-2 ring-slate-900 dark:ring-offset-slate-900 dark:ring-white scale-110' : 'opacity-80 hover:opacity-100'
                 }`}
                 title={c.label}
               />
@@ -180,7 +180,7 @@ export const AccountFormModal: React.FC<AccountFormModalProps> = ({
 
         {/* Notes */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Notes / Remarques (optionnel)
           </label>
           <input
@@ -188,7 +188,7 @@ export const AccountFormModal: React.FC<AccountFormModalProps> = ({
             placeholder="ex: Numéro SIM ou agence"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
           />
         </div>
 
@@ -197,14 +197,14 @@ export const AccountFormModal: React.FC<AccountFormModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+            className="flex-1 py-2.5 sm:py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
           >
             Annuler
           </button>
           <button
             type="submit"
             disabled={isSaving || !name.trim()}
-            className="flex-1 py-3 text-sm font-bold text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 rounded-xl shadow-sm transition active:scale-98 cursor-pointer"
+            className="flex-1 py-2.5 sm:py-3 text-sm font-bold text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 rounded-xl shadow-sm transition active:scale-98 cursor-pointer"
           >
             {isSaving ? 'Enregistrement...' : accountToEdit ? 'Mettre à jour' : 'Créer le compte'}
           </button>
