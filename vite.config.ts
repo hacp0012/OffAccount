@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(() => {
   return {
-    base: '/OffAccount/',
+    base: './',
     plugins: [
       react(),
       tailwindcss(),
