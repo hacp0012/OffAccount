@@ -8,7 +8,6 @@ import {
   Download,
   Upload,
   RotateCcw,
-  ShieldCheck,
   Database,
   CheckCircle,
   AlertTriangle,
@@ -16,14 +15,15 @@ import {
   Sparkles,
   Coins,
   Check,
-  Search,
-  ArrowRightLeft,
-  Settings2,
+  Sun,
+  Moon,
+  Monitor,
+  Palette,
 } from 'lucide-react';
-import { SUPPORTED_CURRENCIES, type CurrencyInfo } from '../../utils/currencies';
+import { SUPPORTED_CURRENCIES } from '../../utils/currencies';
 import { useAppCurrency } from '../../context/CurrencyContext';
+import { useTheme, type ThemeMode } from '../../context/ThemeContext';
 import { ConfirmModal } from '../ConfirmModal';
-import { P2PSyncSettings } from './P2PSyncSettings';
 
 interface SettingsViewProps {
   stats: {
@@ -34,13 +34,10 @@ interface SettingsViewProps {
   };
 }
 
-type SettingsTab = 'general' | 'p2p';
-
 export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
   const { currency, currencyInfo, setCurrency } = useAppCurrency();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('general');
+  const { theme, resolvedTheme, setTheme } = useTheme();
 
-  const [currencySearch, setCurrencySearch] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [notification, setNotification] = useState<{
@@ -53,18 +50,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Filter currencies by search
-  const filteredCurrencies = SUPPORTED_CURRENCIES.filter((c) => {
-    if (!currencySearch.trim()) return true;
-    const q = currencySearch.toLowerCase();
-    return (
-      c.code.toLowerCase().includes(q) ||
-      c.name.toLowerCase().includes(q) ||
-      c.region.toLowerCase().includes(q) ||
-      c.symbol.toLowerCase().includes(q)
-    );
-  });
 
   const handleExport = async () => {
     setIsExporting(true);
@@ -189,165 +174,132 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
     }
   };
 
+  const themeOptions: {
+    mode: ThemeMode;
+    label: string;
+    description: string;
+    icon: typeof Sun;
+  }[] = [
+    {
+      mode: 'light',
+      label: 'Mode Clair',
+      description: 'Interface lumineuse et vive',
+      icon: Sun,
+    },
+    {
+      mode: 'dark',
+      label: 'Mode Sombre',
+      description: 'Confort visuel et économie batterie',
+      icon: Moon,
+    },
+    {
+      mode: 'system',
+      label: 'Mode Système',
+      description: `Suit l'appareil (${resolvedTheme === 'dark' ? 'Sombre' : 'Clair'})`,
+      icon: Monitor,
+    },
+  ];
+
   return (
-    <div className="space-y-6 pb-24 max-w-4xl mx-auto">
+    <div className="space-y-3.5 sm:space-y-5 pb-20 max-w-4xl mx-auto">
       {/* Title */}
       <div>
-        <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-          Paramètres & Configuration
+        <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          Paramètres & Personnalisation
         </h1>
-        <p className="text-xs text-slate-500">
-          Gérez votre devise, vos sauvegardes et la synchronisation entre appareils.
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Thème visuel, devise globale et sauvegardes de vos données.
         </p>
       </div>
-
-      {/* Tab Navigation */}
-      <div className="bg-slate-100 rounded-2xl p-1 grid grid-cols-2 gap-1">
-        <button
-          onClick={() => setActiveTab('general')}
-          className={`py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
-            activeTab === 'general'
-              ? 'bg-white shadow-sm text-slate-900'
-              : 'text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          <Settings2 className="w-3.5 h-3.5" />
-          Paramètres
-        </button>
-        <button
-          onClick={() => setActiveTab('p2p')}
-          className={`py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
-            activeTab === 'p2p'
-              ? 'bg-white shadow-sm text-slate-900'
-              : 'text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          <ArrowRightLeft className="w-3.5 h-3.5" />
-          Sync P2P
-        </button>
-      </div>
-
-      {/* Render P2P tab directly */}
-      {activeTab === 'p2p' && <P2PSyncSettings />}
-
-      {/* Render general settings only when on that tab */}
-      {activeTab === 'general' && <>
 
       {/* Notification Toast */}
       {notification && (
         <div
-          className={`p-4 rounded-2xl flex items-start gap-3 text-xs font-semibold shadow-xs transition-all ${
+          className={`p-3 sm:p-4 rounded-2xl flex items-start gap-2.5 text-xs font-semibold shadow-xs transition-all ${
             notification.type === 'success'
-              ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
-              : 'bg-rose-50 text-rose-900 border border-rose-200'
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800'
+              : 'bg-rose-50 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200 border border-rose-200 dark:border-rose-800'
           }`}
         >
           {notification.type === 'success' ? (
-            <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
           ) : (
-            <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+            <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
           )}
           <div className="flex-1">
             <span>{notification.message}</span>
           </div>
           <button
             onClick={() => setNotification(null)}
-            className="text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-xs cursor-pointer"
           >
             Fermer
           </button>
         </div>
       )}
 
-      {/* 1. Global Currency Selector (MANDATORY REQUIREMENT) */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
-        <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
-            <Coins className="w-5 h-5" />
+      {/* 1. THEME SWITCHER (Mode Clair, Sombre, Système) */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+        <div className="flex items-center gap-2.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-900">
-              Devise Globale de l'Application
+            <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+              Thème de l'Application
             </h2>
-            <p className="text-xs text-slate-500">
-              L'application utilisera cette unique devise pour tous vos comptes, dépenses, courses et dettes.
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
+              Basculez entre le mode clair, le mode sombre ou l'adaptation automatique au système.
             </p>
           </div>
         </div>
 
-        {/* Current Active Currency Banner */}
-        <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-semibold text-emerald-800 uppercase tracking-wide block">
-              Devise activement sélectionnée
-            </span>
-            <div className="text-lg font-black text-emerald-950 mt-0.5 flex items-center gap-2">
-              <span>{currencyInfo.name}</span>
-              <span className="text-xs px-2 py-0.5 rounded-md bg-emerald-200/80 text-emerald-900 font-bold">
-                {currencyInfo.code} ({currencyInfo.symbol})
-              </span>
-            </div>
-            {currencyInfo.region && (
-              <span className="text-xs text-emerald-700 block mt-0.5">
-                Région : {currencyInfo.region}
-              </span>
-            )}
-          </div>
-          <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-sm">
-            {currencyInfo.symbol}
-          </div>
-        </div>
-
-        {/* Search for currencies */}
-        <div className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Rechercher une devise (ex: Franc, Dollar, Euro, CFA, KSh...)..."
-            value={currencySearch}
-            onChange={(e) => setCurrencySearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-          />
-        </div>
-
-        {/* Grid of Currencies to choose from */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-72 overflow-y-auto no-scrollbar p-1">
-          {filteredCurrencies.map((c) => {
-            const isSelected = c.code === currency;
+        {/* 3 Theme Options Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {themeOptions.map((opt) => {
+            const isSelected = theme === opt.mode;
+            const Icon = opt.icon;
 
             return (
               <button
                 type="button"
-                key={c.code}
-                onClick={() => setCurrency(c.code)}
-                className={`p-3 rounded-2xl text-left border transition-all cursor-pointer flex items-center justify-between gap-2 ${
+                key={opt.mode}
+                onClick={() => setTheme(opt.mode)}
+                className={`p-3 rounded-xl sm:rounded-2xl text-left border transition-all cursor-pointer flex sm:flex-col items-center sm:items-start justify-between sm:justify-start gap-2.5 ${
                   isSelected
-                    ? 'border-emerald-600 bg-emerald-50 ring-2 ring-emerald-500/20'
-                    : 'border-slate-200/80 hover:border-slate-300 hover:bg-slate-50'
+                    ? 'border-emerald-600 dark:border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 ring-2 ring-emerald-500/20'
+                    : 'border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-slate-900 truncate">
-                      {c.name}
-                    </span>
+                <div className="flex items-center sm:items-start gap-2.5 min-w-0">
+                  <div
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                      isSelected
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
                   </div>
-                  <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-0.5">
-                    <span className="font-semibold text-emerald-700">{c.code}</span>
-                    <span aria-hidden="true">·</span>
-                    <span>{c.symbol}</span>
-                    {c.region && (
-                      <>
-                        <span aria-hidden="true">·</span>
-                        <span className="truncate max-w-[90px]">{c.region}</span>
-                      </>
-                    )}
+                  <div>
+                    <span
+                      className={`text-xs font-bold block ${
+                        isSelected
+                          ? 'text-emerald-900 dark:text-emerald-200'
+                          : 'text-slate-900 dark:text-white'
+                      }`}
+                    >
+                      {opt.label}
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
+                      {opt.description}
+                    </span>
                   </div>
                 </div>
 
                 {isSelected && (
-                  <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                    <Check className="w-3 h-3 stroke-[3]" />
+                  <div className="w-4 h-4 sm:self-end rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                    <Check className="w-2.5 h-2.5 stroke-[3]" />
                   </div>
                 )}
               </button>
@@ -356,70 +308,119 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
         </div>
       </div>
 
-      {/* 2. Database Stats Card */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs">
-        <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-          <div className="w-10 h-10 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center">
-            <Database className="w-5 h-5" />
+      {/* 2. Global Currency Selector - Compact Dropdown */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+        <div className="flex items-center gap-2.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <Coins className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-slate-900">
+            <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+              Devise Globale de l'Application
+            </h2>
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
+              L'application utilise cette unique devise pour tous vos comptes, dépenses, courses et dettes.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-1.5 pt-1">
+          <label htmlFor="global-currency-select" className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+            Sélectionner la devise active
+          </label>
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <select
+                id="global-currency-select"
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold text-xs sm:text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs"
+              >
+                {SUPPORTED_CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code} className="dark:bg-slate-800 dark:text-white">
+                    {c.code} - {c.name} ({c.symbol}){c.region ? ` — ${c.region}` : ''}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400 dark:text-slate-500 text-xs">
+                ▼
+              </div>
+            </div>
+            <div className="px-3.5 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-black text-xs sm:text-sm shrink-0 shadow-2xs">
+              {currencyInfo.symbol}
+            </div>
+          </div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            Devise active : <span className="font-semibold text-slate-800 dark:text-slate-200">{currencyInfo.name}</span> ({currencyInfo.code})
+            {currencyInfo.region ? ` · ${currencyInfo.region}` : ''}
+          </p>
+        </div>
+      </div>
+
+      {/* 3. Database Stats Card */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+        <div className="flex items-center gap-2.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+          <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0">
+            <Database className="w-4 h-4" />
+          </div>
+          <div>
+            <h2 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
               Stockage Local & Intégrité
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-[10px] sm:text-xs text-slate-400">
               IndexedDB local sans dépendance serveur
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 text-center">
-          <div className="p-3 rounded-2xl bg-slate-50">
-            <span className="text-xl font-black text-slate-900 tabular-nums">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-center">
+          <div className="p-2 sm:p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+            <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tabular-nums">
               {stats.accountsCount}
             </span>
-            <span className="text-[11px] font-medium text-slate-500 block mt-0.5">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 block mt-0.5">
               Comptes
             </span>
           </div>
-          <div className="p-3 rounded-2xl bg-slate-50">
-            <span className="text-xl font-black text-slate-900 tabular-nums">
+          <div className="p-2 sm:p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+            <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tabular-nums">
               {stats.transactionsCount}
             </span>
-            <span className="text-[11px] font-medium text-slate-500 block mt-0.5">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 block mt-0.5">
               Transactions
             </span>
           </div>
-          <div className="p-3 rounded-2xl bg-slate-50">
-            <span className="text-xl font-black text-slate-900 tabular-nums">
+          <div className="p-2 sm:p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+            <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tabular-nums">
               {stats.shoppingListsCount}
             </span>
-            <span className="text-[11px] font-medium text-slate-500 block mt-0.5">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 block mt-0.5">
               Listes Courses
             </span>
           </div>
-          <div className="p-3 rounded-2xl bg-slate-50">
-            <span className="text-xl font-black text-slate-900 tabular-nums">
+          <div className="p-2 sm:p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+            <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tabular-nums">
               {stats.debtsCount}
             </span>
-            <span className="text-[11px] font-medium text-slate-500 block mt-0.5">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 block mt-0.5">
               Dossiers Dettes
             </span>
           </div>
         </div>
       </div>
 
-      {/* 3. Export & Import Backup Panels */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* 4. Export & Import Backup Panels */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
         {/* Export Panel */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
           <div>
-            <div className="w-10 h-10 rounded-2xl bg-emerald-100/70 text-emerald-800 flex items-center justify-center mb-3">
-              <Download className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-xl bg-emerald-100/70 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center mb-2.5">
+              <Download className="w-4 h-4" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">
+            <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
               Sauvegarder (Export JSON)
             </h3>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Téléchargez un fichier de backup complet de vos comptes, transactions, courses et dettes.
             </p>
           </div>
@@ -427,23 +428,23 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className="mt-5 w-full py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+            className="mt-3.5 w-full py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
           >
-            <FileJson className="w-4 h-4 text-emerald-200" />
+            <FileJson className="w-3.5 h-3.5 text-emerald-200" />
             <span>{isExporting ? 'Génération...' : 'Télécharger le Backup JSON'}</span>
           </button>
         </div>
 
         {/* Import Panel */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
           <div>
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center mb-3">
-              <Upload className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 flex items-center justify-center mb-2.5">
+              <Upload className="w-4 h-4" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">
+            <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
               Restaurer (Import JSON)
             </h3>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Restaurez toutes vos données depuis une sauvegarde précédente en cas de changement de téléphone.
             </p>
           </div>
@@ -459,33 +460,33 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isImporting}
-              className="mt-5 w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-sm transition active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+              className="mt-3.5 w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold shadow-sm transition active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
             >
-              <Upload className="w-4 h-4 text-slate-300" />
+              <Upload className="w-3.5 h-3.5 text-slate-300" />
               <span>{isImporting ? 'Restauration...' : 'Sélectionner un fichier JSON'}</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* 4. Factory Reset & Demo Actions with safe Confirmation Modals */}
-      <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-3">
-        <h3 className="text-sm font-bold text-slate-900">Options de Réinitialisation</h3>
+      {/* 5. Factory Reset & Demo Actions with safe Confirmation Modals */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-2.5">
+        <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Options de Réinitialisation</h3>
 
-        <div className="flex flex-col sm:flex-row gap-2 pt-1">
+        <div className="flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => setShowDemoResetConfirm(true)}
-            className="flex-1 py-2.5 px-3 rounded-xl border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-100/70 text-emerald-800 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+            className="flex-1 py-2 px-3 rounded-xl border border-emerald-200 dark:border-emerald-800/80 bg-emerald-50/50 dark:bg-emerald-950/30 hover:bg-emerald-100/70 dark:hover:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Recharger les données de démo</span>
           </button>
 
           <button
             onClick={() => setShowClearConfirm(true)}
-            className="flex-1 py-2.5 px-3 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100/70 text-rose-800 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+            className="flex-1 py-2 px-3 rounded-xl border border-rose-200 dark:border-rose-900/80 bg-rose-50/50 dark:bg-rose-950/30 hover:bg-rose-100/70 dark:hover:bg-rose-900/40 text-rose-800 dark:text-rose-300 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-rose-600" />
+            <RotateCcw className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
             <span>Remettre la base à blanc</span>
           </button>
         </div>
@@ -511,8 +512,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
         confirmLabel="Tout effacer"
         isDestructive={true}
       />
-      </>
-      }
     </div>
   );
 };

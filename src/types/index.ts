@@ -98,7 +98,7 @@ export interface AppSettings {
 export interface Category {
   id: string;
   name: string;
-  type: 'expense' | 'income';
+  type: 'expense' | 'income' | 'shopping';
   color?: string;
   icon?: string;
   isDefault?: boolean;

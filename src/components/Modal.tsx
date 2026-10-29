@@ -48,32 +48,32 @@ export const Modal: React.FC<ModalProps> = ({
 
       {/* Modal / Bottom Sheet Box */}
       <div
-        className={`w-full ${maxWidthClass} bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-100 flex flex-col max-h-[92vh] animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-2 duration-200 overflow-hidden`}
+        className={`w-full ${maxWidthClass} bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 flex flex-col max-h-[92vh] animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-2 duration-200 overflow-hidden`}
         role="dialog"
         aria-modal="true"
       >
         {/* Mobile Grab Handle */}
-        <div className="sm:hidden pt-3 pb-1 flex justify-center">
-          <div className="w-10 h-1.5 bg-slate-200 rounded-full" />
+        <div className="sm:hidden pt-2.5 pb-0.5 flex justify-center">
+          <div className="w-10 h-1 bg-slate-200 dark:bg-slate-700 rounded-full" />
         </div>
 
         {/* Header */}
-        <div className="px-5 pt-3 pb-3 sm:pt-5 sm:pb-4 flex items-center justify-between border-b border-slate-100">
+        <div className="px-4 pt-2.5 pb-2.5 sm:px-5 sm:pt-4 sm:pb-3 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 tracking-tight">{title}</h2>
-            {description && <p className="text-xs text-slate-500 mt-0.5">{description}</p>}
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">{title}</h2>
+            {description && <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">{description}</p>}
           </div>
           <button
             onClick={onClose}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+            className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
             aria-label="Fermer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
         {/* Scrollable Content */}
-        <div className="px-5 py-4 overflow-y-auto overscroll-contain">
+        <div className="px-4 py-3 sm:px-5 sm:py-4 overflow-y-auto overscroll-contain">
           {children}
         </div>
       </div>

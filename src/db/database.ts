@@ -30,6 +30,18 @@ export const DEFAULT_INCOME_CATEGORIES: Array<{ name: string; color: string; ico
   { name: 'Autre revenu', color: '#64748b', icon: 'plus-circle' },
 ];
 
+export const DEFAULT_SHOPPING_CATEGORIES: Array<{ name: string; color: string; icon: string }> = [
+  { name: 'Épicerie', color: '#d97706', icon: 'shopping-bag' },
+  { name: 'Fruits & Légumes', color: '#16a34a', icon: 'apple' },
+  { name: 'Boucherie & Poissonnerie', color: '#dc2626', icon: 'beef' },
+  { name: 'Produits Frais & Laitiers', color: '#0284c7', icon: 'milk' },
+  { name: 'Boulangerie & Pâtisserie', color: '#ea580c', icon: 'croissant' },
+  { name: 'Boissons', color: '#06b6d4', icon: 'cup-soda' },
+  { name: 'Hygiène & Entretien', color: '#8b5cf6', icon: 'sparkles' },
+  { name: 'Maison & Bazar', color: '#4b5563', icon: 'home' },
+  { name: 'Autre rayon', color: '#64748b', icon: 'tag' },
+];
+
 export class OffMoneyDatabase extends Dexie {
   accounts!: Table<Account, string>;
   transactions!: Table<Transaction, string>;
@@ -60,8 +72,9 @@ export const db = new OffMoneyDatabase();
 export async function ensureDefaultCategories(): Promise<void> {
   try {
     const count = await db.categories.count();
+    const now = new Date().toISOString();
+
     if (count === 0) {
-      const now = new Date().toISOString();
       const defaults: Category[] = [
         ...DEFAULT_EXPENSE_CATEGORIES.map((c, i) => ({
           id: `cat_exp_${i + 1}`,
@@ -81,8 +94,32 @@ export async function ensureDefaultCategories(): Promise<void> {
           isDefault: true,
           createdAt: now,
         })),
+        ...DEFAULT_SHOPPING_CATEGORIES.map((c, i) => ({
+          id: `cat_shop_${i + 1}`,
+          name: c.name,
+          type: 'shopping' as const,
+          color: c.color,
+          icon: c.icon,
+          isDefault: true,
+          createdAt: now,
+        })),
       ];
       await db.categories.bulkAdd(defaults);
+    } else {
+      // Check if shopping categories already exist in case existing db only had expense/income
+      const shoppingCount = await db.categories.where('type').equals('shopping').count();
+      if (shoppingCount === 0) {
+        const defaults: Category[] = DEFAULT_SHOPPING_CATEGORIES.map((c, i) => ({
+          id: `cat_shop_${i + 1}`,
+          name: c.name,
+          type: 'shopping' as const,
+          color: c.color,
+          icon: c.icon,
+          isDefault: true,
+          createdAt: now,
+        }));
+        await db.categories.bulkAdd(defaults);
+      }
     }
   } catch (err) {
     console.error('Error ensuring default categories:', err);

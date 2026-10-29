@@ -119,19 +119,19 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
       title={isReceivable ? 'Enregistrer un remboursement perçu' : 'Enregistrer un paiement de dette'}
       description={`Pour le dossier de ${debt.personName}`}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
         {/* Outstanding amount recap */}
-        <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+        <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-500">Reste actuellement dû</span>
-            <div className="text-base font-extrabold text-slate-900 tabular-nums">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Reste actuellement dû</span>
+            <div className="text-base font-extrabold text-slate-900 dark:text-white tabular-nums">
               {formatMoney(debt.remainingAmount, debt.currency)}
             </div>
           </div>
           <button
             type="button"
             onClick={() => setAmount(debt.remainingAmount.toString())}
-            className="px-2.5 py-1 text-xs font-bold text-emerald-800 bg-emerald-100/70 hover:bg-emerald-200/70 rounded-lg transition cursor-pointer"
+            className="px-2.5 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100/70 dark:bg-emerald-950/60 hover:bg-emerald-200/70 dark:hover:bg-emerald-900/60 rounded-lg transition cursor-pointer"
           >
             Tout solder
           </button>
@@ -139,7 +139,7 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
 
         {/* Payment Amount */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Montant versé ({debt.currency}) *
           </label>
           <input
@@ -150,13 +150,13 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
             required
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-base font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
           />
         </div>
 
         {/* Date */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Date de l'opération
           </label>
           <input
@@ -164,13 +164,13 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
             required
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition bg-white"
+            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
           />
         </div>
 
         {/* Impact account toggle */}
-        <div className="pt-2 border-t border-slate-100">
-          <label className="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200/80 cursor-pointer">
+        <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+          <label className="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 cursor-pointer">
             <input
               type="checkbox"
               checked={impactAccount}
@@ -178,10 +178,10 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
               className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
             />
             <div className="flex-1">
-              <span className="text-xs font-bold text-slate-900 block">
+              <span className="text-xs font-bold text-slate-900 dark:text-white block">
                 {isReceivable ? 'Créditer un compte financier' : 'Débiter un compte financier'}
               </span>
-              <span className="text-[11px] text-slate-500">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">
                 {isReceivable
                   ? "L'argent perçu augmentera le solde du compte sélectionné."
                   : "Le paiement diminuera le solde du compte sélectionné."}
@@ -195,10 +195,10 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
                 value={selectedAccountId}
                 onChange={(e) => setSelectedAccountId(e.target.value)}
                 required={impactAccount}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 transition bg-white"
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 transition bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
               >
                 {accounts.map((acc) => (
-                  <option key={acc.id} value={acc.id}>
+                  <option key={acc.id} value={acc.id} className="dark:bg-slate-800">
                     {acc.name} ({acc.currency}) — Solde: {formatMoney(acc.balance, acc.currency)}
                   </option>
                 ))}
@@ -209,7 +209,7 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
 
         {/* Notes */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             Note / Référence (optionnel)
           </label>
           <input
@@ -217,7 +217,7 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
             placeholder="ex: Reçu par Mobile Money"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
           />
         </div>
 
@@ -226,14 +226,14 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+            className="flex-1 py-2.5 sm:py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
           >
             Annuler
           </button>
           <button
             type="submit"
             disabled={isProcessing || !amount}
-            className="flex-1 py-3 text-sm font-bold text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 rounded-xl shadow-sm transition active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 sm:py-3 text-sm font-bold text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 rounded-xl shadow-sm transition active:scale-98 cursor-pointer flex items-center justify-center gap-2"
           >
             <CheckCircle2 className="w-4 h-4" />
             <span>{isProcessing ? 'Enregistrement...' : 'Valider le versement'}</span>

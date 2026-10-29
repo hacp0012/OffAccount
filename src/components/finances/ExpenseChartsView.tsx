@@ -191,46 +191,46 @@ export const ExpenseChartsView: React.FC<ExpenseChartsViewProps> = ({
   const avgPerDay = daysElapsed > 0 ? totalExpense / daysElapsed : 0;
 
   return (
-    <div className="space-y-5 pb-24">
+    <div className="space-y-3.5 sm:space-y-5 pb-24">
       {/* Top Header & Back Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
           <button
             onClick={() => navigate('/expenses')}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-xs"
+            className="min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer shadow-xs"
             aria-label="Retour aux dépenses"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 h-5" />
           </button>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <h1 className="text-base sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                 Diagrammes & Analyse des Dépenses
               </h1>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
+              <span className="text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300">
                 {capitalizedMonth}
               </span>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
               Visualisation graphique et répartition ({currencyInfo.name}).
             </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setIsCatManagerOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold transition active:scale-95 cursor-pointer shadow-2xs"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold transition active:scale-95 cursor-pointer shadow-2xs"
             title="Ajouter ou modifier des catégories"
           >
-            <Tag className="w-3.5 h-3.5 text-emerald-700" />
+            <Tag className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Gérer les catégories</span>
           </button>
 
           {/* Global Active Currency Badge */}
-          <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-2xl">
-            <span className="text-xs text-emerald-800 font-medium">Devise :</span>
-            <span className="text-xs font-bold text-emerald-950">
+          <div className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 px-2.5 sm:px-3 py-1.5 rounded-xl">
+            <span className="text-[11px] sm:text-xs text-emerald-800 dark:text-emerald-300 font-medium">Devise :</span>
+            <span className="text-[11px] sm:text-xs font-bold text-emerald-950 dark:text-emerald-200">
               {currencyInfo.name} ({currency})
             </span>
           </div>
@@ -238,23 +238,23 @@ export const ExpenseChartsView: React.FC<ExpenseChartsViewProps> = ({
       </div>
 
       {/* Month Navigator Strip */}
-      <div className="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
         <button
           onClick={handlePrevMonth}
-          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-2xl border border-slate-200 hover:bg-slate-50 transition cursor-pointer text-slate-700"
+          className="min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer text-slate-700 dark:text-slate-200"
           aria-label="Mois précédent"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-4 h-4 sm:w-5 h-5" />
         </button>
 
         <div className="text-center">
           <div className="flex items-center justify-center gap-1.5">
-            <CalendarDays className="w-4 h-4 text-emerald-700" />
-            <span className="text-base font-extrabold text-slate-900">
+            <CalendarDays className="w-3.5 h-3.5 sm:w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
               {capitalizedMonth}
             </span>
           </div>
-          <span className="text-[11px] text-slate-400">
+          <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500">
             {isCurrentMonth ? 'Mois courant' : 'Mois sélectionné'}
           </span>
         </div>
@@ -263,55 +263,55 @@ export const ExpenseChartsView: React.FC<ExpenseChartsViewProps> = ({
           {!isCurrentMonth && (
             <button
               onClick={handleJumpToCurrent}
-              className="px-2.5 py-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition cursor-pointer"
+              className="px-2 py-1 sm:px-2.5 sm:py-1.5 text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 rounded-xl transition cursor-pointer"
             >
               Mois courant
             </button>
           )}
           <button
             onClick={handleNextMonth}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-2xl border border-slate-200 hover:bg-slate-50 transition cursor-pointer text-slate-700"
+            className="min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer text-slate-700 dark:text-slate-200"
             aria-label="Mois suivant"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4 sm:w-5 h-5" />
           </button>
         </div>
       </div>
 
       {/* 4 Essential Analytical Insights Strip in Global Currency */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
-          <span className="text-[11px] font-medium text-slate-400 block">Total Dépenses</span>
-          <div className="text-base sm:text-lg font-black text-rose-600 tabular-nums mt-0.5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+          <span className="text-[10px] sm:text-[11px] font-medium text-slate-400 dark:text-slate-500 block">Total Dépenses</span>
+          <div className="text-sm sm:text-lg font-black text-rose-600 dark:text-rose-400 tabular-nums mt-0.5">
             {formatMoney(totalExpense, currency)}
           </div>
-          <span className="text-[10px] text-slate-400 block mt-0.5">sur {capitalizedMonth}</span>
+          <span className="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">sur {capitalizedMonth}</span>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
-          <span className="text-[11px] font-medium text-slate-400 block">Moyenne par jour</span>
-          <div className="text-base sm:text-lg font-black text-slate-800 tabular-nums mt-0.5">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+          <span className="text-[10px] sm:text-[11px] font-medium text-slate-400 dark:text-slate-500 block">Moyenne par jour</span>
+          <div className="text-sm sm:text-lg font-black text-slate-800 dark:text-slate-100 tabular-nums mt-0.5">
             {formatMoney(avgPerDay, currency)}
           </div>
-          <span className="text-[10px] text-slate-400 block mt-0.5">sur {daysElapsed} jours</span>
+          <span className="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">sur {daysElapsed} jours</span>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
-          <span className="text-[11px] font-medium text-slate-400 block">Top Catégorie</span>
-          <div className="text-sm sm:text-base font-bold text-slate-900 truncate mt-0.5">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+          <span className="text-[10px] sm:text-[11px] font-medium text-slate-400 dark:text-slate-500 block">Top Catégorie</span>
+          <div className="text-xs sm:text-base font-bold text-slate-900 dark:text-white truncate mt-0.5">
             {topExpenseCategory ? topExpenseCategory.category : 'Aucune'}
           </div>
-          <span className="text-[10px] text-emerald-700 font-semibold block mt-0.5">
+          <span className="text-[9px] sm:text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold block mt-0.5">
             {topExpenseCategory ? `${topExpenseCategory.percentage.toFixed(0)}% du total` : '-'}
           </span>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
-          <span className="text-[11px] font-medium text-slate-400 block">Plus Grosse Dépense</span>
-          <div className="text-sm sm:text-base font-extrabold text-slate-900 tabular-nums truncate mt-0.5">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+          <span className="text-[10px] sm:text-[11px] font-medium text-slate-400 dark:text-slate-500 block">Plus Grosse Dépense</span>
+          <div className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white tabular-nums truncate mt-0.5">
             {maxSingleExpense ? formatMoney(maxSingleExpense.amount, currency) : '-'}
           </div>
-          <span className="text-[10px] text-slate-400 truncate block mt-0.5">
+          <span className="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 truncate block mt-0.5">
             {maxSingleExpense ? maxSingleExpense.label : '-'}
           </span>
         </div>

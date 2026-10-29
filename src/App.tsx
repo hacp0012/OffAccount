@@ -18,6 +18,7 @@ import { ShoppingDetailView } from './components/shopping/ShoppingDetailView';
 import { DebtsView } from './components/debts/DebtsView';
 import { SettingsView } from './components/settings/SettingsView';
 import { CurrencyProvider } from './context/CurrencyContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { TransactionFormModal } from './components/accounts/TransactionFormModal';
 import { TransferModal } from './components/accounts/TransferModal';
 
@@ -56,20 +57,21 @@ export default function App() {
     : null;
 
   return (
-    <CurrencyProvider>
-      <HashRouter>
-        <div className="min-h-screen bg-[#f8faf8] text-slate-800 flex flex-col font-sans antialiased selection:bg-emerald-600 selection:text-white">
-          {/* Offline Status Badge */}
-          <OfflineIndicator />
+    <ThemeProvider>
+      <CurrencyProvider>
+        <HashRouter>
+          <div className="min-h-screen bg-[#f8faf8] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans antialiased selection:bg-emerald-600 selection:text-white transition-colors duration-150">
+            {/* Offline Status Badge */}
+            <OfflineIndicator />
 
-          {/* Global Navigation Bar */}
-          <Navigation
-            debtsCount={activeDebtsCount}
-            shoppingActiveCount={activeShoppingCount}
-          />
+            {/* Global Navigation Bar */}
+            <Navigation
+              debtsCount={activeDebtsCount}
+              shoppingActiveCount={activeShoppingCount}
+            />
 
-          {/* Main Routed Viewport */}
-          <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-8 pt-5 sm:pt-6">
+            {/* Main Routed Viewport - Ultra-compact margins on mobile for maximum readability */}
+            <main className="flex-1 max-w-6xl w-full mx-auto px-2 sm:px-6 pt-2 sm:pt-4">
             <Routes>
               {/* Redirect root to expenses */}
               <Route path="/" element={<Navigate to="/expenses" replace />} />
@@ -167,5 +169,6 @@ export default function App() {
         </div>
       </HashRouter>
     </CurrencyProvider>
+  </ThemeProvider>
   );
 }

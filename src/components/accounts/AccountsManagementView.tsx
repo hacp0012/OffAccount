@@ -11,8 +11,6 @@ import {
   ArrowLeft,
   Plus,
   ArrowLeftRight,
-  Wallet,
-  ShieldCheck,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -45,39 +43,39 @@ export const AccountsManagementView: React.FC<AccountsManagementViewProps> = ({
   };
 
   return (
-    <div className="space-y-5 pb-24">
+    <div className="space-y-3 sm:space-y-4 pb-20">
       {/* Top Header & Navigation Back Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => navigate('/expenses')}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-xs"
+            className="min-h-[38px] min-w-[38px] flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer shadow-xs"
             aria-label="Retour aux dépenses"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4" />
           </button>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            <div className="flex items-center gap-1.5">
+              <h1 className="text-base sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                 Gestion des Comptes
               </h1>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800">
-                {accounts.length} portefeuille{accounts.length > 1 ? 's' : ''}
+              <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
+                {accounts.length}
               </span>
             </div>
-            <p className="text-xs text-slate-500">
-              Gérez vos comptes bancaires, Mobile Money et poches d'espèces.
+            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
+              Banques, Mobile Money et espèces.
             </p>
           </div>
         </div>
 
         {/* Primary Action Buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={() => setIsTransferOpen(true)}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100 text-emerald-900 text-xs font-bold transition active:scale-95 cursor-pointer"
+            className="flex items-center justify-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/70 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-900 dark:text-emerald-300 text-xs font-bold transition active:scale-95 cursor-pointer"
           >
-            <ArrowLeftRight className="w-4 h-4 text-emerald-700" />
+            <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
             <span>Virement</span>
           </button>
 
@@ -86,36 +84,36 @@ export const AccountsManagementView: React.FC<AccountsManagementViewProps> = ({
               setAccountToEdit(null);
               setIsAccountModalOpen(true);
             }}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition active:scale-95 cursor-pointer"
+            className="flex items-center justify-center gap-1 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition active:scale-95 cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
-            <span>Nouveau compte</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>Nouveau</span>
           </button>
         </div>
       </div>
 
-      {/* Net Balance Recap Strip in Active Global Currency */}
-      <div className="bg-gradient-to-br from-emerald-800 to-slate-900 text-white rounded-3xl p-5 shadow-sm flex items-center justify-between">
+      {/* Net Balance Recap Strip */}
+      <div className="bg-gradient-to-br from-emerald-800 to-slate-900 dark:from-emerald-900 dark:to-slate-950 text-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-xs flex items-center justify-between">
         <div>
-          <span className="text-xs font-bold text-emerald-300 uppercase tracking-wide block mb-1">
+          <span className="text-[10px] sm:text-xs font-bold text-emerald-300 uppercase tracking-wide block mb-0.5">
             Solde Total Global ({currencyInfo.name})
           </span>
-          <div className="text-2xl sm:text-3xl font-black tabular-nums tracking-tight">
+          <div className="text-xl sm:text-2xl font-black tabular-nums tracking-tight">
             {formatMoney(totalBalance, currency)}
           </div>
         </div>
         <div className="text-right">
-          <span className="text-xs text-emerald-200 block font-medium">
+          <span className="text-[10px] text-emerald-200 block font-medium">
             Devise active
           </span>
-          <span className="text-sm font-bold bg-white/20 px-2.5 py-1 rounded-xl tabular-nums">
+          <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-lg tabular-nums">
             {currency} ({currencyInfo.symbol})
           </span>
         </div>
       </div>
 
-      {/* Dedicated Accounts Grid (ONLY accounts, completely operational) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Dedicated Accounts Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
         {accounts.map((account) => (
           <AccountCard
             key={account.id}
@@ -134,16 +132,16 @@ export const AccountsManagementView: React.FC<AccountsManagementViewProps> = ({
             setAccountToEdit(null);
             setIsAccountModalOpen(true);
           }}
-          className="min-h-[160px] rounded-2xl border-2 border-dashed border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 p-5 flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-emerald-700 transition cursor-pointer group"
+          className="min-h-[110px] sm:min-h-[140px] rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-emerald-500 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 p-3 sm:p-4 flex flex-col items-center justify-center gap-1.5 text-slate-400 dark:text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400 transition cursor-pointer group"
         >
-          <div className="w-12 h-12 rounded-full bg-slate-100 group-hover:bg-emerald-100 flex items-center justify-center transition">
-            <Plus className="w-6 h-6 text-slate-500 group-hover:text-emerald-700" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-100 dark:bg-slate-800 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/60 flex items-center justify-center transition">
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500 dark:text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-400" />
           </div>
-          <span className="text-xs font-bold text-slate-700 group-hover:text-emerald-800">
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-emerald-800 dark:group-hover:text-emerald-300">
             Ajouter un nouveau compte
           </span>
-          <span className="text-[11px] text-slate-400 text-center max-w-[200px]">
-            Mobile Money (MTN, Airtel, M-Pesa), Banque ou Espèces
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 text-center max-w-[200px]">
+            Mobile Money, Banque ou Espèces
           </span>
         </button>
       </div>
@@ -164,7 +162,7 @@ export const AccountsManagementView: React.FC<AccountsManagementViewProps> = ({
         accounts={accounts}
       />
 
-      {/* Safe In-App Delete Confirmation Modal (Guarantees working deletion) */}
+      {/* Safe In-App Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={accountToDelete !== null}
         onClose={() => setAccountToDelete(null)}
