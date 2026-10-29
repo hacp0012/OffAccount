@@ -116,7 +116,7 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
           </button>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-xs transition active:scale-95 cursor-pointer"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-xs transition active:scale-95 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span>Nouvelle liste</span>
@@ -242,7 +242,7 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
                   <div>
                     <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 block font-medium">Coût total estimé</span>
                     <span className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tabular-nums">
-                      {formatMoney(stats.totalCost, list.currency)}
+                      {formatMoney(stats.totalCost, currency)}
                     </span>
                   </div>
 
@@ -322,6 +322,16 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
         isOpen={isCategoriesModalOpen}
         onClose={() => setIsCategoriesModalOpen(false)}
       />
+
+      {/* Mobile Floating Action Button (FAB) */}
+      <button
+        onClick={() => setIsCreateModalOpen(true)}
+        className="sm:hidden fixed bottom-20 right-4 z-30 w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-700 to-emerald-500 text-white shadow-xl shadow-emerald-950/40 flex items-center justify-center active:scale-90 transition-transform cursor-pointer border-2 border-white/20"
+        aria-label="Nouvelle liste"
+        title="Ajouter une nouvelle liste"
+      >
+        <Plus className="w-6 h-6 stroke-[2.5]" />
+      </button>
     </div>
   );
 };

@@ -27,8 +27,6 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   cancelText,
   isDestructive = true,
 }) => {
-  if (!isOpen) return null;
-
   const resolvedConfirmLabel = confirmLabel || confirmText || 'Confirmer';
   const resolvedCancelLabel = cancelLabel || cancelText || 'Annuler';
 

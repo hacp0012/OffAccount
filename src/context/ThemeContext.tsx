@@ -61,10 +61,18 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.classList.remove('dark');
     }
 
-    // Update meta theme-color for mobile status bar
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', resolvedTheme === 'dark' ? '#0f172a' : '#059669');
+    // Update meta theme-color for mobile status bar (matches background in light and dark)
+    const lightBg = '#f8faf8';
+    const darkBg = '#020617';
+    const activeColor = resolvedTheme === 'dark' ? darkBg : lightBg;
+    const metaThemeColors = document.querySelectorAll('meta[name="theme-color"]');
+    if (metaThemeColors.length > 0) {
+      metaThemeColors.forEach((m) => m.setAttribute('content', activeColor));
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      meta.content = activeColor;
+      document.head.appendChild(meta);
     }
   }, [resolvedTheme]);
 

@@ -176,8 +176,8 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
           </p>
         </div>
 
-        {/* Compact action buttons: 2x2 grid on mobile, row on tablet/desktop */}
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1.5 sm:gap-2">
+        {/* Compact action buttons: 3 columns on mobile, flex row on tablet/desktop */}
+        <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-1.5 sm:gap-2">
           {/* Button to Accounts Management Page */}
           <button
             onClick={() => navigate('/accounts')}
@@ -185,7 +185,7 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
             title="Gérer exclusivement vos comptes"
           >
             <Wallet className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
-            <span className="truncate">Comptes ({accounts.length})</span>
+            <span className="truncate">Comptes</span>
           </button>
 
           {/* Button to Categories Management */}
@@ -208,10 +208,10 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
             <span className="truncate">Graphiques</span>
           </button>
 
-          {/* New Transaction Button */}
+          {/* New Transaction Button - Hidden on mobile because FAB is shown */}
           <button
             onClick={onOpenNewTransaction}
-            className="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition active:scale-95 cursor-pointer"
+            className="hidden sm:flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition active:scale-95 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5 shrink-0" />
             <span className="truncate">Opération</span>
@@ -568,6 +568,16 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({
         isOpen={isCatManagerOpen}
         onClose={() => setIsCatManagerOpen(false)}
       />
+
+      {/* Mobile Floating Action Button (FAB) */}
+      <button
+        onClick={onOpenNewTransaction}
+        className="sm:hidden fixed bottom-20 right-4 z-30 w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-700 to-emerald-500 text-white shadow-xl shadow-emerald-950/40 flex items-center justify-center active:scale-90 transition-transform cursor-pointer border-2 border-white/20"
+        aria-label="Nouvelle opération"
+        title="Ajouter une opération"
+      >
+        <Plus className="w-6 h-6 stroke-[2.5]" />
+      </button>
     </div>
   );
 };
