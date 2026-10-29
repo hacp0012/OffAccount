@@ -1,15 +1,7 @@
-import React, { useState } from 'react';
-import {
-  ArrowDownUp,
-  ArrowRight,
-  BookOpen,
-  CheckCircle,
-  ShoppingBasket,
-  Users,
-  WalletCards,
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Modal } from './Modal';
+import React, { useState } from "react";
+import { ArrowDownUp, ArrowRight, BookOpen, CheckCircle, ShoppingBasket, Users, WalletCards } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Modal } from "./Modal";
 
 interface PresentationViewProps {
   isFirstRun?: boolean;
@@ -19,30 +11,27 @@ interface PresentationViewProps {
 const features = [
   {
     icon: ArrowDownUp,
-    title: 'Suivez vos finances',
-    description: 'Enregistrez revenus, dépenses et transferts, puis consultez leur évolution.',
+    title: "Suivez vos finances",
+    description: "Enregistrez revenus, dépenses et transferts, puis consultez leur évolution.",
   },
   {
     icon: WalletCards,
-    title: 'Gérez vos comptes',
-    description: 'Retrouvez les soldes de vos comptes et leur historique au même endroit.',
+    title: "Gérez vos comptes",
+    description: "Retrouvez les soldes de vos comptes et leur historique au même endroit.",
   },
   {
     icon: ShoppingBasket,
-    title: 'Préparez vos courses',
-    description: 'Organisez vos listes et gardez le suivi de vos achats.',
+    title: "Préparez vos courses",
+    description: "Organisez vos listes et gardez le suivi de vos achats.",
   },
   {
     icon: Users,
-    title: 'Gardez le fil des dettes',
-    description: 'Suivez les montants prêtés ou dus et leurs remboursements.',
+    title: "Gardez le fil des dettes",
+    description: "Suivez les montants prêtés ou dus et leurs remboursements.",
   },
 ];
 
-export const PresentationView: React.FC<PresentationViewProps> = ({
-  isFirstRun = false,
-  onCompleteFirstRun,
-}) => {
+export const PresentationView: React.FC<PresentationViewProps> = ({ isFirstRun = false, onCompleteFirstRun }) => {
   const navigate = useNavigate();
   const [isStarting, setIsStarting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -54,13 +43,9 @@ export const PresentationView: React.FC<PresentationViewProps> = ({
     setErrorMessage(null);
     try {
       await onCompleteFirstRun(useDemoData);
-      navigate('/expenses', { replace: true });
+      navigate("/expenses", { replace: true });
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'La configuration initiale a échoué. Veuillez réessayer.'
-      );
+      setErrorMessage(error instanceof Error ? error.message : "La configuration initiale a échoué. Veuillez réessayer.");
     } finally {
       setIsStarting(false);
     }
@@ -70,11 +55,7 @@ export const PresentationView: React.FC<PresentationViewProps> = ({
     <>
       <div className="mx-auto max-w-4xl space-y-6 pb-20">
         <section className="rounded-3xl bg-white dark:bg-slate-900 p-6 sm:p-10 text-center shadow-xs">
-          <img
-            src="/icon.png"
-            alt="OA"
-            className="mx-auto h-16 w-16 rounded-2xl object-contain"
-          />
+          <img src="./icon.png" alt="OA" className="mx-auto h-16 w-16 rounded-2xl object-contain" />
           <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-400">
             Bienvenue dans OA
           </p>
@@ -82,27 +63,20 @@ export const PresentationView: React.FC<PresentationViewProps> = ({
             Vos finances, simplement.
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-300">
-            OA vous aide à organiser vos comptes, suivre vos opérations et garder
-            une vue claire sur votre quotidien financier.
+            OA vous aide à organiser vos comptes, suivre vos opérations et garder une vue claire sur votre quotidien
+            financier.
           </p>
         </section>
 
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {features.map(({ icon: Icon, title, description }) => (
-            <article
-              key={title}
-              className="flex items-start gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 shadow-xs"
-            >
+            <article key={title} className="flex items-start gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 shadow-xs">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400">
                 <Icon className="h-5 w-5" />
               </span>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-                  {title}
-                </h2>
-                <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-                  {description}
-                </p>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">{title}</h2>
+                <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{description}</p>
               </div>
             </article>
           ))}
@@ -117,7 +91,7 @@ export const PresentationView: React.FC<PresentationViewProps> = ({
           <div className="flex justify-center">
             <button
               type="button"
-              onClick={() => navigate('/settings')}
+              onClick={() => navigate("/settings")}
               className="flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-800"
             >
               Retour aux paramètres
@@ -171,9 +145,7 @@ export const PresentationView: React.FC<PresentationViewProps> = ({
           </button>
 
           {isStarting && (
-            <p className="text-center text-xs text-slate-500 dark:text-slate-400">
-              Préparation de votre espace…
-            </p>
+            <p className="text-center text-xs text-slate-500 dark:text-slate-400">Préparation de votre espace…</p>
           )}
           {errorMessage && (
             <p role="alert" className="text-xs font-medium text-rose-700 dark:text-rose-300">

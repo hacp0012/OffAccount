@@ -27,7 +27,7 @@ export const Navigation: React.FC<NavigationProps> = ({ debtsCount = 0, shopping
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
           {/* Brand Logo & Name (Clickable to Home / Finances) */}
           <div onClick={() => navigate("/expenses")} className="flex items-center gap-0 cursor-pointer">
-            <img src="/icon.png" alt="OA" className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-contain shrink-0" />
+            <img src="./icon.png" alt="OA" className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-contain shrink-0" />
             <div>
               <span className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white block leading-tight">
                 OA
@@ -152,7 +152,6 @@ export const Navigation: React.FC<NavigationProps> = ({ debtsCount = 0, shopping
               <span className="absolute top-1 right-6 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white dark:ring-slate-900" />
             )}
           </button>
-
         </div>
       </div>
     </>
