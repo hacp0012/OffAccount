@@ -20,6 +20,7 @@ import {
   Smartphone,
   Zap,
   Info,
+  Clipboard,
 } from "lucide-react";
 import { useP2PSync, type SyncStatus } from "../../hooks/useP2PSync";
 
@@ -55,7 +56,7 @@ function getStatusConfig(status: SyncStatus): StatusConfig {
 type Mode = "emit" | "receive";
 
 export const P2PSyncSettings: React.FC = () => {
-  const { peerId, status, statusMessage, progress, mergeResult, error, connectToPeer, syncNow, reset } = useP2PSync();
+  const { peerId, connectedPeerId, status, statusMessage, progress, mergeResult, error, connectToPeer, syncNow, reset } = useP2PSync();
   const [mode, setMode] = useState<Mode>("emit");
   const [remotePeerId, setRemotePeerId] = useState("");
   const [copied, setCopied] = useState(false);
@@ -67,6 +68,15 @@ export const P2PSyncSettings: React.FC = () => {
     setTimeout(() => setCopied(false), 2000);
   }, [peerId]);
 
+  const handlePasteId = useCallback(async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) setRemotePeerId(text.trim());
+    } catch {
+      // Ignore clipboard read denial
+    }
+  }, []);
+
   const handleConnect = useCallback(() => {
     if (!remotePeerId.trim()) return;
     connectToPeer(remotePeerId.trim());
@@ -74,7 +84,7 @@ export const P2PSyncSettings: React.FC = () => {
 
   const handleSync = useCallback(async () => { await syncNow(); }, [syncNow]);
 
-  const canSync = status === "connected" || status === "ready";
+  const canSync = status === "connected";
   const isLoading = ["initializing","connecting","sending","receiving","merging"].includes(status);
   const cfg = getStatusConfig(status);
 
@@ -190,18 +200,40 @@ export const P2PSyncSettings: React.FC = () => {
                 onChange={(e) => setRemotePeerId(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleConnect()}
                 placeholder="ex: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                disabled={isLoading || status === "connected" || status === "success"}
+                disabled={isLoading || status === "connected"}
                 className="flex-1 font-mono text-xs px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-slate-50 disabled:opacity-50"
               />
-              <button onClick={handleConnect} disabled={!remotePeerId.trim() || isLoading || status === "connected" || status === "success"}
-                className="shrink-0 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-xs font-bold transition cursor-pointer flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handlePasteId}
+                disabled={isLoading || status === "connected"}
+                title="Coller depuis le presse-papier"
+                className="px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 disabled:opacity-40 text-slate-700 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5"
+              >
+                <Clipboard className="w-3.5 h-3.5 text-slate-500" />
+                <span className="hidden sm:inline">Coller</span>
+              </button>
+              <button
+                onClick={handleConnect}
+                disabled={!remotePeerId.trim() || isLoading || status === "connected"}
+                className="shrink-0 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-xs font-bold transition cursor-pointer flex items-center gap-1.5"
+              >
                 <Wifi className="w-3.5 h-3.5" />Connecter
               </button>
             </div>
           </div>
+          {connectedPeerId && (
+            <div className="p-3 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-between text-xs text-sky-800">
+              <span className="font-medium">Connecté à : <span className="font-mono text-[11px] font-bold">{connectedPeerId.slice(0, 18)}...</span></span>
+              <span className="flex items-center gap-1.5 text-[11px] text-emerald-700 font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Canal P2P Actif
+              </span>
+            </div>
+          )}
           <div className="p-3 rounded-2xl bg-amber-50 border border-amber-100 flex items-start gap-2.5 text-xs text-amber-800">
             <QrCode className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
-            <p><strong>Astuce :</strong> Scannez le QR Code affiche sur l'autre appareil avec votre scanner prefere, puis collez le texte dans le champ ci-dessus.</p>
+            <p><strong>Astuce :</strong> Affichez le QR Code sur l'autre appareil, copiez son ID ou scannez-le, puis cliquez sur <strong>Coller</strong> et <strong>Connecter</strong>.</p>
           </div>
         </div>
       )}
@@ -210,7 +242,13 @@ export const P2PSyncSettings: React.FC = () => {
       <button onClick={handleSync} disabled={!canSync || isLoading}
         className={`w-full py-4 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2.5 cursor-pointer ${canSync && !isLoading ? "bg-gradient-to-r from-indigo-600 to-sky-500 hover:from-indigo-700 hover:to-sky-600 text-white shadow-lg shadow-indigo-200 active:scale-[0.98]" : "bg-slate-100 text-slate-400 cursor-not-allowed"}`}>
         {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-        {isLoading ? "Synchronisation en cours..." : "Lancer la Synchronisation"}
+        {isLoading
+          ? "Synchronisation en cours..."
+          : status === "connected"
+          ? "Lancer la Synchronisation"
+          : status === "success"
+          ? "Synchronisation Réussie (Re-synchroniser si connecté)"
+          : "Connectez-vous d'abord à un pair pour synchroniser"}
       </button>
 
       {/* Merge result */}
