@@ -22,8 +22,8 @@ export default defineConfig(() => {
         ],
         manifest: {
           id: './',
-          name: 'OffAccount - Gestion Financière & Dépenses',
-          short_name: 'OffAccount',
+          name: 'Off.Account - Gestion Financière & Dépenses',
+          short_name: 'OA',
           description:
             'Application PWA 100% hors-ligne de gestion financière, comptes, suivi des dépenses mensuelles et graphiques en FRw, FC et USD.',
           theme_color: '#059669',
