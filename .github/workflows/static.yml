@@ -31,8 +31,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 24
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # Vite génère les fichiers de production dans le dossier 'dist'
-          path: './dist'
+          path: "./dist"
 
   # Deploy job
   deploy:
