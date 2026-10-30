@@ -35,7 +35,7 @@ export const ShoppingItemModal: React.FC<ShoppingItemModalProps> = ({
   const [quantity, setQuantity] = useState('1');
   const [unit, setUnit] = useState('pcs');
   const [unitPrice, setUnitPrice] = useState('');
-  const [category, setCategory] = useState(availableCategories[0] || 'Épicerie');
+  const [category, setCategory] = useState(availableCategories[0] || 'Autre');
   const [notes, setNotes] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -52,14 +52,14 @@ export const ShoppingItemModal: React.FC<ShoppingItemModalProps> = ({
         setQuantity(itemToEdit.quantity.toString());
         setUnit(itemToEdit.unit || 'pcs');
         setUnitPrice(itemToEdit.unitPrice ? itemToEdit.unitPrice.toString() : '');
-        setCategory(itemToEdit.category || availableCategories[0] || 'Épicerie');
+        setCategory(itemToEdit.category || availableCategories[0] || 'Autre');
         setNotes(itemToEdit.notes || '');
       } else {
         setName('');
         setQuantity('1');
         setUnit('pcs');
         setUnitPrice('');
-        setCategory(availableCategories[0] || 'Épicerie');
+        setCategory(availableCategories[0] || 'Autre');
         setNotes('');
       }
     }

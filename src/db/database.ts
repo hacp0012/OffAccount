@@ -31,15 +31,7 @@ export const DEFAULT_INCOME_CATEGORIES: Array<{ name: string; color: string; ico
 ];
 
 export const DEFAULT_SHOPPING_CATEGORIES: Array<{ name: string; color: string; icon: string }> = [
-  { name: 'Épicerie', color: '#d97706', icon: 'shopping-bag' },
-  { name: 'Fruits & Légumes', color: '#16a34a', icon: 'apple' },
-  { name: 'Boucherie & Poissonnerie', color: '#dc2626', icon: 'beef' },
-  { name: 'Produits Frais & Laitiers', color: '#0284c7', icon: 'milk' },
-  { name: 'Boulangerie & Pâtisserie', color: '#ea580c', icon: 'croissant' },
-  { name: 'Boissons', color: '#06b6d4', icon: 'cup-soda' },
-  { name: 'Hygiène & Entretien', color: '#8b5cf6', icon: 'sparkles' },
-  { name: 'Maison & Bazar', color: '#4b5563', icon: 'home' },
-  { name: 'Autre rayon', color: '#64748b', icon: 'tag' },
+  { name: 'Autre', color: '#64748b', icon: 'tag' },
 ];
 
 export class OffMoneyDatabase extends Dexie {
@@ -111,16 +103,73 @@ export async function ensureDefaultCategories(): Promise<void> {
 
     if (count === 0) {
       await db.categories.bulkAdd(createDefaultCategories());
-    } else {
-      // Check if shopping categories already exist in case existing db only had expense/income
-      const shoppingCount = await db.categories.where('type').equals('shopping').count();
-      if (shoppingCount === 0) {
-        const shoppingCategories = createDefaultCategories().filter(
-          (category) => category.type === 'shopping',
-        );
-        await db.categories.bulkAdd(shoppingCategories);
-      }
+      return;
     }
+
+    await db.transaction('rw', [db.categories, db.shoppingItems], async () => {
+      const shoppingCategories = await db.categories
+        .where('type')
+        .equals('shopping')
+        .toArray();
+      const fallbackCategory = DEFAULT_SHOPPING_CATEGORIES[0];
+      let defaultCategory = shoppingCategories.find(
+        (category) => category.name === fallbackCategory.name,
+      );
+
+      if (!defaultCategory) {
+        defaultCategory = shoppingCategories.find(
+          (category) => category.isDefault && category.name === 'Autre rayon',
+        );
+        if (defaultCategory) {
+          const legacyItems = await db.shoppingItems
+            .where('category')
+            .equals(defaultCategory.name)
+            .toArray();
+          await db.categories.update(defaultCategory.id, {
+            name: fallbackCategory.name,
+            color: fallbackCategory.color,
+            icon: fallbackCategory.icon,
+            isDefault: true,
+          });
+          await Promise.all(
+            legacyItems.map((item) =>
+              db.shoppingItems.update(item.id, { category: fallbackCategory.name }),
+            ),
+          );
+          defaultCategory = { ...defaultCategory, ...fallbackCategory, isDefault: true };
+        } else {
+          defaultCategory = {
+            id: 'cat_shop_other',
+            name: fallbackCategory.name,
+            type: 'shopping',
+            color: fallbackCategory.color,
+            icon: fallbackCategory.icon,
+            isDefault: true,
+            createdAt: new Date().toISOString(),
+          };
+          await db.categories.add(defaultCategory);
+        }
+      } else if (!defaultCategory.isDefault) {
+        await db.categories.update(defaultCategory.id, { isDefault: true });
+        defaultCategory = { ...defaultCategory, isDefault: true };
+      }
+
+      const obsoleteDefaults = shoppingCategories.filter(
+        (category) => category.isDefault && category.id !== defaultCategory?.id,
+      );
+      for (const category of obsoleteDefaults) {
+        const itemsInCategory = await db.shoppingItems
+          .where('category')
+          .equals(category.name)
+          .toArray();
+        await Promise.all(
+          itemsInCategory.map((item) =>
+            db.shoppingItems.update(item.id, { category: fallbackCategory.name }),
+          ),
+        );
+        await db.categories.delete(category.id);
+      }
+    });
   } catch (err) {
     console.error('Error ensuring default categories:', err);
   }
@@ -176,6 +225,14 @@ export async function completeFirstRun(useDemoData: boolean): Promise<void> {
   await resetDatabaseToBlank();
   if (useDemoData) {
     await seedDemoData();
+  } else {
+    await db.shoppingLists.add({
+      id: 'list_default_shopping',
+      title: 'Choses à acheter',
+      currency: 'FRw',
+      status: 'active',
+      createdAt: new Date().toISOString(),
+    });
   }
 }
 

@@ -76,7 +76,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const numAmount = parseFloat(amount);
-    if (!selectedAccount || !numAmount || numAmount <= 0 || !label.trim()) return;
+    if (!selectedAccount || !numAmount || numAmount <= 0) return;
 
     setIsSaving(true);
     try {
@@ -88,7 +88,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
         amount: numAmount,
         currency: currency,
         category: category.trim(),
-        label: label.trim(),
+        label: label.trim() || 'Sans motif',
         date: date || now.split('T')[0],
         createdAt: now,
       };
@@ -226,11 +226,10 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
           {/* Libellé */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Libellé / Motif *
+              Libellé / Motif
             </label>
             <input
               type="text"
-              required
               placeholder="ex: Plein d'essence, Abonnement, Pain, Vente..."
               value={label}
               onChange={(e) => setLabel(e.target.value)}
@@ -294,18 +293,6 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
               </div>
             )}
 
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition mb-2"
-            >
-              {currentCategories.map((c) => (
-                <option key={c} value={c} className="dark:bg-slate-800 text-slate-900 dark:text-white">
-                  {c}
-                </option>
-              ))}
-            </select>
-
             {/* Quick Category Chips */}
             <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto no-scrollbar">
               {currentCategories.map((c) => (
@@ -350,7 +337,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
           </button>
           <button
             type="submit"
-            disabled={isSaving || !amount || !label.trim()}
+            disabled={isSaving || !amount}
             className={`flex-1 py-2.5 sm:py-3 text-sm font-bold text-white rounded-xl shadow-sm transition active:scale-98 cursor-pointer disabled:opacity-50 ${
               type === 'income' ? 'bg-emerald-700 hover:bg-emerald-800' : 'bg-slate-900 dark:bg-emerald-700 hover:bg-slate-800 dark:hover:bg-emerald-600'
             }`}

@@ -24,7 +24,7 @@ interface DebtsViewProps {
 
 export const DebtsView: React.FC<DebtsViewProps> = ({ debts, accounts }) => {
   const { currency } = useAppCurrency();
-  const [directionFilter, setDirectionFilter] = useState<DebtDirection>('they_owe_me');
+  const [directionFilter, setDirectionFilter] = useState<DebtDirection>('i_owe_them');
   const [statusFilter, setStatusFilter] = useState<'active' | 'settled'>('active');
   const [search, setSearch] = useState('');
 
@@ -73,7 +73,7 @@ export const DebtsView: React.FC<DebtsViewProps> = ({ debts, accounts }) => {
   const isReceivable = directionFilter === 'they_owe_me';
 
   return (
-    <div className="space-y-3.5 sm:space-y-4 pb-20">
+    <div className="space-y-3 sm:space-y-3.5 pb-20">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
         <div>
@@ -98,18 +98,6 @@ export const DebtsView: React.FC<DebtsViewProps> = ({ debts, accounts }) => {
       {/* Main Direction Tabs: "On me doit" vs "Je dois" */}
       <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-slate-900 border border-transparent dark:border-slate-800 rounded-2xl">
         <button
-          onClick={() => setDirectionFilter('they_owe_me')}
-          className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 text-xs font-bold rounded-xl transition cursor-pointer ${
-            isReceivable
-              ? 'bg-white dark:bg-slate-800 text-emerald-800 dark:text-emerald-300 shadow-xs'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-          }`}
-        >
-          <ArrowDownLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
-          <span>On me doit (Créances)</span>
-        </button>
-
-        <button
           onClick={() => setDirectionFilter('i_owe_them')}
           className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 text-xs font-bold rounded-xl transition cursor-pointer ${
             !isReceivable
@@ -120,17 +108,29 @@ export const DebtsView: React.FC<DebtsViewProps> = ({ debts, accounts }) => {
           <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-600 dark:text-rose-400" />
           <span>Je dois (Dettes)</span>
         </button>
+
+        <button
+          onClick={() => setDirectionFilter('they_owe_me')}
+          className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 text-xs font-bold rounded-xl transition cursor-pointer ${
+            isReceivable
+              ? 'bg-white dark:bg-slate-800 text-emerald-800 dark:text-emerald-300 shadow-xs'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <ArrowDownLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
+          <span>On me doit (Créances)</span>
+        </button>
       </div>
 
       {/* Dynamic Total KPI Banner */}
       <div
-        className={`rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 text-white shadow-sm transition-colors border ${
+        className={`rounded-2xl p-3 sm:p-4 text-white shadow-sm transition-colors border ${
           isReceivable
             ? 'bg-emerald-900'
             : 'bg-rose-950'
         }`}
       >
-        <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+        <div className="flex items-center justify-between gap-2">
           <span className="text-[10px] sm:text-xs font-bold tracking-wide uppercase text-white/80">
             {isReceivable ? 'Total à Récupérer (Créances en cours)' : 'Total à Payer (Dettes en cours)'}
           </span>
@@ -139,8 +139,8 @@ export const DebtsView: React.FC<DebtsViewProps> = ({ debts, accounts }) => {
           </span>
         </div>
 
-        <div className="mt-1 sm:mt-2 pt-2 border-t border-white/10 flex items-baseline gap-2">
-          <span className="text-xl sm:text-3xl font-black tabular-nums tracking-tight">
+        <div className="mt-1.5 flex items-baseline gap-2">
+          <span className="text-xl sm:text-2xl font-black tabular-nums tracking-tight">
             {formatMoney(totalAmountRemaining, currency)}
           </span>
           <span className="text-[11px] sm:text-xs text-white/70 font-semibold">au total</span>

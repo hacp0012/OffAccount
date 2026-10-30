@@ -24,11 +24,13 @@ import {
   BookOpen,
   Bell,
   Printer,
+  Info,
 } from 'lucide-react';
 import { SUPPORTED_CURRENCIES } from '../../utils/currencies';
 import { useAppCurrency } from '../../context/CurrencyContext';
 import { useTheme, type ThemeMode } from '../../context/ThemeContext';
 import { ConfirmModal } from '../ConfirmModal';
+import { Modal } from '../Modal';
 import { P2PSyncSettings } from './P2PSyncSettings';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -58,6 +60,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
   // Modal confirmations
   const [showDemoResetConfirm, setShowDemoResetConfirm] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -242,7 +245,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
 
       {!isAdvanced && <>
       {/* 1. THEME SWITCHER (Mode Clair, Sombre, Système) */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-2.5">
         <div className="flex items-center gap-2.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
           <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -268,13 +271,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
                 type="button"
                 key={opt.mode}
                 onClick={() => setTheme(opt.mode)}
-                className={`p-3 rounded-xl sm:rounded-2xl text-left border transition-all cursor-pointer flex sm:flex-col items-center sm:items-start justify-between sm:justify-start gap-2.5 ${
+                className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer flex items-center justify-between gap-2 ${
                   isSelected
                     ? 'border-emerald-600 dark:border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 ring-2 ring-emerald-500/20'
                     : 'border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
-                <div className="flex items-center sm:items-start gap-2.5 min-w-0">
+                <div className="flex items-center gap-2.5 min-w-0">
                   <div
                     className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       isSelected
@@ -284,7 +287,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
                   >
                     <Icon className="w-4 h-4" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <span
                       className={`text-xs font-bold block ${
                         isSelected
@@ -301,7 +304,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
                 </div>
 
                 {isSelected && (
-                  <div className="w-4 h-4 sm:self-end rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                  <div className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
                     <Check className="w-2.5 h-2.5 stroke-[3]" />
                   </div>
                 )}
@@ -312,7 +315,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
       </div>
 
       {/* 2. Global Currency Selector - Compact Dropdown */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-2.5">
         <div className="flex items-center gap-2.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
           <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <Coins className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -361,7 +364,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
       </div>
 
       {/* 3. Database Stats Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs">
         <div className="flex items-center gap-2.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
           <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0">
             <Database className="w-4 h-4" />
@@ -416,7 +419,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
       <button
         type="button"
         onClick={() => navigate('/reports')}
-        className="w-full p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
+        className="w-full p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
       >
         <span className="flex items-center gap-3">
           <Printer className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
@@ -431,7 +434,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
       <button
         type="button"
         onClick={() => navigate('/settings/notifications')}
-        className="w-full p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
+        className="w-full p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
       >
         <span className="flex items-center gap-3">
           <Bell className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
@@ -446,7 +449,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
       <button
         type="button"
         onClick={() => navigate('/presentation')}
-        className="w-full p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
+        className="w-full p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
       >
         <span className="flex items-center gap-3">
           <BookOpen className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
@@ -461,11 +464,26 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
       <button
         type="button"
         onClick={() => navigate('/settings/advanced')}
-        className="w-full p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
+        className="w-full p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
       >
         <span>
           <span className="block text-sm font-bold text-slate-900 dark:text-white">Paramètres avancés</span>
           <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">Synchronisation, sauvegardes et réinitialisation</span>
+        </span>
+        <ArrowRight className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setShowAboutModal(true)}
+        className="w-full p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
+      >
+        <span className="flex items-center gap-3">
+          <Info className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+          <span>
+            <span className="block text-sm font-bold text-slate-900 dark:text-white">À propos de OA</span>
+            <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">Éditeur, version et informations techniques</span>
+          </span>
         </span>
         <ArrowRight className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
       </button>
@@ -475,7 +493,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
       {isAdvanced && <>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
         {/* Export Panel */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
           <div>
             <div className="w-8 h-8 rounded-xl bg-emerald-100/70 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center mb-2.5">
               <Download className="w-4 h-4" />
@@ -499,7 +517,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
         </div>
 
         {/* Import Panel */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
           <div>
             <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 flex items-center justify-center mb-2.5">
               <Upload className="w-4 h-4" />
@@ -576,6 +594,40 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
         isDestructive={true}
       />
       </>}
+
+      <Modal
+        isOpen={showAboutModal}
+        onClose={() => setShowAboutModal(false)}
+        title="À propos de OA"
+        description="Informations sur l’application"
+        maxWidth="sm"
+      >
+        <dl className="space-y-2.5 text-xs">
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500 dark:text-slate-400">Éditeur</dt>
+            <dd className="text-right font-semibold text-slate-900 dark:text-white">Projet OffAccount</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500 dark:text-slate-400">Version</dt>
+            <dd className="text-right font-semibold text-slate-900 dark:text-white">0.0.1</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500 dark:text-slate-400">Type</dt>
+            <dd className="text-right font-semibold text-slate-900 dark:text-white">Application web progressive (PWA)</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500 dark:text-slate-400">Stockage</dt>
+            <dd className="text-right font-semibold text-slate-900 dark:text-white">IndexedDB sur cet appareil</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500 dark:text-slate-400">Technologies</dt>
+            <dd className="text-right font-semibold text-slate-900 dark:text-white">React, TypeScript, Vite</dd>
+          </div>
+          <p className="border-t border-slate-100 pt-2.5 text-slate-500 dark:border-slate-800 dark:text-slate-400">
+            OA fonctionne hors ligne. Vos données financières restent enregistrées localement dans votre navigateur.
+          </p>
+        </dl>
+      </Modal>
       </>
     </div>
   );

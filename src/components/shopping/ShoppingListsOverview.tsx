@@ -5,6 +5,7 @@ import { db } from '../../db/database';
 import { Modal } from '../Modal';
 import { ConfirmModal } from '../ConfirmModal';
 import { ShoppingCategoriesModal } from './ShoppingCategoriesModal';
+import { ShoppingListRenameModal } from './ShoppingListRenameModal';
 import { useAppCurrency } from '../../context/CurrencyContext';
 import {
   Plus,
@@ -14,6 +15,7 @@ import {
   CheckCircle2,
   Clock,
   Tag,
+  Edit2,
 } from 'lucide-react';
 
 interface ShoppingListsOverviewProps {
@@ -32,6 +34,7 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
   const [newListTitle, setNewListTitle] = useState('');
   const [filterTab, setFilterTab] = useState<'active' | 'completed'>('active');
   const [listToDelete, setListToDelete] = useState<ShoppingList | null>(null);
+  const [listToRename, setListToRename] = useState<ShoppingList | null>(null);
   const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
 
   // Compute cost for each list
@@ -193,14 +196,14 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
               <div
                 key={list.id}
                 onClick={() => onSelectList(list)}
-                className="group relative bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-3.5 sm:p-5 transition-all shadow-xs cursor-pointer"
+                className="group relative bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-3 sm:p-3.5 transition-all shadow-xs cursor-pointer"
               >
-                <div className="flex items-start justify-between gap-2.5">
+                <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0">
-                    <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                       {list.title}
                     </h3>
-                    <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-400 dark:text-slate-400 mt-1">
+                    <div className="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
                       <span className="font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-1.5 sm:px-2 py-0.5 rounded-md">
                         {list.currency}
                       </span>
@@ -213,40 +216,62 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
                     </div>
                   </div>
 
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setListToDelete(list);
-                    }}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition cursor-pointer"
-                    title="Supprimer la liste"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setListToRename(list);
+                      }}
+                      className="rounded-lg p-1.5 text-slate-400 transition hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-400"
+                      title="Renommer la liste"
+                      aria-label={`Renommer ${list.title}`}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setListToDelete(list);
+                      }}
+                      className="rounded-lg p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30"
+                      title="Supprimer la liste"
+                      aria-label={`Supprimer ${list.title}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
 
-                {/* Progress bar */}
-                <div className="mt-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                  <div
-                    className="bg-emerald-600 h-1.5 rounded-full transition-all duration-300"
-                    style={{
-                      width: `${
-                        stats.itemsCount > 0 ? (stats.checkedCount / stats.itemsCount) * 100 : 0
-                      }%`,
-                    }}
-                  />
-                </div>
-
-                {/* Cost & Disclosure */}
-                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 block font-medium">Coût total estimé</span>
-                    <span className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tabular-nums">
+                {/* Compact progress, cost and disclosure row */}
+                <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <div
+                      className="w-12 shrink-0 bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden"
+                      role="progressbar"
+                      aria-label="Progression de la liste"
+                      aria-valuemin={0}
+                      aria-valuemax={stats.itemsCount}
+                      aria-valuenow={stats.checkedCount}
+                    >
+                      <div
+                        className="bg-emerald-600 h-1.5 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${
+                            stats.itemsCount > 0 ? (stats.checkedCount / stats.itemsCount) * 100 : 0
+                          }%`,
+                        }}
+                      />
+                    </div>
+                    <div className="flex min-w-0 items-baseline gap-1.5">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium whitespace-nowrap">Estimé</span>
+                      <span className="text-sm font-extrabold text-slate-900 dark:text-white tabular-nums truncate">
                       {formatMoney(stats.totalCost, currency)}
-                    </span>
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 group-hover:translate-x-0.5 transition-transform">
+                  <div className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 group-hover:translate-x-0.5 transition-transform">
                     <span>Ouvrir</span>
                     <ChevronRight className="w-4 h-4" />
                   </div>
@@ -306,6 +331,12 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
       </Modal>
 
       {/* Confirm Delete Modal */}
+      <ShoppingListRenameModal
+        list={listToRename}
+        isOpen={listToRename !== null}
+        onClose={() => setListToRename(null)}
+      />
+
       <ConfirmModal
         isOpen={listToDelete !== null}
         onClose={() => setListToDelete(null)}

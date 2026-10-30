@@ -4,15 +4,16 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate, useLocation, type Location } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation, useNavigate, useParams, type Location } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { AnimatePresence, motion } from 'motion/react';
 import { completeFirstRun, db, initializeDatabase } from './db/database';
-import type { ShoppingList } from './types';
+import type { Account, ShoppingItem, ShoppingList } from './types';
 import { Navigation } from './components/Navigation';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { MonthlyExpensesView } from './components/finances/MonthlyExpensesView';
 import { ExpenseChartsView } from './components/finances/ExpenseChartsView';
+import { FinancialOverviewView } from './components/finances/FinancialOverviewView';
 import { AccountsManagementView } from './components/accounts/AccountsManagementView';
 import { ShoppingListsOverview } from './components/shopping/ShoppingListsOverview';
 import { ShoppingDetailView } from './components/shopping/ShoppingDetailView';
@@ -47,8 +48,62 @@ const PageTransition: React.FC<{
   );
 };
 
+const ShoppingListRoute: React.FC<{
+  lists: ShoppingList[];
+  items: ShoppingItem[];
+  accounts: Account[];
+}> = ({ lists, items, accounts }) => {
+  const { listId } = useParams();
+  const navigate = useNavigate();
+  const list = lists.find((shoppingList) => shoppingList.id === listId);
+
+  if (!list) return <Navigate to="/shopping" replace />;
+
+  return (
+    <ShoppingDetailView
+      list={list}
+      items={items.filter((item) => item.listId === list.id)}
+      accounts={accounts}
+      onBack={() => navigate('/shopping')}
+    />
+  );
+};
+
+const ShoppingOverviewRoute: React.FC<{
+  lists: ShoppingList[];
+  items: ShoppingItem[];
+}> = ({ lists, items }) => {
+  const navigate = useNavigate();
+
+  return (
+    <ShoppingListsOverview
+      lists={lists}
+      items={items}
+      onSelectList={(list) => navigate(`/shopping/${encodeURIComponent(list.id)}`)}
+    />
+  );
+};
+
+const AppNavigation: React.FC<{
+  debtsCount: number;
+  shoppingActiveCount: number;
+}> = ({ debtsCount, shoppingActiveCount }) => {
+  const { pathname } = useLocation();
+  const showMobileNavigation =
+    pathname === '/expenses' ||
+    pathname === '/shopping' ||
+    pathname === '/debts';
+
+  return (
+    <Navigation
+      debtsCount={debtsCount}
+      shoppingActiveCount={shoppingActiveCount}
+      showMobileNavigation={showMobileNavigation}
+    />
+  );
+};
+
 export default function App() {
-  const [selectedShoppingList, setSelectedShoppingList] = useState<ShoppingList | null>(null);
   const [initializationStatus, setInitializationStatus] = useState<
     'loading' | 'setup' | 'ready' | 'error'
   >('loading');
@@ -100,25 +155,41 @@ export default function App() {
     (l) => l.status !== 'completed'
   ).length;
 
-  const activeSelectedList = selectedShoppingList
-    ? shoppingLists.find((l) => l.id === selectedShoppingList.id) || null
-    : null;
-
   return (
     <ThemeProvider>
       <CurrencyProvider>
         <HashRouter>
-          <div className="h-dvh min-h-0 overflow-hidden bg-[#f8faf8] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans selection:bg-emerald-600 selection:text-white transition-colors duration-150 print:h-auto print:min-h-0 print:overflow-visible print:bg-white print:text-black">
-            {/* Offline Status Badge */}
-            <OfflineIndicator />
+          <div className={initializationStatus === 'setup'
+            ? 'h-dvh w-full overflow-y-auto bg-[#f8faf8] dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans selection:bg-emerald-600 selection:text-white'
+            : 'h-dvh min-h-0 overflow-hidden bg-[#f8faf8] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans selection:bg-emerald-600 selection:text-white transition-colors duration-150 print:h-auto print:min-h-0 print:overflow-visible print:bg-white print:text-black'}>
+            {initializationStatus !== 'setup' && (
+              <>
+                {/* Offline Status Badge */}
+                <OfflineIndicator />
 
-            {/* Global Navigation Bar */}
-            <Navigation
-              debtsCount={activeDebtsCount}
-              shoppingActiveCount={activeShoppingCount}
-            />
+                {/* Global Navigation Bar */}
+                <AppNavigation
+                  debtsCount={activeDebtsCount}
+                  shoppingActiveCount={activeShoppingCount}
+                />
+              </>
+            )}
 
-            {/* Main Routed Viewport - Ultra-compact margins on mobile for maximum readability */}
+            {initializationStatus === 'setup' ? (
+              <Routes>
+                <Route
+                  path="/presentation"
+                  element={
+                    <PresentationView
+                      isFirstRun
+                      onCompleteFirstRun={finishFirstRun}
+                    />
+                  }
+                />
+                <Route path="*" element={<Navigate to="/presentation" replace />} />
+              </Routes>
+            ) : (
+            /* Main Routed Viewport */
             <main className="flex-1 min-h-0 w-full overflow-y-auto overscroll-contain print:flex-none print:overflow-visible">
               <div className="max-w-6xl w-full mx-auto px-2 sm:px-6 pt-2 sm:pt-4">
             {initializationStatus === 'loading' ? (
@@ -140,20 +211,7 @@ export default function App() {
               </div>
             ) : (
             <PageTransition>
-              {(location) => initializationStatus === 'setup' ? (
-            <Routes location={location}>
-              <Route
-                path="/presentation"
-                element={
-                  <PresentationView
-                    isFirstRun
-                    onCompleteFirstRun={finishFirstRun}
-                  />
-                }
-              />
-              <Route path="*" element={<Navigate to="/presentation" replace />} />
-            </Routes>
-              ) : (
+              {(location) => (
             <Routes location={location}>
               {/* Redirect root to expenses */}
               <Route path="/" element={<Navigate to="/expenses" replace />} />
@@ -166,6 +224,18 @@ export default function App() {
                     transactions={transactions}
                     accounts={accounts}
                     onOpenNewTransaction={() => setIsNewTxOpen(true)}
+                  />
+                }
+              />
+              <Route
+                path="/overview"
+                element={
+                  <FinancialOverviewView
+                    accounts={accounts}
+                    transactions={transactions}
+                    debts={debts}
+                    shoppingLists={shoppingLists}
+                    shoppingItems={shoppingItems}
                   />
                 }
               />
@@ -190,23 +260,16 @@ export default function App() {
               {/* Shopping Module */}
               <Route
                 path="/shopping"
+                element={<ShoppingOverviewRoute lists={shoppingLists} items={shoppingItems} />}
+              />
+              <Route
+                path="/shopping/:listId"
                 element={
-                  activeSelectedList ? (
-                    <ShoppingDetailView
-                      list={activeSelectedList}
-                      items={shoppingItems.filter(
-                        (it) => it.listId === activeSelectedList.id
-                      )}
-                      accounts={accounts}
-                      onBack={() => setSelectedShoppingList(null)}
-                    />
-                  ) : (
-                    <ShoppingListsOverview
-                      lists={shoppingLists}
-                      items={shoppingItems}
-                      onSelectList={(list) => setSelectedShoppingList(list)}
-                    />
-                  )
+                  <ShoppingListRoute
+                    lists={shoppingLists}
+                    items={shoppingItems}
+                    accounts={accounts}
+                  />
                 }
               />
 
@@ -269,6 +332,7 @@ export default function App() {
             )}
               </div>
           </main>
+            )}
 
           {/* Global Modals */}
           <TransactionFormModal

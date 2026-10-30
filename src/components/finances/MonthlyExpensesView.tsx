@@ -528,8 +528,6 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({ transa
                               >
                                 {tx.category}
                               </span>
-                              <span aria-hidden="true">·</span>
-                              <span className="shrink-0">{formatDate(tx.date)}</span>
                             </div>
                           </div>
                         </div>

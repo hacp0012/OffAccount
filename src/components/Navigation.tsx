@@ -1,14 +1,19 @@
 import React from "react";
-import { WalletCards, ShoppingCart, Users, Settings, TrendingDown } from "lucide-react";
+import { WalletCards, ShoppingCart, Users, Settings, TrendingDown, ChartNoAxesCombined } from "lucide-react";
 import { PWAInstallButton } from "./PWAInstallButton";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface NavigationProps {
   debtsCount?: number;
   shoppingActiveCount?: number;
+  showMobileNavigation?: boolean;
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ debtsCount = 0, shoppingActiveCount = 0 }) => {
+export const Navigation: React.FC<NavigationProps> = ({
+  debtsCount = 0,
+  shoppingActiveCount = 0,
+  showMobileNavigation = false,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -19,6 +24,7 @@ export const Navigation: React.FC<NavigationProps> = ({ debtsCount = 0, shopping
   const isShoppingActive = currentPath.startsWith("/shopping");
   const isDebtsActive = currentPath.startsWith("/debts");
   const isSettingsActive = currentPath.startsWith("/settings");
+  const isOverviewActive = currentPath.startsWith("/overview");
 
   return (
     <>
@@ -76,6 +82,18 @@ export const Navigation: React.FC<NavigationProps> = ({ debtsCount = 0, shopping
             </button>
 
             <button
+              onClick={() => navigate("/overview")}
+              className={`flex items-center gap-2 px-3.5 py-1.5 text-sm font-semibold rounded-lg transition cursor-pointer ${
+                isOverviewActive
+                  ? "bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-400 shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              <ChartNoAxesCombined className="w-4 h-4" />
+              <span>Vue d’ensemble</span>
+            </button>
+
+            <button
               onClick={() => navigate("/settings")}
               className={`flex items-center gap-2 px-3.5 py-1.5 text-sm font-semibold rounded-lg transition cursor-pointer ${
                 isSettingsActive
@@ -90,6 +108,19 @@ export const Navigation: React.FC<NavigationProps> = ({ debtsCount = 0, shopping
 
           {/* Right Slot: Settings shortcut and PWA install trigger */}
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => navigate("/overview")}
+              className={`md:hidden min-h-10 min-w-10 flex items-center justify-center rounded-xl transition cursor-pointer ${
+                isOverviewActive
+                  ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+              aria-label="Vue d’ensemble"
+              title="Vue d’ensemble"
+            >
+              <ChartNoAxesCombined className="w-5 h-5" />
+            </button>
             <button
               type="button"
               onClick={() => navigate("/settings")}
@@ -108,9 +139,10 @@ export const Navigation: React.FC<NavigationProps> = ({ debtsCount = 0, shopping
         </div>
       </header>
 
-      {/* Fixed Bottom Tab Bar for Mobile Thumb Ergonomics */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200/80 dark:border-slate-800 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-4px_16px_rgba(0,0,0,0.06)] print:hidden">
-        <div className="grid grid-cols-3 h-14 max-w-md mx-auto items-center px-1">
+      {showMobileNavigation && (
+        /* Fixed Bottom Tab Bar for routes that request mobile navigation */
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200/80 dark:border-slate-800 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-4px_16px_rgba(0,0,0,0.06)] print:hidden">
+          <div className="grid grid-cols-3 h-14 max-w-md mx-auto items-center px-1">
           <button
             onClick={() => navigate("/expenses")}
             className={`min-h-[44px] flex flex-col items-center justify-center transition cursor-pointer ${
@@ -152,8 +184,9 @@ export const Navigation: React.FC<NavigationProps> = ({ debtsCount = 0, shopping
               <span className="absolute top-1 right-6 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white dark:ring-slate-900" />
             )}
           </button>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 };

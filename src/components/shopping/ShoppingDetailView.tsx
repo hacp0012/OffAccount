@@ -6,6 +6,7 @@ import { ShoppingItemModal } from './ShoppingItemModal';
 import { PayAndRecordModal } from './PayAndRecordModal';
 import { ShoppingCategoriesModal } from './ShoppingCategoriesModal';
 import { ShoppingItemDetailModal } from './ShoppingItemDetailModal';
+import { ShoppingListRenameModal } from './ShoppingListRenameModal';
 import {
   ArrowLeft,
   Plus,
@@ -38,6 +39,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
   const [selectedItemForDetail, setSelectedItemForDetail] = useState<ShoppingItem | null>(null);
   const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
 
   // Dynamic cost calculations
   const totalEstimated = items.reduce((acc, it) => acc + (it.unitPrice || 0) * (it.quantity || 1), 0);
@@ -97,6 +99,15 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
           <div>
             <div className="flex items-center gap-1.5 sm:gap-2">
               <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">{list.title}</h1>
+              <button
+                type="button"
+                onClick={() => setIsRenameModalOpen(true)}
+                className="rounded-lg p-1 text-slate-400 transition hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-400"
+                title="Renommer la liste"
+                aria-label={`Renommer ${list.title}`}
+              >
+                <Edit2 className="h-3.5 w-3.5" />
+              </button>
               <span className={`text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md ${
                 isCompleted
                   ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
@@ -319,7 +330,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
 
       {/* Sticky Bottom CTA for "Payer et enregistrer" */}
       {!isCompleted && items.length > 0 && (
-        <div className="fixed bottom-16 md:bottom-4 left-0 right-0 p-3 sm:p-4 bg-white/95 dark:bg-slate-950/95 pointer-events-none z-30">
+        <div className="fixed bottom-2 md:bottom-4 left-0 right-0 p-3 sm:p-4 bg-white/95 dark:bg-slate-950/95 pointer-events-none z-30">
           <div className="max-w-md md:max-w-xl mx-auto pointer-events-auto">
             <button
               onClick={() => setIsPayModalOpen(true)}
@@ -338,6 +349,12 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
       )}
 
       {/* Item Modal */}
+      <ShoppingListRenameModal
+        list={list}
+        isOpen={isRenameModalOpen}
+        onClose={() => setIsRenameModalOpen(false)}
+      />
+
       <ShoppingItemModal
         isOpen={isItemModalOpen}
         onClose={() => {

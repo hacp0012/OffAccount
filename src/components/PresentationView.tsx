@@ -35,6 +35,7 @@ export const PresentationView: React.FC<PresentationViewProps> = ({ isFirstRun =
   const navigate = useNavigate();
   const [isStarting, setIsStarting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showSetupOptions, setShowSetupOptions] = useState(false);
 
   const chooseData = async (useDemoData: boolean) => {
     if (!onCompleteFirstRun) return;
@@ -53,7 +54,11 @@ export const PresentationView: React.FC<PresentationViewProps> = ({ isFirstRun =
 
   return (
     <>
-      <div className="mx-auto max-w-4xl space-y-6 pb-20">
+      <div
+        className={isFirstRun
+          ? "flex min-h-dvh w-full flex-col justify-center gap-6 px-4 py-8 sm:px-8"
+          : "mx-auto max-w-4xl space-y-6 pb-20"}
+      >
         <section className="rounded-3xl bg-white dark:bg-slate-900 p-6 sm:p-10 text-center shadow-xs">
           <img src="./icon.png" alt="OA" className="mx-auto h-16 w-16 rounded-2xl object-contain" />
           <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-400">
@@ -87,7 +92,18 @@ export const PresentationView: React.FC<PresentationViewProps> = ({ isFirstRun =
           Vos données sont enregistrées localement sur votre appareil.
         </div>
 
-        {!isFirstRun && (
+        {isFirstRun ? (
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => setShowSetupOptions(true)}
+              className="flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-800"
+            >
+              Commencer à utiliser l’application
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
           <div className="flex justify-center">
             <button
               type="button"
@@ -102,8 +118,8 @@ export const PresentationView: React.FC<PresentationViewProps> = ({ isFirstRun =
       </div>
 
       <Modal
-        isOpen={isFirstRun}
-        onClose={() => undefined}
+        isOpen={isFirstRun && showSetupOptions}
+        onClose={() => setShowSetupOptions(false)}
         title="Comment souhaitez-vous commencer ?"
         description="Vous pourrez ajouter ou modifier vos données à tout moment."
         maxWidth="md"
