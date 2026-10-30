@@ -7,8 +7,10 @@ import { ConfirmModal } from '../ConfirmModal';
 import {
   Tag,
   Plus,
+  Edit2,
   Trash2,
   Check,
+  X,
   ShoppingBag,
   Sparkles,
 } from 'lucide-react';
@@ -43,6 +45,10 @@ export const ShoppingCategoriesModal: React.FC<ShoppingCategoriesModalProps> = (
   const [newCatName, setNewCatName] = useState('');
   const [newCatColor, setNewCatColor] = useState(COLOR_PALETTE[0]);
   const [catToDelete, setCatToDelete] = useState<Category | null>(null);
+  const [editingCatId, setEditingCatId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editColor, setEditColor] = useState(COLOR_PALETTE[0]);
+  const [editError, setEditError] = useState<string | null>(null);
 
   // Queries
   const categories =
@@ -93,6 +99,57 @@ export const ShoppingCategoriesModal: React.FC<ShoppingCategoriesModalProps> = (
       setIsAdding(false);
     } catch (err) {
       console.error('Failed to create shopping category:', err);
+    }
+  };
+
+  const handleStartEdit = (category: Category) => {
+    setEditingCatId(category.id);
+    setEditName(category.name);
+    setEditColor(category.color || COLOR_PALETTE[0]);
+    setEditError(null);
+  };
+
+  const handleSaveEdit = async (category: Category) => {
+    const newName = editName.trim();
+    if (!newName) return;
+
+    const duplicate = categories.some(
+      (existing) =>
+        existing.id !== category.id &&
+        existing.name.toLocaleLowerCase() === newName.toLocaleLowerCase(),
+    );
+    if (duplicate) {
+      setEditError('Une catégorie de courses porte déjà ce nom.');
+      return;
+    }
+
+    try {
+      await db.transaction('rw', [db.categories, db.shoppingItems], async () => {
+        await db.categories.update(category.id, {
+          name: newName,
+          color: editColor,
+        });
+
+        if (newName !== category.name) {
+          const matchingItems = await db.shoppingItems
+            .where('category')
+            .equals(category.name)
+            .toArray();
+          await Promise.all(
+            matchingItems.map((item) =>
+              db.shoppingItems.update(item.id, { category: newName }),
+            ),
+          );
+        }
+      });
+
+      setEditingCatId(null);
+      setEditError(null);
+    } catch (error) {
+      console.error('Failed to edit shopping category:', error);
+      setEditError(
+        error instanceof Error ? error.message : 'Impossible de modifier cette catégorie.',
+      );
     }
   };
 
@@ -217,35 +274,112 @@ export const ShoppingCategoriesModal: React.FC<ShoppingCategoriesModalProps> = (
                     key={cat.id}
                     className="p-2.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-850/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition flex items-center justify-between gap-2"
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span
-                        className="w-3.5 h-3.5 rounded-full shrink-0 shadow-2xs"
-                        style={{ backgroundColor: cat.color || '#059669' }}
-                      />
-                      <div className="min-w-0">
-                        <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 truncate block">
-                          {cat.name}
-                        </span>
-                        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-500">
-                          {cat.isDefault ? (
-                            <span className="text-emerald-700 dark:text-emerald-400 font-medium">Standard</span>
-                          ) : (
-                            <span className="text-blue-600 dark:text-blue-400 font-medium">Personnalisé</span>
-                          )}
-                          <span aria-hidden="true">·</span>
-                          <span>{count} article{count > 1 ? 's' : ''} associé{count > 1 ? 's' : ''}</span>
+                    {editingCatId === cat.id ? (
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={editName}
+                            onChange={(event) => {
+                              setEditName(event.target.value);
+                              setEditError(null);
+                            }}
+                            maxLength={60}
+                            className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                            aria-label="Nom de la catégorie"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            onClick={() => void handleSaveEdit(cat)}
+                            disabled={!editName.trim()}
+                            className="rounded-lg bg-emerald-700 p-1.5 text-white transition hover:bg-emerald-800 disabled:opacity-50"
+                            title="Enregistrer"
+                            aria-label="Enregistrer la catégorie"
+                          >
+                            <Check className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingCatId(null);
+                              setEditError(null);
+                            }}
+                            className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                            title="Annuler"
+                            aria-label="Annuler la modification"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
                         </div>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="mr-1 text-[10px] font-semibold text-slate-400">Couleur :</span>
+                          {COLOR_PALETTE.map((color) => (
+                            <button
+                              type="button"
+                              key={color}
+                              onClick={() => setEditColor(color)}
+                              className={`h-4 w-4 rounded-full transition ${
+                                editColor === color ? 'ring-2 ring-slate-800 ring-offset-1 dark:ring-offset-slate-900' : ''
+                              }`}
+                              style={{ backgroundColor: color }}
+                              aria-label={`Choisir la couleur ${color}`}
+                              aria-pressed={editColor === color}
+                            />
+                          ))}
+                        </div>
+                        {editError && (
+                          <p role="alert" className="text-[11px] font-medium text-rose-600 dark:text-rose-400">
+                            {editError}
+                          </p>
+                        )}
                       </div>
-                    </div>
+                    ) : (
+                      <>
+                        <div className="flex min-w-0 items-center gap-2.5">
+                          <span
+                            className="h-3.5 w-3.5 shrink-0 rounded-full shadow-2xs"
+                            style={{ backgroundColor: cat.color || '#059669' }}
+                          />
+                          <div className="min-w-0">
+                            <span className="block truncate text-xs font-bold text-slate-800 dark:text-slate-200 sm:text-sm">
+                              {cat.name}
+                            </span>
+                            <div className="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-500">
+                              {cat.isDefault ? (
+                                <span className="font-medium text-emerald-700 dark:text-emerald-400">Par défaut</span>
+                              ) : (
+                                <span className="font-medium text-blue-600 dark:text-blue-400">Personnalisé</span>
+                              )}
+                              <span aria-hidden="true">·</span>
+                              <span>{count} article{count > 1 ? 's' : ''} associé{count > 1 ? 's' : ''}</span>
+                            </div>
+                          </div>
+                        </div>
 
-                    {!cat.isDefault && (
-                      <button
-                        onClick={() => setCatToDelete(cat)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
-                        title="Supprimer ce rayon personnalisé"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                        {!cat.isDefault && (
+                          <div className="flex shrink-0 items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleStartEdit(cat)}
+                              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-400"
+                              title="Modifier cette catégorie"
+                              aria-label={`Modifier ${cat.name}`}
+                            >
+                              <Edit2 className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setCatToDelete(cat)}
+                              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40"
+                              title="Supprimer ce rayon personnalisé"
+                              aria-label={`Supprimer ${cat.name}`}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 );
