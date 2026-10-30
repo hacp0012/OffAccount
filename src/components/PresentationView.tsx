@@ -87,9 +87,12 @@ export const PresentationView: React.FC<PresentationViewProps> = ({ isFirstRun =
           ))}
         </section>
 
-        <div className="flex items-center justify-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-          <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-          Vos données sont enregistrées localement sur votre appareil.
+        <div className="mx-auto flex max-w-2xl items-start justify-center gap-2 text-center text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+          <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <p>
+            Vos données sont enregistrées localement sur votre appareil. Vous pouvez aussi les synchroniser
+            directement entre vos appareils depuis les paramètres ; ils doivent être connectés en même temps.
+          </p>
         </div>
 
         {isFirstRun ? (
