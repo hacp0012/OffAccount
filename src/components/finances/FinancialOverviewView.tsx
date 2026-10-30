@@ -6,11 +6,13 @@ import {
   ChartNoAxesCombined,
   CircleDollarSign,
   PieChart,
+  Printer,
   ShoppingBasket,
   TrendingDown,
   TrendingUp,
   WalletCards,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import type { Account, Debt, ShoppingItem, ShoppingList, Transaction } from '../../types';
 import { formatMoney } from '../../utils/formatters';
 import { useAppCurrency } from '../../context/CurrencyContext';
@@ -79,6 +81,7 @@ export const FinancialOverviewView: React.FC<FinancialOverviewViewProps> = ({
   shoppingLists,
   shoppingItems,
 }) => {
+  const navigate = useNavigate();
   const { currency: defaultCurrency } = useAppCurrency();
   const [activeTab, setActiveTab] = useState<'summary' | 'chart'>('chart');
   const [chartCurrency, setChartCurrency] = useState(defaultCurrency);
@@ -180,18 +183,29 @@ export const FinancialOverviewView: React.FC<FinancialOverviewViewProps> = ({
 
   return (
     <div className="mx-auto max-w-5xl space-y-4 pb-20 sm:space-y-5">
-      <header className="flex items-center gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-          <ChartNoAxesCombined className="h-5 w-5" />
-        </span>
-        <div>
-          <h1 className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-xl">
-            Vue d’ensemble
-          </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Récapitulatif de vos revenus, dépenses et engagements enregistrés.
-          </p>
+      <header className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+            <ChartNoAxesCombined className="h-5 w-5" />
+          </span>
+          <div className="min-w-0">
+            <h1 className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-xl">
+              Vue d’ensemble
+            </h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Récapitulatif de vos revenus, dépenses et engagements enregistrés.
+            </p>
+          </div>
         </div>
+        <button
+          type="button"
+          onClick={() => navigate('/reports')}
+          className="flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-emerald-50 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+          aria-label="Ouvrir les rapports imprimables"
+        >
+          <Printer className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
+          <span className="hidden sm:inline">Rapports imprimables</span>
+        </button>
       </header>
 
       <div className="flex w-fit items-center gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-900" role="tablist" aria-label="Affichage de la vue d’ensemble">

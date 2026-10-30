@@ -113,13 +113,21 @@ div[class*="rounded"][class*="border"] {
     color: black !important;
   }
 
-  #report-print-root * {
+  #product-prices-print-root {
+    width: 100% !important;
+    max-width: none !important;
+    color: black !important;
+  }
+
+  #report-print-root *,
+  #product-prices-print-root * {
     color: black !important;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
 
-  #report-print-root tr {
+  #report-print-root tr,
+  #product-prices-print-root tr {
     break-inside: avoid;
   }
 }

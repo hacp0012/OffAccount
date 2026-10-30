@@ -7,6 +7,7 @@ import type {
   Debt,
   AppSettings,
   Category,
+  ProductPrice,
 } from '../types';
 
 export const DEFAULT_EXPENSE_CATEGORIES: Array<{ name: string; color: string; icon: string }> = [
@@ -42,6 +43,7 @@ export class OffMoneyDatabase extends Dexie {
   debts!: Table<Debt, string>;
   settings!: Table<AppSettings, string>;
   categories!: Table<Category, string>;
+  productPrices!: Table<ProductPrice, string>;
 
   constructor() {
     super('OffMoneyDB');
@@ -55,6 +57,9 @@ export class OffMoneyDatabase extends Dexie {
     });
     this.version(2).stores({
       categories: 'id, type, name, createdAt',
+    });
+    this.version(3).stores({
+      productPrices: 'id, name, currency, updatedAt',
     });
   }
 }
@@ -247,6 +252,7 @@ export async function resetDatabaseToBlank(): Promise<void> {
       db.debts,
       db.settings,
       db.categories,
+      db.productPrices,
     ],
     async () => {
       await Promise.all([
@@ -257,6 +263,7 @@ export async function resetDatabaseToBlank(): Promise<void> {
         db.debts.clear(),
         db.settings.clear(),
         db.categories.clear(),
+        db.productPrices.clear(),
       ]);
       await db.categories.bulkAdd(createDefaultCategories());
       await db.settings.bulkPut([

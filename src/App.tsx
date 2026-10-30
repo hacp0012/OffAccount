@@ -17,6 +17,7 @@ import { FinancialOverviewView } from './components/finances/FinancialOverviewVi
 import { AccountsManagementView } from './components/accounts/AccountsManagementView';
 import { ShoppingListsOverview } from './components/shopping/ShoppingListsOverview';
 import { ShoppingDetailView } from './components/shopping/ShoppingDetailView';
+import { ProductPricesView } from './components/shopping/ProductPricesView';
 import { DebtsView } from './components/debts/DebtsView';
 import { SettingsView } from './components/settings/SettingsView';
 import { NotificationsSettingsView } from './components/settings/NotificationsSettingsView';
@@ -261,6 +262,10 @@ export default function App() {
               <Route
                 path="/shopping"
                 element={<ShoppingOverviewRoute lists={shoppingLists} items={shoppingItems} />}
+              />
+              <Route
+                path="/shopping/products"
+                element={<ProductPricesView lists={shoppingLists} />}
               />
               <Route
                 path="/shopping/:listId"

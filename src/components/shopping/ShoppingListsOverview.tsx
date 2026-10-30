@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { ShoppingList, ShoppingItem } from '../../types';
 import { formatMoney, formatDate } from '../../utils/formatters';
 import { db } from '../../db/database';
@@ -16,6 +17,7 @@ import {
   Clock,
   Tag,
   Edit2,
+  Tags,
 } from 'lucide-react';
 
 interface ShoppingListsOverviewProps {
@@ -29,6 +31,7 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
   items,
   onSelectList,
 }) => {
+  const navigate = useNavigate();
   const { currency } = useAppCurrency();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
@@ -116,6 +119,16 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
           >
             <Tag className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span className="hidden xs:inline">Rayons</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/shopping/products')}
+            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl shadow-2xs transition cursor-pointer sm:px-3 sm:py-2"
+            title="Ouvrir la fiche des prix"
+            aria-label="Fiche des prix"
+          >
+            <Tags className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span className="hidden sm:inline">Prix</span>
           </button>
           <button
             onClick={() => setIsCreateModalOpen(true)}

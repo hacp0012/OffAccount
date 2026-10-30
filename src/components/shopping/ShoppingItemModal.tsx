@@ -11,6 +11,11 @@ interface ShoppingItemModalProps {
   listId: string;
   currency: Currency;
   itemToEdit?: ShoppingItem | null;
+  initialValues?: {
+    name: string;
+    unitPrice: number;
+    notes?: string;
+  } | null;
 }
 
 const COMMON_UNITS = ['pcs', 'kg', 'g', 'L', 'bouteille', 'paquet', 'sac', 'boîte'];
@@ -21,6 +26,7 @@ export const ShoppingItemModal: React.FC<ShoppingItemModalProps> = ({
   listId,
   currency,
   itemToEdit,
+  initialValues,
 }) => {
   // Query shopping categories from Dexie
   const dbCategories =
@@ -55,15 +61,15 @@ export const ShoppingItemModal: React.FC<ShoppingItemModalProps> = ({
         setCategory(itemToEdit.category || availableCategories[0] || 'Autre');
         setNotes(itemToEdit.notes || '');
       } else {
-        setName('');
+        setName(initialValues?.name ?? '');
         setQuantity('1');
         setUnit('pcs');
-        setUnitPrice('');
+        setUnitPrice(initialValues ? initialValues.unitPrice.toString() : '');
         setCategory(availableCategories[0] || 'Autre');
-        setNotes('');
+        setNotes(initialValues?.notes ?? '');
       }
     }
-  }, [isOpen, itemToEdit]);
+  }, [isOpen, itemToEdit, initialValues]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

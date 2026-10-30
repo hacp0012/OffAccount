@@ -58,6 +58,16 @@ export interface ShoppingItem {
   createdAt: string;
 }
 
+export interface ProductPrice {
+  id: string;
+  name: string;
+  label?: string;
+  unitPrice: number;
+  currency: Currency;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type DebtDirection = 'they_owe_me' | 'i_owe_them'; // Créance vs Dette
 
 export interface DebtPayment {

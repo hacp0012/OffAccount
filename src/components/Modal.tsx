@@ -11,6 +11,7 @@ interface ModalProps {
   children: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
   dismissible?: boolean;
+  onExitComplete?: () => void;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -21,6 +22,7 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   maxWidth = 'md',
   dismissible = true,
+  onExitComplete,
 }) => {
   const requestClose = useModalHistory(isOpen, onClose, dismissible);
   const [isMobile, setIsMobile] = useState(() =>
@@ -41,7 +43,7 @@ export const Modal: React.FC<ModalProps> = ({
   }[maxWidth];
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={onExitComplete}>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           {/* Backdrop with enter & exit fade */}

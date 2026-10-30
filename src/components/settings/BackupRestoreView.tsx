@@ -125,6 +125,7 @@ export const BackupRestoreView: React.FC<BackupRestoreViewProps> = ({ stats }) =
           db.shoppingItems,
           db.debts,
           db.settings,
+          db.productPrices,
         ],
         async () => {
           await Promise.all([
@@ -134,6 +135,7 @@ export const BackupRestoreView: React.FC<BackupRestoreViewProps> = ({ stats }) =
             db.shoppingItems.clear(),
             db.debts.clear(),
             db.settings.clear(),
+            db.productPrices.clear(),
           ]);
         }
       );
@@ -164,6 +166,7 @@ export const BackupRestoreView: React.FC<BackupRestoreViewProps> = ({ stats }) =
         db.shoppingItems.clear(),
         db.debts.clear(),
         db.settings.clear(),
+        db.productPrices.clear(),
       ]);
       setNotification({
         type: 'success',

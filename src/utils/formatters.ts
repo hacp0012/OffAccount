@@ -6,6 +6,7 @@ import type {
   AppSettings,
   Category,
   Debt,
+  ProductPrice,
   ShoppingItem,
   ShoppingList,
   Transaction,
@@ -91,6 +92,7 @@ export interface FullBackupPayload {
     debts: unknown[];
     settings: unknown[];
     categories?: unknown[];
+    productPrices?: unknown[];
   };
 }
 
@@ -202,12 +204,23 @@ function isCategory(value: unknown): value is Category {
   );
 }
 
+function isProductPrice(value: unknown): value is ProductPrice {
+  return (
+    isRecord(value) &&
+    hasStringFields(value, ['id', 'name', 'currency', 'createdAt', 'updatedAt']) &&
+    (value.label === undefined || typeof value.label === 'string') &&
+    typeof value.unitPrice === 'number' &&
+    Number.isFinite(value.unitPrice) &&
+    value.unitPrice >= 0
+  );
+}
+
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Erreur inconnue.';
 }
 
 export async function exportDatabaseToJSON(): Promise<string> {
-  const [accounts, transactions, shoppingLists, shoppingItems, debts, settings, categories] =
+  const [accounts, transactions, shoppingLists, shoppingItems, debts, settings, categories, productPrices] =
     await db.transaction(
       'r',
       [
@@ -218,6 +231,7 @@ export async function exportDatabaseToJSON(): Promise<string> {
         db.debts,
         db.settings,
         db.categories,
+        db.productPrices,
       ],
       () =>
         Promise.all([
@@ -228,6 +242,7 @@ export async function exportDatabaseToJSON(): Promise<string> {
           db.debts.toArray(),
           db.settings.toArray(),
           db.categories.toArray(),
+          db.productPrices.toArray(),
         ]),
     );
 
@@ -243,6 +258,7 @@ export async function exportDatabaseToJSON(): Promise<string> {
       debts,
       settings,
       categories,
+      productPrices,
     },
   };
 
@@ -273,6 +289,7 @@ export async function importDatabaseFromJSON(jsonString: string): Promise<{ succ
       !isArrayOf(data.debts, isDebt) ||
       !isArrayOf(data.settings, isAppSettings) ||
       (data.categories !== undefined && !isArrayOf(data.categories, isCategory))
+      || (data.productPrices !== undefined && !isArrayOf(data.productPrices, isProductPrice))
     ) {
       return {
         success: false,
@@ -287,6 +304,7 @@ export async function importDatabaseFromJSON(jsonString: string): Promise<{ succ
     const debts = data.debts;
     const settings = data.settings;
     const categories = data.categories ?? [];
+    const productPrices = data.productPrices ?? [];
 
     const importedCategories = [...categories];
     const defaultCategories = createDefaultCategories();
@@ -311,7 +329,7 @@ export async function importDatabaseFromJSON(jsonString: string): Promise<{ succ
     });
 
     // Run atomic transaction across all stores
-    await db.transaction('rw', [db.accounts, db.transactions, db.shoppingLists, db.shoppingItems, db.debts, db.settings, db.categories], async () => {
+    await db.transaction('rw', [db.accounts, db.transactions, db.shoppingLists, db.shoppingItems, db.debts, db.settings, db.categories, db.productPrices], async () => {
       await Promise.all([
         db.accounts.clear(),
         db.transactions.clear(),
@@ -320,6 +338,7 @@ export async function importDatabaseFromJSON(jsonString: string): Promise<{ succ
         db.debts.clear(),
         db.settings.clear(),
         db.categories.clear(),
+        db.productPrices.clear(),
       ]);
 
       if (accounts.length > 0) {
@@ -342,6 +361,9 @@ export async function importDatabaseFromJSON(jsonString: string): Promise<{ succ
       }
       if (importedCategories.length > 0) {
         await db.categories.bulkAdd(importedCategories);
+      }
+      if (productPrices.length > 0) {
+        await db.productPrices.bulkAdd(productPrices);
       }
     });
 
