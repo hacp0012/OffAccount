@@ -181,7 +181,7 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({ transa
   };
 
   return (
-    <div className="space-y-2.5 sm:space-y-4 pb-20">
+    <div className="space-y-2.5 pb-48 sm:space-y-4 sm:pb-20">
       {/* Top Action Header with compact mobile buttons */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
         <div>

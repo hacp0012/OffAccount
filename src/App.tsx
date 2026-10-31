@@ -23,6 +23,7 @@ import { SettingsView } from './components/settings/SettingsView';
 import { NotificationsSettingsView } from './components/settings/NotificationsSettingsView';
 import { ReportsView } from './components/reports/ReportsView';
 import { PresentationView } from './components/PresentationView';
+import { UsageGuideView } from './components/UsageGuideView';
 import { CurrencyProvider } from './context/CurrencyContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { TransactionFormModal } from './components/accounts/TransactionFormModal';
@@ -312,6 +313,7 @@ export default function App() {
                 }
               />
               <Route path="/presentation" element={<PresentationView />} />
+              <Route path="/guide" element={<UsageGuideView />} />
               <Route
                 path="/settings/notifications"
                 element={<NotificationsSettingsView />}

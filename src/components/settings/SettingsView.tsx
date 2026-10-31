@@ -448,14 +448,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
 
       <button
         type="button"
-        onClick={() => navigate('/presentation')}
+        onClick={() => navigate('/guide')}
         className="w-full p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
       >
         <span className="flex items-center gap-3">
           <BookOpen className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
           <span>
-            <span className="block text-sm font-bold text-slate-900 dark:text-white">Présentation de l’application</span>
-            <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">Découvrez les principales fonctionnalités de OA</span>
+            <span className="block text-sm font-bold text-slate-900 dark:text-white">Guide d’utilisation</span>
+            <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consultez les fonctions et les étapes d’utilisation de OA</span>
           </span>
         </span>
         <ArrowRight className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
