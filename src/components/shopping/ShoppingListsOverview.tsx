@@ -104,7 +104,7 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
   const displayedLists = filterTab === 'active' ? activeLists : completedLists;
 
   return (
-    <div className="space-y-3.5 sm:space-y-4 pb-20">
+    <div className="space-y-3.5 pb-40 sm:space-y-4 sm:pb-20">
       {/* Header and Create Button */}
       <div className="flex items-center justify-between">
         <div>

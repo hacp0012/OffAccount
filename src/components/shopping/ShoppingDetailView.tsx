@@ -85,7 +85,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
   const isCompleted = list.status === 'completed';
 
   return (
-    <div className="space-y-3.5 sm:space-y-4 pb-24">
+    <div className="space-y-3.5 pb-40 sm:space-y-4">
       {/* Top Navigation & Title Bar */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
@@ -139,7 +139,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
                 setItemToEdit(null);
                 setIsItemModalOpen(true);
               }}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-xs transition cursor-pointer active:scale-95"
+              className="hidden items-center gap-1.5 rounded-xl bg-emerald-700 px-2.5 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 active:scale-95 sm:flex sm:px-3 sm:py-2"
             >
               <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden xs:inline">Ajouter</span> Article
@@ -346,6 +346,21 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
             </button>
           </div>
         </div>
+      )}
+
+      {!isCompleted && (
+        <button
+          type="button"
+          onClick={() => {
+            setItemToEdit(null);
+            setIsItemModalOpen(true);
+          }}
+          className="fixed bottom-[6.5rem] right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xl shadow-emerald-950/40 transition-transform active:scale-90 sm:hidden"
+          aria-label="Ajouter un article"
+          title="Ajouter un article"
+        >
+          <Plus className="h-6 w-6 stroke-[2.5]" />
+        </button>
       )}
 
       {/* Item Modal */}

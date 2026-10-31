@@ -195,7 +195,7 @@ export const ProductPricesView: React.FC<ProductPricesViewProps> = ({ lists }) =
   return (
     <div
       id="product-prices-print-root"
-      className="mx-auto max-w-5xl space-y-4 pb-20 print:max-w-none print:space-y-4 print:pb-0"
+      className="mx-auto max-w-5xl space-y-4 pb-32 print:max-w-none print:space-y-4 print:pb-0"
     >
       <header className="flex items-center justify-between gap-3 print:hidden">
         <div className="flex min-w-0 items-center gap-2.5">
@@ -239,7 +239,7 @@ export const ProductPricesView: React.FC<ProductPricesViewProps> = ({ lists }) =
           <button
             type="button"
             onClick={openNewProduct}
-            className="flex items-center gap-1.5 rounded-xl bg-emerald-700 px-2.5 py-2 text-xs font-bold text-white transition hover:bg-emerald-800 sm:px-3"
+            className="hidden items-center gap-1.5 rounded-xl bg-emerald-700 px-2.5 py-2 text-xs font-bold text-white transition hover:bg-emerald-800 sm:flex sm:px-3"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">Ajouter</span>
@@ -281,7 +281,7 @@ export const ProductPricesView: React.FC<ProductPricesViewProps> = ({ lists }) =
             <button
               type="button"
               onClick={openNewProduct}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-emerald-700 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-800"
+              className="mt-4 hidden items-center gap-1.5 rounded-xl bg-emerald-700 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-800 sm:inline-flex"
             >
               <Plus className="h-4 w-4" />
               Ajouter un produit
@@ -525,6 +525,16 @@ export const ProductPricesView: React.FC<ProductPricesViewProps> = ({ lists }) =
         confirmText="Supprimer"
         isDestructive
       />
+
+      <button
+        type="button"
+        onClick={openNewProduct}
+        className="fixed bottom-6 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xl shadow-emerald-950/40 transition-transform active:scale-90 sm:hidden print:hidden"
+        aria-label="Ajouter un produit"
+        title="Ajouter un produit"
+      >
+        <Plus className="h-6 w-6 stroke-[2.5]" />
+      </button>
     </div>
   );
 };
