@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation, useNavigate, useParams, type Location } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { AnimatePresence, motion } from 'motion/react';
@@ -91,6 +91,11 @@ const AppNavigation: React.FC<{
   shoppingActiveCount: number;
 }> = ({ debtsCount, shoppingActiveCount }) => {
   const { pathname } = useLocation();
+  useLayoutEffect(() => {
+    const main = document.getElementById('main-content');
+    if (main) main.scrollTop = 0;
+  }, [pathname]);
+
   const showMobileNavigation =
     pathname === '/expenses' ||
     pathname === '/shopping' ||
@@ -192,7 +197,7 @@ export default function App() {
               </Routes>
             ) : (
             /* Main Routed Viewport */
-            <main className="flex-1 min-h-0 w-full overflow-y-auto overscroll-contain print:flex-none print:overflow-visible">
+            <main id="main-content" className="flex-1 min-h-0 w-full overflow-y-auto overscroll-contain print:flex-none print:overflow-visible">
               <div className="max-w-6xl w-full mx-auto px-2 sm:px-6 pt-2 sm:pt-4">
             {initializationStatus === 'loading' ? (
               <div className="py-16 text-center text-sm text-slate-500 dark:text-slate-400">
