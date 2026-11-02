@@ -260,7 +260,7 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
                 <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
                   <div className="flex min-w-0 items-center gap-2">
                     <div
-                      className="w-12 shrink-0 bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden"
+                      className="w-16 shrink-0 bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden"
                       role="progressbar"
                       aria-label="Progression de la liste"
                       aria-valuemin={0}
