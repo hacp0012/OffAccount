@@ -7,9 +7,11 @@ import {
   Edit2,
   Plus,
   Printer,
+  Search,
   ShoppingBasket,
   Tag,
   Trash2,
+  X,
 } from 'lucide-react';
 import type { ProductPrice, ShoppingList } from '../../types';
 import { db } from '../../db/database';
@@ -30,6 +32,14 @@ export const ProductPricesView: React.FC<ProductPricesViewProps> = ({ lists }) =
     () => db.productPrices.orderBy('name').toArray(),
     [],
   ) ?? [];
+  const [search, setSearch] = useState('');
+  const filteredProducts = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase('fr');
+    if (!query) return products;
+    return products.filter((product) =>
+      `${product.name} ${product.label ?? ''}`.toLocaleLowerCase('fr').includes(query),
+    );
+  }, [products, search]);
   const [productToEdit, setProductToEdit] = useState<ProductPrice | null>(null);
   const [productToDelete, setProductToDelete] = useState<ProductPrice | null>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -138,7 +148,7 @@ export const ProductPricesView: React.FC<ProductPricesViewProps> = ({ lists }) =
     };
     const rows = [
       ['Produit', 'Libellé', 'Prix unitaire', 'Devise'],
-      ...products.map((product) => [
+      ...filteredProducts.map((product) => [
         product.name,
         product.label ?? '',
         String(product.unitPrice).replace('.', ','),
@@ -212,8 +222,9 @@ export const ProductPricesView: React.FC<ProductPricesViewProps> = ({ lists }) =
               Fiche des prix
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {products.length} produit{products.length === 1 ? '' : 's'} enregistré
-              {products.length === 1 ? '' : 's'}
+              {search.trim()
+                ? `${filteredProducts.length} résultat${filteredProducts.length === 1 ? '' : 's'} sur ${products.length} produit${products.length === 1 ? '' : 's'}`
+                : `${products.length} produit${products.length === 1 ? '' : 's'} enregistré${products.length === 1 ? '' : 's'}`}
             </p>
           </div>
         </div>
@@ -269,6 +280,32 @@ export const ProductPricesView: React.FC<ProductPricesViewProps> = ({ lists }) =
           </span>
         </div>
 
+        {products.length > 0 && (
+          <div className="border-b border-slate-100 px-4 py-3 dark:border-slate-800 print:hidden">
+            <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-slate-500 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-400">
+              <Search className="h-4 w-4 shrink-0" />
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Rechercher un produit ou un libellé…"
+                aria-label="Rechercher dans la fiche des prix"
+                className="min-h-10 min-w-0 flex-1 bg-transparent text-xs text-slate-900 outline-none placeholder:text-slate-400 dark:text-white dark:placeholder:text-slate-500"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  aria-label="Effacer la recherche"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition hover:bg-slate-200 dark:hover:bg-slate-700"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </label>
+          </div>
+        )}
+
         {products.length === 0 ? (
           <div className="px-4 py-12 text-center print:hidden">
             <ShoppingBasket className="mx-auto h-9 w-9 text-slate-300 dark:text-slate-600" />
@@ -299,7 +336,7 @@ export const ProductPricesView: React.FC<ProductPricesViewProps> = ({ lists }) =
                 </tr>
               </thead>
               <tbody>
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <tr
                     key={product.id}
                     className="border-b border-slate-100 last:border-0 dark:border-slate-800 print:border-slate-300"
@@ -346,6 +383,16 @@ export const ProductPricesView: React.FC<ProductPricesViewProps> = ({ lists }) =
                     </td>
                   </tr>
                 ))}
+                {filteredProducts.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="px-4 py-10 text-center text-xs text-slate-500 dark:text-slate-400"
+                    >
+                      Aucun produit ne correspond à « {search.trim()} ».
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

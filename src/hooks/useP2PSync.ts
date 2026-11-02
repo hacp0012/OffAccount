@@ -44,6 +44,69 @@ export type P2PMessage =
       deviceId: string;
     };
 
+interface P2PSyncChunk {
+  type: "SYNC_CHUNK";
+  transferId: string;
+  index: number;
+  total: number;
+  totalLength: number;
+  checksum: string;
+  data: string;
+}
+
+interface IncomingTransfer {
+  total: number;
+  totalLength: number;
+  checksum: string;
+  chunks: string[];
+  received: number;
+}
+
+const SYNC_CHUNK_SIZE = 8 * 1024;
+const MAX_SYNC_MESSAGE_SIZE = 50 * 1024 * 1024;
+const MAX_SYNC_CHUNKS = Math.ceil(MAX_SYNC_MESSAGE_SIZE / SYNC_CHUNK_SIZE);
+
+function checksumMessage(message: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < message.length; index++) {
+    hash = Math.imul(hash ^ message.charCodeAt(index), 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+async function sendSyncMessage(conn: DataConnection, message: P2PMessage): Promise<void> {
+  const serialized = JSON.stringify(message);
+  if (serialized.length > MAX_SYNC_MESSAGE_SIZE) {
+    throw new Error("Les données à synchroniser dépassent la taille maximale autorisée (50 Mo).");
+  }
+
+  const total = Math.ceil(serialized.length / SYNC_CHUNK_SIZE);
+  const checksum = checksumMessage(serialized);
+  const transferId = `${message.type}_${message.syncId}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+  for (let index = 0; index < total; index++) {
+    if (!conn.open) {
+      throw new Error("La connexion a été interrompue pendant l’envoi des données.");
+    }
+
+    const start = index * SYNC_CHUNK_SIZE;
+    const chunk: P2PSyncChunk = {
+      type: "SYNC_CHUNK",
+      transferId,
+      index,
+      total,
+      totalLength: serialized.length,
+      checksum,
+      data: serialized.slice(start, start + SYNC_CHUNK_SIZE),
+    };
+    conn.send(chunk);
+
+    if (index > 0 && index % 32 === 0) {
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    }
+  }
+}
+
 export interface UseP2PSyncReturn {
   peerId: string | null;
   connectedPeerId: string | null;
@@ -100,6 +163,7 @@ export function useP2PSync(): UseP2PSyncReturn {
   };
 
   const setupConnection = useCallback((conn: DataConnection) => {
+    const incomingTransfers = new Map<string, IncomingTransfer>();
     connRef.current = conn;
     setStatus("connecting");
     setProgress(15);
@@ -120,8 +184,82 @@ export function useP2PSync(): UseP2PSyncReturn {
 
     conn.on("data", async (rawData: unknown) => {
       try {
-        const msg = rawData as any;
+        let msg = rawData as any;
         if (!msg) return;
+
+        if (msg.type === "SYNC_CHUNK") {
+          const chunk = msg as P2PSyncChunk;
+          if (
+            typeof chunk.transferId !== "string" ||
+            !Number.isInteger(chunk.index) ||
+            !Number.isInteger(chunk.total) ||
+            !Number.isInteger(chunk.totalLength) ||
+            chunk.total < 1 ||
+            chunk.total > MAX_SYNC_CHUNKS ||
+            chunk.totalLength < 1 ||
+            chunk.totalLength > MAX_SYNC_MESSAGE_SIZE ||
+            chunk.total !== Math.ceil(chunk.totalLength / SYNC_CHUNK_SIZE) ||
+            chunk.index < 0 ||
+            chunk.index >= chunk.total ||
+            typeof chunk.checksum !== "string" ||
+            typeof chunk.data !== "string" ||
+            chunk.data.length > SYNC_CHUNK_SIZE
+          ) {
+            throw new Error("Bloc de synchronisation invalide reçu.");
+          }
+
+          let transfer = incomingTransfers.get(chunk.transferId);
+          if (!transfer) {
+            transfer = {
+              total: chunk.total,
+              totalLength: chunk.totalLength,
+              checksum: chunk.checksum,
+              chunks: new Array<string>(chunk.total),
+              received: 0,
+            };
+            incomingTransfers.set(chunk.transferId, transfer);
+          } else if (
+            transfer.total !== chunk.total ||
+            transfer.totalLength !== chunk.totalLength ||
+            transfer.checksum !== chunk.checksum
+          ) {
+            incomingTransfers.delete(chunk.transferId);
+            throw new Error("Les informations des blocs reçus ne correspondent pas.");
+          }
+
+          const expectedChunkLength =
+            chunk.index === chunk.total - 1
+              ? chunk.totalLength - chunk.index * SYNC_CHUNK_SIZE
+              : SYNC_CHUNK_SIZE;
+          if (chunk.data.length !== expectedChunkLength) {
+            incomingTransfers.delete(chunk.transferId);
+            throw new Error("Un bloc de synchronisation est incomplet ou corrompu.");
+          }
+
+          if (transfer.chunks[chunk.index] === undefined) {
+            transfer.chunks[chunk.index] = chunk.data;
+            transfer.received++;
+          }
+
+          if (transfer.received < transfer.total) return;
+
+          incomingTransfers.delete(chunk.transferId);
+          const serialized = transfer.chunks.join("");
+          if (
+            serialized.length !== transfer.totalLength ||
+            checksumMessage(serialized) !== transfer.checksum
+          ) {
+            throw new Error("La vérification des données reçues a échoué. Relancez la synchronisation.");
+          }
+          try {
+            msg = JSON.parse(serialized);
+          } catch {
+            throw new Error("Le message de synchronisation reçu est illisible.");
+          }
+          if (!msg || typeof msg !== "object" || msg.type === "SYNC_CHUNK") {
+            throw new Error("Le message de synchronisation reconstitué est invalide.");
+          }
+        }
 
         // Détection du format de message (nouveau protocole typé ou legacy)
         const isRequest = msg.type === "SYNC_REQUEST" || (!msg.type && msg.data);
@@ -155,7 +293,7 @@ export function useP2PSync(): UseP2PSyncReturn {
             deviceId: deviceIdRef.current,
             payload: localPayload,
           };
-          conn.send(responseMsg);
+          await sendSyncMessage(conn, responseMsg);
 
           setStatus("success");
           setProgress(100);
@@ -206,6 +344,7 @@ export function useP2PSync(): UseP2PSyncReturn {
         setError(err?.message ?? "Erreur lors de la synchronisation des données.");
         setStatus("error");
         isSyncingRef.current = false;
+        incomingTransfers.clear();
       }
     });
 
@@ -214,6 +353,7 @@ export function useP2PSync(): UseP2PSyncReturn {
       connRef.current = null;
       setConnectedPeerId(null);
       isSyncingRef.current = false;
+      incomingTransfers.clear();
       setStatus((current) => (current === "success" ? "success" : peerRef.current?.open ? "ready" : "idle"));
     });
 
@@ -345,7 +485,7 @@ export function useP2PSync(): UseP2PSyncReturn {
         payload,
       };
 
-      connRef.current.send(msg);
+      await sendSyncMessage(connRef.current, msg);
       setProgress(55);
     } catch (err: any) {
       isSyncingRef.current = false;
