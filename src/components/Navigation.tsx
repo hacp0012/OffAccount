@@ -1,5 +1,13 @@
 import React from "react";
-import { ArrowLeft, WalletCards, ShoppingCart, Users, Shapes, TrendingDown } from "lucide-react";
+import {
+  ArrowLeft,
+  ChartNoAxesCombined,
+  Ellipsis,
+  WalletCards,
+  ShoppingCart,
+  Users,
+  TrendingDown,
+} from "lucide-react";
 import { PWAInstallButton } from "./PWAInstallButton";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -111,13 +119,22 @@ export const Navigation: React.FC<NavigationProps> = ({
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
-              <Shapes className="w-4 h-4" />
+              <Ellipsis className="w-5 h-5" />
               <span>Plus</span>
             </button>
           </nav>
 
           {/* Right Slot: PWA install trigger */}
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => navigate("/overview")}
+              className="md:hidden flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              aria-label="Vue d’ensemble"
+              title="Vue d’ensemble"
+            >
+              <ChartNoAxesCombined className="h-5 w-5" />
+            </button>
             <button
               type="button"
               onClick={() => navigate("/applications")}
@@ -129,7 +146,7 @@ export const Navigation: React.FC<NavigationProps> = ({
               aria-label="Plus"
               title="Plus"
             >
-              <Shapes className="h-4 w-4" />
+              <Ellipsis className="h-5 w-5" />
               <span>Plus</span>
             </button>
             <PWAInstallButton />

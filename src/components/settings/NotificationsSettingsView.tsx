@@ -122,7 +122,7 @@ export const NotificationsSettingsView: React.FC = () => {
         <button
           type="button"
           onClick={() => navigate('/settings')}
-          className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-xs transition hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="mt-0.5 hidden md:flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-xs transition hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
           aria-label="Retour aux paramètres"
         >
           <ArrowLeft className="h-4 w-4" />

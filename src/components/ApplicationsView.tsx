@@ -1,8 +1,22 @@
 import React from 'react';
-import { ArrowLeftRight, ArrowRight, ChartNoAxesCombined, Settings, Shapes } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  ArrowRight,
+  ChartNoAxesCombined,
+  LayoutGrid,
+  Printer,
+  Settings,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const applications = [
+  {
+    path: '/reports',
+    title: 'Rapports et impression',
+    description: 'Filtrez et imprimez vos dépenses, courses ou dettes.',
+    icon: Printer,
+    iconClass: 'bg-violet-50 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300',
+  },
   {
     path: '/exchange-rates',
     title: 'Taux de change',
@@ -34,7 +48,7 @@ export const ApplicationsView: React.FC = () => {
       <header className="rounded-2xl bg-white p-4 shadow-xs dark:bg-slate-900 sm:rounded-3xl sm:p-6">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-            <Shapes className="h-5 w-5" />
+            <LayoutGrid className="h-5 w-5" />
           </div>
           <div>
             <h1 className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-xl">

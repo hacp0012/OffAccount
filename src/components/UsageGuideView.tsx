@@ -64,7 +64,7 @@ const guideSections = [
     icon: BarChart3,
     title: 'Rapports : consulter, imprimer, exporter',
     description:
-      'Pour imprimer un relevé de vos dépenses, de vos revenus ou des deux, ouvrez Paramètres > Rapports et impression ou utilisez le raccourci Rapports de la Vue d’ensemble. Dans la page Rapports imprimables, sélectionnez Dépenses & revenus, Courses ou Dettes. Pour les opérations, choisissez Dépenses, Revenus ou les deux, puis filtrez par dates, compte et catégorie. Pour les courses, filtrez par période et statut de liste ; pour les dettes, par période, sens (Je dois / On me doit) et statut. Le tableau et le total affichés suivent ces filtres. Quand le rapport est prêt, cliquez sur Imprimer : la fenêtre d’impression de votre navigateur s’ouvre. Choisissez une imprimante pour obtenir une version papier ou Enregistrer au format PDF pour créer un fichier. Vous pouvez aussi cliquer sur CSV pour télécharger les données filtrées et les ouvrir dans un tableur.',
+      'Pour imprimer un relevé de vos dépenses, de vos revenus ou des deux, ouvrez Plus > Rapports et impression ou utilisez le raccourci Rapports de la Vue d’ensemble. Dans la page Rapports imprimables, sélectionnez Dépenses & revenus, Courses ou Dettes. Pour les opérations, choisissez Dépenses, Revenus ou les deux, puis filtrez par dates, compte et catégorie. Pour les courses, filtrez par période et statut de liste ; pour les dettes, par période, sens (Je dois / On me doit) et statut. Le tableau et le total affichés suivent ces filtres. Quand le rapport est prêt, cliquez sur Imprimer : la fenêtre d’impression de votre navigateur s’ouvre. Choisissez une imprimante pour obtenir une version papier ou Enregistrer au format PDF pour créer un fichier. Vous pouvez aussi cliquer sur CSV pour télécharger les données filtrées et les ouvrir dans un tableur.',
     links: [{ label: 'Ouvrir les rapports', path: '/reports' }],
   },
   {
@@ -102,7 +102,7 @@ export const UsageGuideView: React.FC = () => {
         <button
           type="button"
           onClick={() => navigate('/settings')}
-          className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-xs transition hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="mt-0.5 hidden md:flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-xs transition hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
           aria-label="Retour aux paramètres"
         >
           <ArrowLeft className="h-4 w-4" />

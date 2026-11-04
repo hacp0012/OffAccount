@@ -111,7 +111,7 @@ export const PresentationView: React.FC<PresentationViewProps> = ({ isFirstRun =
             <button
               type="button"
               onClick={() => navigate("/settings")}
-              className="flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-800"
+              className="hidden items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-800 md:flex"
             >
               Retour aux paramètres
               <ArrowRight className="h-4 w-4" />

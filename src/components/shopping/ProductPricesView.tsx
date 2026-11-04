@@ -212,7 +212,7 @@ export const ProductPricesView: React.FC<ProductPricesViewProps> = ({ lists }) =
           <button
             type="button"
             onClick={() => navigate('/shopping')}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-xs transition hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="hidden md:flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-xs transition hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
             aria-label="Retour aux listes de courses"
           >
             <ArrowLeft className="h-4 w-4" />

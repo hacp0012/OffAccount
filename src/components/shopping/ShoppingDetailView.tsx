@@ -91,7 +91,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={onBack}
-            className="min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+            className="hidden md:flex min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
             aria-label="Retour aux listes"
           >
             <ArrowLeft className="w-4 h-4 sm:w-5 h-5" />

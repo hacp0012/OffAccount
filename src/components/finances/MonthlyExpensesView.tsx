@@ -236,11 +236,12 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({ transa
           {/* Button to Categories Management */}
           <button
             onClick={() => setIsCatManagerOpen(true)}
-            className="flex items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition active:scale-95 cursor-pointer shadow-2xs"
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-800 shadow-2xs transition hover:bg-slate-100 active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700/80 sm:px-2.5"
             title="Ajouter, modifier ou supprimer des catégories"
             aria-label="Gérer les catégories"
           >
             <Tag className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
+            <span className="text-[10px] font-bold sm:hidden">Catégories</span>
           </button>
 
           {/* Button to Accounts Management Page */}

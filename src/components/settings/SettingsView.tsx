@@ -23,7 +23,6 @@ import {
   ArrowRight,
   BookOpen,
   Bell,
-  Printer,
   Info,
 } from 'lucide-react';
 import { SUPPORTED_CURRENCIES } from '../../utils/currencies';
@@ -414,22 +413,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
           </div>
         </div>
       </div>
-
-      {/* Advanced settings navigation */}
-      <button
-        type="button"
-        onClick={() => navigate('/reports')}
-        className="w-full p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between text-left hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition cursor-pointer"
-      >
-        <span className="flex items-center gap-3">
-          <Printer className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
-          <span>
-            <span className="block text-sm font-bold text-slate-900 dark:text-white">Rapports et impression</span>
-            <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">Filtrez et imprimez dépenses, courses ou dettes</span>
-          </span>
-        </span>
-        <ArrowRight className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
-      </button>
 
       <button
         type="button"
