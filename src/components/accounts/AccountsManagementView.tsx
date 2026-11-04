@@ -22,15 +22,17 @@ export const AccountsManagementView: React.FC<AccountsManagementViewProps> = ({
   accounts,
 }) => {
   const navigate = useNavigate();
-  const { currency, currencyInfo } = useAppCurrency();
+  const { currency } = useAppCurrency();
 
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [accountToEdit, setAccountToEdit] = useState<Account | null>(null);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
 
-  // Calculate total balance across all accounts in the global currency
-  const totalBalance = accounts.reduce((acc, a) => acc + (a.balance || 0), 0);
+  const totalBalances = accounts.reduce<Record<string, number>>((balances, account) => {
+    balances[account.currency] = (balances[account.currency] || 0) + (account.balance || 0);
+    return balances;
+  }, {});
 
   const confirmDeleteAccount = async () => {
     if (!accountToDelete) return;
@@ -92,23 +94,23 @@ export const AccountsManagementView: React.FC<AccountsManagementViewProps> = ({
         </div>
       </div>
 
-      {/* Net Balance Recap Strip */}
-      <div className="bg-emerald-900 dark:bg-slate-950 text-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-xs flex items-center justify-between">
-        <div>
-          <span className="text-[10px] sm:text-xs font-bold text-emerald-300 uppercase tracking-wide block mb-0.5">
-            Solde Total Global ({currencyInfo.name})
-          </span>
-          <div className="text-xl sm:text-2xl font-black tabular-nums tracking-tight">
-            {formatMoney(totalBalance, currency)}
-          </div>
-        </div>
-        <div className="text-right">
-          <span className="text-[10px] text-emerald-200 block font-medium">
-            Devise active
-          </span>
-          <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-lg tabular-nums">
-            {currency} ({currencyInfo.symbol})
-          </span>
+      {/* Account balances are kept separate because currencies cannot be added together. */}
+      <div className="bg-emerald-900 dark:bg-slate-950 text-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-xs">
+        <span className="text-[10px] sm:text-xs font-bold text-emerald-300 uppercase tracking-wide block mb-2">
+          Soldes totaux par devise
+        </span>
+        <div className="flex flex-wrap gap-2 sm:gap-3">
+          {Object.entries(totalBalances).map(([accountCurrency, balance]) => (
+            <div key={accountCurrency} className="min-w-[120px] rounded-xl bg-white/10 px-3 py-2">
+              <span className="text-[10px] text-emerald-200 block font-medium">{accountCurrency}</span>
+              <div className="text-base sm:text-lg font-black tabular-nums tracking-tight">
+                {formatMoney(balance, accountCurrency)}
+              </div>
+            </div>
+          ))}
+          {Object.keys(totalBalances).length === 0 && (
+            <span className="text-xs text-emerald-100">Aucun compte enregistré.</span>
+          )}
         </div>
       </div>
 
@@ -168,7 +170,7 @@ export const AccountsManagementView: React.FC<AccountsManagementViewProps> = ({
         onClose={() => setAccountToDelete(null)}
         onConfirm={confirmDeleteAccount}
         title="Supprimer ce compte ?"
-        message={`Êtes-vous sûr de vouloir supprimer définitivement le compte "${accountToDelete?.name}" ? Le solde de ${formatMoney(accountToDelete?.balance || 0, currency)} ne sera plus comptabilisé.`}
+        message={`Êtes-vous sûr de vouloir supprimer définitivement le compte "${accountToDelete?.name}" ? Le solde de ${formatMoney(accountToDelete?.balance || 0, accountToDelete?.currency || currency)} ne sera plus comptabilisé.`}
         confirmLabel="Supprimer le compte"
       />
     </div>

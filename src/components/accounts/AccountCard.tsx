@@ -2,7 +2,6 @@ import React from 'react';
 import type { Account } from '../../types';
 import { formatMoney } from '../../utils/formatters';
 import { Smartphone, Landmark, Wallet, PiggyBank, Edit3, Trash2 } from 'lucide-react';
-import { useAppCurrency } from '../../context/CurrencyContext';
 
 interface AccountCardProps {
   account: Account;
@@ -19,7 +18,6 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   onSelect,
   isSelected = false,
 }) => {
-  const { currency } = useAppCurrency();
   const getIcon = () => {
     switch (account.type) {
       case 'mobile_money':
@@ -111,14 +109,14 @@ export const AccountCard: React.FC<AccountCardProps> = ({
             account.balance < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'
           }`}
         >
-          {formatMoney(account.balance, currency)}
+          {formatMoney(account.balance, account.currency)}
         </div>
       </div>
 
       {/* Currency badge */}
       <div className="mt-1.5 flex items-center justify-between text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500">
         <span className="font-semibold px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
-          {currency}
+          {account.currency}
         </span>
         {account.notes && (
           <span className="truncate max-w-[140px] italic">

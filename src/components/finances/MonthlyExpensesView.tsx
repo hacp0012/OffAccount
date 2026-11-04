@@ -26,6 +26,12 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+const getTransactionBalanceChange = (tx: Transaction) => {
+  if (tx.type === "income") return tx.amount;
+  if (tx.type === "expense") return -tx.amount;
+  return tx.category === "Virement reçu" ? tx.amount : -tx.amount;
+};
+
 interface MonthlyExpensesViewProps {
   transactions: Transaction[];
   accounts: Account[];
@@ -78,6 +84,20 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({ transa
   });
   const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
   const isCurrentMonth = selectedMonthKey === currentMonthKey;
+  const balanceAsOfDate =
+    selectedMonthKey < currentMonthKey
+      ? new Date(selectedYear, selectedMonthNum, 0)
+      : now;
+  const balanceAsOfDateKey = [
+    balanceAsOfDate.getFullYear(),
+    String(balanceAsOfDate.getMonth() + 1).padStart(2, "0"),
+    String(balanceAsOfDate.getDate()).padStart(2, "0"),
+  ].join("-");
+  const balanceAsOfLabel = balanceAsOfDate.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   // Filter transactions for this month across all accounts
   const monthTransactions = useMemo(() => {
@@ -102,9 +122,22 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({ transa
     };
   }, [monthTransactions]);
 
-  const totalAvailableBalance = useMemo(
-    () => accounts.reduce((total, account) => total + (account.balance || 0), 0),
-    [accounts],
+  const monthEndAccountBalances = useMemo(
+    () =>
+      accounts
+        .filter((account) => account.createdAt.slice(0, 10) <= balanceAsOfDateKey)
+        .map((account) => {
+          const laterBalanceChanges = transactions.reduce((total, tx) => {
+            if (tx.accountId !== account.id || !tx.date || tx.date <= balanceAsOfDateKey) return total;
+            return total + getTransactionBalanceChange(tx);
+          }, 0);
+
+          return {
+            ...account,
+            balance: account.balance - laterBalanceChanges,
+          };
+        }),
+    [accounts, transactions, selectedMonthKey],
   );
 
   // Unique categories in this month for filter chips
@@ -316,9 +349,6 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({ transa
             {formatMoney(totalIncome, currency)}
           </div>
           <span className="text-[9px] sm:text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate block">
-            Disponible dans les comptes : {formatMoney(totalAvailableBalance, currency)}
-          </span>
-          <span className="text-[9px] sm:text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate block">
             {monthTransactions.filter((t) => t.type === "income").length} crédit
             {monthTransactions.filter((t) => t.type === "income").length > 1 ? "s" : ""}
           </span>
@@ -353,6 +383,50 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({ transa
           </span>
         </div>
       </div>
+
+      <details className="group rounded-xl border border-slate-200/80 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
+        <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3 py-2.5 text-xs">
+          <span className="font-bold text-slate-800 dark:text-slate-100">
+            Soldes des comptes
+            <span className="ml-1.5 font-normal text-slate-500 dark:text-slate-400">
+              au {balanceAsOfLabel}
+              {selectedMonthKey > currentMonthKey ? " (soldes actuels, pas une projection)" : ""}
+            </span>
+          </span>
+          <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
+            {monthEndAccountBalances.length} compte{monthEndAccountBalances.length > 1 ? "s" : ""}
+          </span>
+        </summary>
+        <div className="max-h-40 overflow-y-auto border-t border-slate-100 px-3 py-2 dark:border-slate-800">
+          {monthEndAccountBalances.length > 0 ? (
+            <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2 lg:grid-cols-3">
+              {monthEndAccountBalances.map((account) => (
+                <div
+                  key={account.id}
+                  className="flex min-w-0 items-center justify-between gap-2 border-b border-slate-100 py-1.5 last:border-0 dark:border-slate-800"
+                >
+                  <span className="min-w-0 truncate text-[11px] font-medium text-slate-600 dark:text-slate-300">
+                    {account.name}
+                  </span>
+                  <span
+                    className={`shrink-0 text-xs font-bold tabular-nums ${
+                      account.balance < 0
+                        ? "text-rose-600 dark:text-rose-400"
+                        : "text-slate-900 dark:text-white"
+                    }`}
+                  >
+                    {formatMoney(account.balance, account.currency)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="py-1 text-[11px] text-slate-500 dark:text-slate-400">
+              Aucun compte n’existait à cette date.
+            </p>
+          )}
+        </div>
+      </details>
 
       {/* Main Core: Historique des Dépenses Mensuelles */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-2.5">
@@ -540,7 +614,7 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({ transa
                               }`}
                             >
                               {isExpense ? "-" : "+"}
-                              {formatMoney(tx.amount, currency)}
+                              {formatMoney(tx.amount, tx.currency)}
                             </div>
                             {tx.shoppingListId && (
                               <span className="text-[9px] text-emerald-600 dark:text-emerald-400 font-semibold block">
@@ -578,7 +652,7 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({ transa
         onClose={() => setTxToDelete(null)}
         onConfirm={confirmDeleteTransaction}
         title="Supprimer cette opération ?"
-        message={`Êtes-vous sûr de vouloir supprimer "${txToDelete?.label}" d'un montant de ${formatMoney(txToDelete?.amount || 0, currency)} ? Le solde du compte associé sera recalculé.`}
+        message={`Êtes-vous sûr de vouloir supprimer "${txToDelete?.label}" d'un montant de ${formatMoney(txToDelete?.amount || 0, txToDelete?.currency || currency)} ? Le solde du compte associé sera recalculé.`}
         confirmLabel="Supprimer"
       />
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { WalletCards, ShoppingCart, Users, Settings, TrendingDown, ChartNoAxesCombined } from "lucide-react";
+import { ArrowLeft, WalletCards, ShoppingCart, Users, Shapes, TrendingDown } from "lucide-react";
 import { PWAInstallButton } from "./PWAInstallButton";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -23,8 +23,11 @@ export const Navigation: React.FC<NavigationProps> = ({
     currentPath === "/" || currentPath === "/expenses" || currentPath.startsWith("/expenses/") || currentPath === "/accounts";
   const isShoppingActive = currentPath.startsWith("/shopping");
   const isDebtsActive = currentPath.startsWith("/debts");
-  const isSettingsActive = currentPath.startsWith("/settings");
-  const isOverviewActive = currentPath.startsWith("/overview");
+  const isApplicationsActive =
+    currentPath === "/applications" ||
+    currentPath.startsWith("/overview") ||
+    currentPath.startsWith("/settings");
+  const showMobileBackButton = !["/expenses", "/shopping", "/debts"].includes(currentPath);
 
   return (
     <>
@@ -32,16 +35,35 @@ export const Navigation: React.FC<NavigationProps> = ({
       <header className="sticky top-0 z-30 shrink-0 bg-[#f8faf8]/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-emerald-950/5 dark:border-slate-800 px-3 sm:px-6 py-2.5 sm:py-3.5 transition-colors print:hidden">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
           {/* Brand Logo & Name (Clickable to Home / Finances) */}
-          <div onClick={() => navigate("/expenses")} className="flex items-center gap-0 cursor-pointer">
-            <img src="./icon.png" alt="OA" className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-contain shrink-0" />
-            <div>
-              <span className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white block leading-tight">
-                OA
-              </span>
+          <div className="flex items-center gap-2">
+            {showMobileBackButton && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window.history.state?.idx === "number" && window.history.state.idx > 0) {
+                    navigate(-1);
+                  } else {
+                    navigate("/expenses");
+                  }
+                }}
+                className="md:hidden flex h-9 w-9 items-center justify-center rounded-xl text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                aria-label="Retour à la page précédente"
+                title="Retour"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+            )}
+            <div onClick={() => navigate("/expenses")} className="flex items-center gap-0 cursor-pointer">
+              <img src="./icon.png" alt="OA" className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-contain shrink-0" />
+              <div>
+                <span className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white block leading-tight">
+                  OA
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Desktop Navigation Links (4 combined tabs) */}
+          {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl">
             <button
               onClick={() => navigate("/expenses")}
@@ -82,57 +104,33 @@ export const Navigation: React.FC<NavigationProps> = ({
             </button>
 
             <button
-              onClick={() => navigate("/overview")}
+              onClick={() => navigate("/applications")}
               className={`flex items-center gap-2 px-3.5 py-1.5 text-sm font-semibold rounded-lg transition cursor-pointer ${
-                isOverviewActive
+                isApplicationsActive
                   ? "bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-400 shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
-              <ChartNoAxesCombined className="w-4 h-4" />
-              <span>Vue d’ensemble</span>
-            </button>
-
-            <button
-              onClick={() => navigate("/settings")}
-              className={`flex items-center gap-2 px-3.5 py-1.5 text-sm font-semibold rounded-lg transition cursor-pointer ${
-                isSettingsActive
-                  ? "bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-400 shadow-xs"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-              }`}
-            >
-              <Settings className="w-4 h-4" />
-              <span>Paramètres</span>
+              <Shapes className="w-4 h-4" />
+              <span>Plus</span>
             </button>
           </nav>
 
-          {/* Right Slot: Settings shortcut and PWA install trigger */}
+          {/* Right Slot: PWA install trigger */}
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => navigate("/overview")}
-              className={`md:hidden min-h-10 min-w-10 flex items-center justify-center rounded-xl transition cursor-pointer ${
-                isOverviewActive
+              onClick={() => navigate("/applications")}
+              className={`md:hidden flex min-h-10 items-center justify-center gap-1.5 rounded-xl px-2.5 text-xs font-bold transition cursor-pointer ${
+                isApplicationsActive
                   ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
                   : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
-              aria-label="Vue d’ensemble"
-              title="Vue d’ensemble"
+              aria-label="Plus"
+              title="Plus"
             >
-              <ChartNoAxesCombined className="w-5 h-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/settings")}
-              className={`md:hidden min-h-10 min-w-10 flex items-center justify-center rounded-xl transition cursor-pointer ${
-                isSettingsActive
-                  ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
-                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-              }`}
-              aria-label="Paramètres"
-              title="Paramètres"
-            >
-              <Settings className="w-5 h-5" />
+              <Shapes className="h-4 w-4" />
+              <span>Plus</span>
             </button>
             <PWAInstallButton />
           </div>
@@ -184,6 +182,7 @@ export const Navigation: React.FC<NavigationProps> = ({
               <span className="absolute top-1 right-6 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white dark:ring-slate-900" />
             )}
           </button>
+
           </div>
         </div>
       )}

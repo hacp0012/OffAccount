@@ -86,7 +86,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
         accountId: selectedAccount.id,
         type,
         amount: numAmount,
-        currency: currency,
+        currency: selectedAccount.currency,
         category: category.trim(),
         label: label.trim() || 'Sans motif',
         date: date || now.split('T')[0],
@@ -195,7 +195,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
             >
               {accounts.map((acc) => (
                 <option key={acc.id} value={acc.id} className="dark:bg-slate-800 text-slate-900 dark:text-white">
-                  {acc.name} — Solde: {formatMoney(acc.balance, currency)}
+                  {acc.name} — Solde: {formatMoney(acc.balance, acc.currency)}
                 </option>
               ))}
             </select>
@@ -204,7 +204,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
           {/* Amount */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Montant ({currency}) *
+              Montant ({selectedAccount?.currency || currency}) *
             </label>
             <div className="relative">
               <input
@@ -218,7 +218,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 dark:text-slate-400">
-                {currency}
+                {selectedAccount?.currency || currency}
               </div>
             </div>
           </div>

@@ -10,9 +10,11 @@ import { AnimatePresence, motion } from 'motion/react';
 import { completeFirstRun, db, initializeDatabase } from './db/database';
 import type { Account, ShoppingItem, ShoppingList } from './types';
 import { Navigation } from './components/Navigation';
+import { ApplicationsView } from './components/ApplicationsView';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { MonthlyExpensesView } from './components/finances/MonthlyExpensesView';
 import { ExpenseChartsView } from './components/finances/ExpenseChartsView';
+import { CurrencyExchangeView } from './components/finances/CurrencyExchangeView';
 import { FinancialOverviewView } from './components/finances/FinancialOverviewView';
 import { AccountsManagementView } from './components/accounts/AccountsManagementView';
 import { ShoppingListsOverview } from './components/shopping/ShoppingListsOverview';
@@ -99,7 +101,9 @@ const AppNavigation: React.FC<{
   const showMobileNavigation =
     pathname === '/expenses' ||
     pathname === '/shopping' ||
-    pathname === '/debts';
+    pathname === '/debts' ||
+    pathname === '/overview' ||
+    pathname.startsWith('/settings');
 
   return (
     <Navigation
@@ -222,6 +226,9 @@ export default function App() {
             <Routes location={location}>
               {/* Redirect root to expenses */}
               <Route path="/" element={<Navigate to="/expenses" replace />} />
+
+              <Route path="/applications" element={<ApplicationsView />} />
+              <Route path="/exchange-rates" element={<CurrencyExchangeView />} />
 
               {/* Combined Tab Primary View: Monthly Expenses History */}
               <Route
