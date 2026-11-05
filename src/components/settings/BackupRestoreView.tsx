@@ -126,6 +126,8 @@ export const BackupRestoreView: React.FC<BackupRestoreViewProps> = ({ stats }) =
           db.debts,
           db.settings,
           db.productPrices,
+          db.wishlistCategories,
+          db.wishlistItems,
         ],
         async () => {
           await Promise.all([
@@ -136,6 +138,8 @@ export const BackupRestoreView: React.FC<BackupRestoreViewProps> = ({ stats }) =
             db.debts.clear(),
             db.settings.clear(),
             db.productPrices.clear(),
+            db.wishlistCategories.clear(),
+            db.wishlistItems.clear(),
           ]);
         }
       );
@@ -167,6 +171,8 @@ export const BackupRestoreView: React.FC<BackupRestoreViewProps> = ({ stats }) =
         db.debts.clear(),
         db.settings.clear(),
         db.productPrices.clear(),
+        db.wishlistCategories.clear(),
+        db.wishlistItems.clear(),
       ]);
       setNotification({
         type: 'success',
@@ -276,7 +282,7 @@ export const BackupRestoreView: React.FC<BackupRestoreViewProps> = ({ stats }) =
             </div>
             <h3 className="text-base font-bold text-slate-900">Sauvegarder (Export JSON)</h3>
             <p className="text-xs text-slate-500 mt-1">
-              Téléchargez une archive complète de vos comptes, transactions, courses et dettes. Conservez-la en lieu sûr ou transférez-la sur un autre appareil.
+              Téléchargez une archive complète de vos comptes, transactions, courses, dettes et souhaits. Conservez-la en lieu sûr ou transférez-la sur un autre appareil.
             </p>
           </div>
 

@@ -10,6 +10,8 @@ import type {
   ShoppingItem,
   ShoppingList,
   Transaction,
+  WishlistCategory,
+  WishlistItem,
 } from '../types';
 
 export function formatMoney(amount: number, currency?: Currency): string {
@@ -93,6 +95,8 @@ export interface FullBackupPayload {
     settings: unknown[];
     categories?: unknown[];
     productPrices?: unknown[];
+    wishlistCategories?: unknown[];
+    wishlistItems?: unknown[];
   };
 }
 
@@ -215,12 +219,34 @@ function isProductPrice(value: unknown): value is ProductPrice {
   );
 }
 
+function isWishlistCategory(value: unknown): value is WishlistCategory {
+  return (
+    isRecord(value) &&
+    hasStringFields(value, ['id', 'name', 'createdAt', 'updatedAt']) &&
+    (value.emoji === undefined || typeof value.emoji === 'string')
+  );
+}
+
+function isWishlistItem(value: unknown): value is WishlistItem {
+  return (
+    isRecord(value) &&
+    hasStringFields(value, ['id', 'listId', 'title', 'addedDate', 'createdAt', 'updatedAt']) &&
+    typeof value.completed === 'boolean' &&
+    typeof value.priority === 'number' &&
+    Number.isInteger(value.priority) &&
+    value.priority >= 0 &&
+    value.priority <= 5 &&
+    (value.dueDate === undefined || typeof value.dueDate === 'string') &&
+    (value.theme === undefined || typeof value.theme === 'string')
+  );
+}
+
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Erreur inconnue.';
 }
 
 export async function exportDatabaseToJSON(): Promise<string> {
-  const [accounts, transactions, shoppingLists, shoppingItems, debts, settings, categories, productPrices] =
+  const [accounts, transactions, shoppingLists, shoppingItems, debts, settings, categories, productPrices, wishlistCategories, wishlistItems] =
     await db.transaction(
       'r',
       [
@@ -232,6 +258,8 @@ export async function exportDatabaseToJSON(): Promise<string> {
         db.settings,
         db.categories,
         db.productPrices,
+        db.wishlistCategories,
+        db.wishlistItems,
       ],
       () =>
         Promise.all([
@@ -243,6 +271,8 @@ export async function exportDatabaseToJSON(): Promise<string> {
           db.settings.toArray(),
           db.categories.toArray(),
           db.productPrices.toArray(),
+          db.wishlistCategories.toArray(),
+          db.wishlistItems.toArray(),
         ]),
     );
 
@@ -259,6 +289,8 @@ export async function exportDatabaseToJSON(): Promise<string> {
       settings,
       categories,
       productPrices,
+      wishlistCategories,
+      wishlistItems,
     },
   };
 
@@ -290,6 +322,8 @@ export async function importDatabaseFromJSON(jsonString: string): Promise<{ succ
       !isArrayOf(data.settings, isAppSettings) ||
       (data.categories !== undefined && !isArrayOf(data.categories, isCategory))
       || (data.productPrices !== undefined && !isArrayOf(data.productPrices, isProductPrice))
+      || (data.wishlistCategories !== undefined && !isArrayOf(data.wishlistCategories, isWishlistCategory))
+      || (data.wishlistItems !== undefined && !isArrayOf(data.wishlistItems, isWishlistItem))
     ) {
       return {
         success: false,
@@ -305,6 +339,8 @@ export async function importDatabaseFromJSON(jsonString: string): Promise<{ succ
     const settings = data.settings;
     const categories = data.categories ?? [];
     const productPrices = data.productPrices ?? [];
+    const wishlistCategories = data.wishlistCategories ?? [];
+    const wishlistItems = data.wishlistItems ?? [];
 
     const importedCategories = [...categories];
     const defaultCategories = createDefaultCategories();
@@ -329,7 +365,7 @@ export async function importDatabaseFromJSON(jsonString: string): Promise<{ succ
     });
 
     // Run atomic transaction across all stores
-    await db.transaction('rw', [db.accounts, db.transactions, db.shoppingLists, db.shoppingItems, db.debts, db.settings, db.categories, db.productPrices], async () => {
+    await db.transaction('rw', [db.accounts, db.transactions, db.shoppingLists, db.shoppingItems, db.debts, db.settings, db.categories, db.productPrices, db.wishlistCategories, db.wishlistItems], async () => {
       await Promise.all([
         db.accounts.clear(),
         db.transactions.clear(),
@@ -339,6 +375,8 @@ export async function importDatabaseFromJSON(jsonString: string): Promise<{ succ
         db.settings.clear(),
         db.categories.clear(),
         db.productPrices.clear(),
+        db.wishlistCategories.clear(),
+        db.wishlistItems.clear(),
       ]);
 
       if (accounts.length > 0) {
@@ -365,11 +403,17 @@ export async function importDatabaseFromJSON(jsonString: string): Promise<{ succ
       if (productPrices.length > 0) {
         await db.productPrices.bulkAdd(productPrices);
       }
+      if (wishlistCategories.length > 0) {
+        await db.wishlistCategories.bulkAdd(wishlistCategories);
+      }
+      if (wishlistItems.length > 0) {
+        await db.wishlistItems.bulkAdd(wishlistItems);
+      }
     });
 
     return {
       success: true,
-      message: `Restauration réussie ! ${accounts.length} comptes, ${transactions.length} transactions et ${importedCategories.length} catégories restaurés.`,
+      message: `Restauration réussie ! ${accounts.length} comptes, ${transactions.length} transactions, ${wishlistItems.length} souhaits et ${importedCategories.length} catégories restaurés.`,
     };
   } catch (err: unknown) {
     return {

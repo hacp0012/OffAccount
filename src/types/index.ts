@@ -58,6 +58,27 @@ export interface ShoppingItem {
   createdAt: string;
 }
 
+export interface WishlistCategory {
+  id: string;
+  name: string;
+  emoji?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WishlistItem {
+  id: string;
+  listId: string;
+  title: string;
+  addedDate: string;
+  dueDate?: string;
+  completed: boolean;
+  theme?: string;
+  priority: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ProductPrice {
   id: string;
   name: string;

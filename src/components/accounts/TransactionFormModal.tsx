@@ -7,6 +7,7 @@ import { formatMoney } from '../../utils/formatters';
 import { TrendingDown, TrendingUp, Plus, Tag, Settings2, Check } from 'lucide-react';
 import { useAppCurrency } from '../../context/CurrencyContext';
 import { CategoriesManagerModal } from '../finances/CategoriesManagerModal';
+import { ConfirmModal } from '../ConfirmModal';
 
 interface TransactionFormModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
   const [label, setLabel] = useState('');
   const [date, setDate] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isInsufficientBalanceConfirmOpen, setIsInsufficientBalanceConfirmOpen] = useState(false);
 
   // Quick inline category addition state
   const [isQuickAddingCat, setIsQuickAddingCat] = useState(false);
@@ -73,11 +75,9 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
 
   const selectedAccount = accounts.find((a) => a.id === accountId);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const saveTransaction = async () => {
     const numAmount = parseFloat(amount);
     if (!selectedAccount || !numAmount || numAmount <= 0) return;
-
     setIsSaving(true);
     try {
       const now = new Date().toISOString();
@@ -113,6 +113,19 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const numAmount = parseFloat(amount);
+    if (!selectedAccount || !numAmount || numAmount <= 0) return;
+
+    if (type === 'expense' && numAmount > selectedAccount.balance) {
+      setIsInsufficientBalanceConfirmOpen(true);
+      return;
+    }
+
+    await saveTransaction();
   };
 
   const handleQuickAddCategory = async (e: React.MouseEvent | React.FormEvent) => {
@@ -353,6 +366,17 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
       isOpen={isCatManagerOpen}
       onClose={() => setIsCatManagerOpen(false)}
       initialType={type === 'income' ? 'income' : 'expense'}
+    />
+    <ConfirmModal
+      isOpen={isInsufficientBalanceConfirmOpen}
+      onClose={() => setIsInsufficientBalanceConfirmOpen(false)}
+      onConfirm={() => {
+        void saveTransaction();
+      }}
+      title="Solde insuffisant"
+      message={`Le compte « ${selectedAccount?.name ?? ''} » ne dispose pas d’un solde suffisant. Cette dépense de ${formatMoney(parseFloat(amount) || 0, selectedAccount?.currency || currency)} rendra son solde négatif. Voulez-vous tout de même continuer ?`}
+      confirmLabel="Dépense quand même"
+      isDestructive
     />
   </>
 );

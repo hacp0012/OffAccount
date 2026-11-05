@@ -6,6 +6,7 @@ import {
   LayoutGrid,
   Printer,
   Settings,
+  Star,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,6 +31,13 @@ const applications = [
     description: 'Consultez les indicateurs clés de vos comptes, opérations, courses et dettes.',
     icon: ChartNoAxesCombined,
     iconClass: 'bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300',
+  },
+  {
+    path: '/wishlist',
+    title: 'Liste de souhaits',
+    description: 'Organisez vos envies par catégorie, date cible et priorité.',
+    icon: Star,
+    iconClass: 'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300',
   },
   {
     path: '/settings',

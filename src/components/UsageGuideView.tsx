@@ -12,6 +12,7 @@ import {
   ShoppingBasket,
   Users,
   WalletCards,
+  Heart,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -52,6 +53,13 @@ const guideSections = [
       { label: 'Listes de courses', path: '/shopping' },
       { label: 'Prix des produits', path: '/shopping/products' },
     ],
+  },
+  {
+    icon: Heart,
+    title: 'Liste de souhaits',
+    description:
+      'Dans Plus, créez des catégories pour regrouper vos listes de souhaits, puis ajoutez vos envies avec une date cible facultative, un thème et une priorité de une à cinq étoiles. Cochez un souhait lorsqu’il est réalisé.',
+    links: [{ label: 'Ouvrir la liste de souhaits', path: '/wishlist' }],
   },
   {
     icon: Users,

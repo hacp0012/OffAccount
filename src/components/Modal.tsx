@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, animate as animateMotion, motion, useDragControls, useMotionValue } from 'motion/react';
 import { X } from 'lucide-react';
 import { useModalHistory } from '../hooks/useModalHistory';
 
@@ -25,6 +25,8 @@ export const Modal: React.FC<ModalProps> = ({
   onExitComplete,
 }) => {
   const requestClose = useModalHistory(isOpen, onClose, dismissible);
+  const dragControls = useDragControls();
+  const dragY = useMotionValue(0);
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' ? window.innerWidth < 640 : false
   );
@@ -79,12 +81,31 @@ export const Modal: React.FC<ModalProps> = ({
                 ? { type: 'spring', damping: 28, stiffness: 320 }
                 : { duration: 0.18, ease: [0.16, 1, 0.3, 1] }
             }
+            drag={isMobile && dismissible ? 'y' : false}
+            dragListener={false}
+            dragControls={dragControls}
+            dragConstraints={{ top: 0, bottom: isMobile ? window.innerHeight : 0 }}
+            dragMomentum={false}
+            style={isMobile ? { y: dragY } : undefined}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || (info.offset.y > 25 && info.velocity.y > 650)) {
+                requestClose();
+              } else {
+                void animateMotion(dragY, 0, { type: 'spring', damping: 30, stiffness: 300 });
+              }
+            }}
             className={`fixed inset-x-0 bottom-0 z-10 w-full ${maxWidthClass} bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 flex flex-col max-h-[92vh] overflow-hidden sm:relative sm:inset-auto`}
             role="dialog"
             aria-modal="true"
           >
             {/* Mobile Grab Handle */}
-            <div className="sm:hidden pt-2.5 pb-0.5 flex justify-center">
+            <div
+              className={`sm:hidden pt-2.5 pb-0.5 flex justify-center ${dismissible ? 'touch-none cursor-grab active:cursor-grabbing' : ''}`}
+              onPointerDown={(event) => {
+                if (dismissible && isMobile) dragControls.start(event);
+              }}
+              aria-label={dismissible ? 'Faire glisser vers le bas pour fermer' : undefined}
+            >
               <div className="w-10 h-1 bg-slate-200 dark:bg-slate-700 rounded-full" />
             </div>
 

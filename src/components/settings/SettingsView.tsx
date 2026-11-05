@@ -39,6 +39,7 @@ interface SettingsViewProps {
     transactionsCount: number;
     shoppingListsCount: number;
     debtsCount: number;
+    wishlistItemsCount: number;
   };
 }
 
@@ -378,7 +379,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-center">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-3 text-center">
           <div className="p-2 sm:p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
             <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tabular-nums">
               {stats.accountsCount}
@@ -409,6 +410,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
             </span>
             <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 block mt-0.5">
               Dossiers Dettes
+            </span>
+          </div>
+          <div className="p-2 sm:p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+            <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tabular-nums">
+              {stats.wishlistItemsCount}
+            </span>
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 block mt-0.5">
+              Souhaits
             </span>
           </div>
         </div>
@@ -485,7 +494,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ stats }) => {
               Sauvegarder (Export JSON)
             </h3>
             <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Téléchargez un fichier de backup complet de vos comptes, transactions, courses et dettes.
+              Téléchargez un fichier de backup complet de vos comptes, transactions, courses, dettes et souhaits.
             </p>
           </div>
 

@@ -18,6 +18,8 @@ import {
   ShoppingBag,
   CheckCheck,
   Tag,
+  Search,
+  X,
 } from 'lucide-react';
 
 interface ShoppingDetailViewProps {
@@ -34,6 +36,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
   onBack,
 }) => {
   const [filterMode, setFilterMode] = useState<'all' | 'todo' | 'done'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<ShoppingItem | null>(null);
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
@@ -48,10 +51,23 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
   const remainingItems = items.filter((i) => !i.checked);
   const totalRemaining = remainingItems.reduce((acc, it) => acc + (it.unitPrice || 0) * (it.quantity || 1), 0);
 
+  const normalizedSearch = searchTerm
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase();
   const filteredItems = items.filter((it) => {
-    if (filterMode === 'todo') return !it.checked;
-    if (filterMode === 'done') return it.checked;
-    return true;
+    if (filterMode === 'todo' && it.checked) return false;
+    if (filterMode === 'done' && !it.checked) return false;
+    if (!normalizedSearch) return true;
+
+    return [it.name, it.category].some((value) =>
+      value
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLocaleLowerCase()
+        .includes(normalizedSearch)
+    );
   });
 
   const toggleItemCheck = async (item: ShoppingItem) => {
@@ -171,11 +187,11 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
       </div>
 
       {/* Filter and Quick Actions Bar */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-900 border border-transparent dark:border-slate-800 rounded-xl">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-1 overflow-x-auto p-1 bg-slate-100 dark:bg-slate-900 border border-transparent dark:border-slate-800 rounded-xl">
           <button
             onClick={() => setFilterMode('all')}
-            className={`px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
+            className={`shrink-0 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
               filterMode === 'all'
                 ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -185,7 +201,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
           </button>
           <button
             onClick={() => setFilterMode('todo')}
-            className={`px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
+            className={`shrink-0 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
               filterMode === 'todo'
                 ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -195,7 +211,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
           </button>
           <button
             onClick={() => setFilterMode('done')}
-            className={`px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
+            className={`shrink-0 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
               filterMode === 'done'
                 ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -205,17 +221,41 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
           </button>
         </div>
 
-        {items.length > 0 && !isCompleted && (
-          <button
-            onClick={() => checkAll(checkedItems.length < items.length)}
-            className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition p-1 cursor-pointer flex items-center gap-1"
-          >
-            <CheckCheck className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">
-              {checkedItems.length === items.length ? 'Décocher tout' : 'Tout cocher'}
-            </span>
-          </button>
-        )}
+        <div className="flex items-center justify-between gap-2">
+          <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 sm:max-w-xs">
+            <Search className="h-4 w-4 shrink-0" />
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Rechercher un article..."
+              aria-label="Rechercher dans les articles de la liste"
+              className="min-w-0 flex-1 bg-transparent text-xs text-slate-900 outline-none placeholder:text-slate-400 dark:text-white"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm('')}
+                className="shrink-0 rounded p-0.5 hover:bg-slate-100 dark:hover:bg-slate-800"
+                aria-label="Effacer la recherche"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </label>
+
+          {items.length > 0 && !isCompleted && (
+            <button
+              onClick={() => checkAll(checkedItems.length < items.length)}
+              className="shrink-0 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition p-1 cursor-pointer flex items-center gap-1"
+            >
+              <CheckCheck className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">
+                {checkedItems.length === items.length ? 'Décocher tout' : 'Tout cocher'}
+              </span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Items List */}
@@ -223,9 +263,13 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
         {filteredItems.length === 0 ? (
           <div className="py-10 sm:py-12 text-center text-slate-400 dark:text-slate-500 p-4">
             <ShoppingBag className="w-8 h-8 sm:w-10 sm:h-10 mx-auto text-slate-300 dark:text-slate-600 stroke-[1.5] mb-2" />
-            <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Aucun article dans cette vue</p>
+            <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {normalizedSearch ? 'Aucun article trouvé' : 'Aucun article dans cette vue'}
+            </p>
             <p className="text-[11px] sm:text-xs text-slate-400 dark:text-slate-500 mt-1">
-              Appuyez sur "Ajouter Article" pour garnir votre panier.
+              {normalizedSearch
+                ? 'Essayez un autre nom ou une autre catégorie.'
+                : 'Appuyez sur "Ajouter Article" pour garnir votre panier.'}
             </p>
           </div>
         ) : (

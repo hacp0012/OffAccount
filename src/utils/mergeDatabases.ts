@@ -27,6 +27,8 @@ export interface P2PSyncPayload {
     settings:      (SyncRecord & Record<string, unknown>)[];
     categories:    (SyncRecord & Record<string, unknown>)[];
     productPrices?: (SyncRecord & Record<string, unknown>)[];
+    wishlistCategories?: (SyncRecord & Record<string, unknown>)[];
+    wishlistItems?: (SyncRecord & Record<string, unknown>)[];
   };
 }
 
@@ -67,7 +69,7 @@ function mergeTable<T extends SyncRecord>(
 }
 
 export async function exportLocalDatabaseForSync(deviceId: string): Promise<P2PSyncPayload> {
-  const [accounts, transactions, shoppingLists, shoppingItems, debts, settings, categories, productPrices] =
+  const [accounts, transactions, shoppingLists, shoppingItems, debts, settings, categories, productPrices, wishlistCategories, wishlistItems] =
     await Promise.all([
       db.accounts.toArray(),
       db.transactions.toArray(),
@@ -77,6 +79,8 @@ export async function exportLocalDatabaseForSync(deviceId: string): Promise<P2PS
       db.settings.toArray(),
       db.categories.toArray(),
       db.productPrices.toArray(),
+      db.wishlistCategories.toArray(),
+      db.wishlistItems.toArray(),
     ]);
 
   return {
@@ -93,12 +97,14 @@ export async function exportLocalDatabaseForSync(deviceId: string): Promise<P2PS
       settings:      settings      as any,
       categories:    categories    as any,
       productPrices: productPrices as any,
+      wishlistCategories: wishlistCategories as any,
+      wishlistItems: wishlistItems as any,
     },
   };
 }
 
 export async function mergeDatabases(remote: P2PSyncPayload): Promise<MergeResult> {
-  const [localAccounts, localTransactions, localShoppingLists, localShoppingItems, localDebts, localSettings, localCategories, localProductPrices] =
+  const [localAccounts, localTransactions, localShoppingLists, localShoppingItems, localDebts, localSettings, localCategories, localProductPrices, localWishlistCategories, localWishlistItems] =
     await Promise.all([
       db.accounts.toArray(),
       db.transactions.toArray(),
@@ -108,6 +114,8 @@ export async function mergeDatabases(remote: P2PSyncPayload): Promise<MergeResul
       db.settings.toArray(),
       db.categories.toArray(),
       db.productPrices.toArray(),
+      db.wishlistCategories.toArray(),
+      db.wishlistItems.toArray(),
     ]);
 
   const accountsMerge     = mergeTable(localAccounts      as any, remote.data.accounts);
@@ -118,10 +126,12 @@ export async function mergeDatabases(remote: P2PSyncPayload): Promise<MergeResul
   const settingsMerge     = mergeTable(localSettings      as any, remote.data.settings);
   const categoriesMerge   = mergeTable(localCategories    as any, remote.data.categories);
   const productPricesMerge = mergeTable(localProductPrices as any, remote.data.productPrices ?? []);
+  const wishlistCategoriesMerge = mergeTable(localWishlistCategories as any, remote.data.wishlistCategories ?? []);
+  const wishlistItemsMerge = mergeTable(localWishlistItems as any, remote.data.wishlistItems ?? []);
 
   await db.transaction(
     "rw",
-    [db.accounts, db.transactions, db.shoppingLists, db.shoppingItems, db.debts, db.settings, db.categories, db.productPrices],
+    [db.accounts, db.transactions, db.shoppingLists, db.shoppingItems, db.debts, db.settings, db.categories, db.productPrices, db.wishlistCategories, db.wishlistItems],
     async () => {
       const apply = async (table: any, merge: { toUpsert: any[] }) => {
         if (merge.toUpsert.length > 0) await table.bulkPut(merge.toUpsert);
@@ -135,6 +145,8 @@ export async function mergeDatabases(remote: P2PSyncPayload): Promise<MergeResul
         apply(db.settings,      settingsMerge),
         apply(db.categories,    categoriesMerge),
         apply(db.productPrices, productPricesMerge),
+        apply(db.wishlistCategories, wishlistCategoriesMerge),
+        apply(db.wishlistItems, wishlistItemsMerge),
       ]);
     },
   );
@@ -147,6 +159,8 @@ export async function mergeDatabases(remote: P2PSyncPayload): Promise<MergeResul
     debts:         { added: debtsMerge.added,        updated: debtsMerge.updated,        deleted: debtsMerge.deleted },
     categories:    { added: categoriesMerge.added,   updated: categoriesMerge.updated,   deleted: categoriesMerge.deleted },
     productPrices: { added: productPricesMerge.added, updated: productPricesMerge.updated, deleted: productPricesMerge.deleted },
+    wishlistCategories: { added: wishlistCategoriesMerge.added, updated: wishlistCategoriesMerge.updated, deleted: wishlistCategoriesMerge.deleted },
+    wishlistItems: { added: wishlistItemsMerge.added, updated: wishlistItemsMerge.updated, deleted: wishlistItemsMerge.deleted },
   };
 
   const total = (key: "added" | "updated" | "deleted") =>

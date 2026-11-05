@@ -34,7 +34,8 @@ export const Navigation: React.FC<NavigationProps> = ({
   const isApplicationsActive =
     currentPath === "/applications" ||
     currentPath.startsWith("/overview") ||
-    currentPath.startsWith("/settings");
+    currentPath.startsWith("/settings") ||
+    currentPath.startsWith("/wishlist");
   const showMobileBackButton = !["/expenses", "/shopping", "/debts"].includes(currentPath);
 
   return (
@@ -178,11 +179,18 @@ export const Navigation: React.FC<NavigationProps> = ({
                 : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 font-medium"
             }`}
           >
-            <ShoppingCart className={`w-4 h-4 transition-transform ${isShoppingActive ? "scale-110" : ""}`} />
+            <span className="relative inline-flex">
+              <ShoppingCart className={`w-4 h-4 transition-transform ${isShoppingActive ? "scale-110" : ""}`} />
+              {shoppingActiveCount > 0 && (
+                <span
+                  aria-label={`${shoppingActiveCount} liste${shoppingActiveCount > 1 ? "s" : ""} de courses active${shoppingActiveCount > 1 ? "s" : ""}`}
+                  className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-600 px-1 text-[9px] font-bold leading-none text-white ring-2 ring-white dark:ring-slate-900"
+                >
+                  {shoppingActiveCount}
+                </span>
+              )}
+            </span>
             <span className="text-[10px] mt-0.5 tracking-tight truncate">Courses</span>
-            {shoppingActiveCount > 0 && (
-              <span className="absolute top-1 right-6 w-2 h-2 rounded-full bg-emerald-600 ring-2 ring-white dark:ring-slate-900" />
-            )}
           </button>
 
           <button
@@ -193,11 +201,18 @@ export const Navigation: React.FC<NavigationProps> = ({
                 : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 font-medium"
             }`}
           >
-            <Users className={`w-4 h-4 transition-transform ${isDebtsActive ? "scale-110" : ""}`} />
+            <span className="relative inline-flex">
+              <Users className={`w-4 h-4 transition-transform ${isDebtsActive ? "scale-110" : ""}`} />
+              {debtsCount > 0 && (
+                <span
+                  aria-label={`${debtsCount} dette${debtsCount > 1 ? "s" : ""} active${debtsCount > 1 ? "s" : ""}`}
+                  className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold leading-none text-white ring-2 ring-white dark:ring-slate-900"
+                >
+                  {debtsCount}
+                </span>
+              )}
+            </span>
             <span className="text-[10px] mt-0.5 tracking-tight truncate">Dettes</span>
-            {debtsCount > 0 && (
-              <span className="absolute top-1 right-6 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white dark:ring-slate-900" />
-            )}
           </button>
 
           </div>

@@ -8,6 +8,8 @@ import type {
   AppSettings,
   Category,
   ProductPrice,
+  WishlistCategory,
+  WishlistItem,
 } from '../types';
 
 export const DEFAULT_EXPENSE_CATEGORIES: Array<{ name: string; color: string; icon: string }> = [
@@ -44,6 +46,8 @@ export class OffMoneyDatabase extends Dexie {
   settings!: Table<AppSettings, string>;
   categories!: Table<Category, string>;
   productPrices!: Table<ProductPrice, string>;
+  wishlistCategories!: Table<WishlistCategory, string>;
+  wishlistItems!: Table<WishlistItem, string>;
 
   constructor() {
     super('OffMoneyDB');
@@ -60,6 +64,10 @@ export class OffMoneyDatabase extends Dexie {
     });
     this.version(3).stores({
       productPrices: 'id, name, currency, updatedAt',
+    });
+    this.version(4).stores({
+      wishlistCategories: 'id, name, createdAt, updatedAt',
+      wishlistItems: 'id, listId, addedDate, dueDate, completed, priority, createdAt, updatedAt',
     });
   }
 }
@@ -199,6 +207,8 @@ export async function initializeDatabase(): Promise<boolean> {
     db.debts.count(),
     db.settings.count(),
     db.categories.count(),
+    db.wishlistCategories.count(),
+    db.wishlistItems.count(),
   ]);
   const hasExistingData = tableCounts.some((count) => count > 0);
 
@@ -253,6 +263,8 @@ export async function resetDatabaseToBlank(): Promise<void> {
       db.settings,
       db.categories,
       db.productPrices,
+      db.wishlistCategories,
+      db.wishlistItems,
     ],
     async () => {
       await Promise.all([
@@ -264,6 +276,8 @@ export async function resetDatabaseToBlank(): Promise<void> {
         db.settings.clear(),
         db.categories.clear(),
         db.productPrices.clear(),
+        db.wishlistCategories.clear(),
+        db.wishlistItems.clear(),
       ]);
       await db.categories.bulkAdd(createDefaultCategories());
       await db.settings.bulkPut([

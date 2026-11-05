@@ -26,6 +26,7 @@ import { NotificationsSettingsView } from './components/settings/NotificationsSe
 import { ReportsView } from './components/reports/ReportsView';
 import { PresentationView } from './components/PresentationView';
 import { UsageGuideView } from './components/UsageGuideView';
+import { WishlistsView } from './components/wishlist/WishlistsView';
 import { CurrencyProvider } from './context/CurrencyContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { TransactionFormModal } from './components/accounts/TransactionFormModal';
@@ -103,6 +104,7 @@ const AppNavigation: React.FC<{
     pathname === '/shopping' ||
     pathname === '/debts' ||
     pathname === '/overview' ||
+    (pathname.startsWith('/wishlist') && pathname !== '/wishlist') ||
     pathname.startsWith('/settings');
 
   return (
@@ -157,6 +159,7 @@ export default function App() {
   const shoppingItems = useLiveQuery(() => db.shoppingItems.toArray()) || [];
   const debts =
     useLiveQuery(() => db.debts.orderBy('createdAt').reverse().toArray()) || [];
+  const wishlistItems = useLiveQuery(() => db.wishlistItems.toArray()) || [];
 
   // Active counts for badges
   const activeDebtsCount = debts.filter(
@@ -228,6 +231,7 @@ export default function App() {
               <Route path="/" element={<Navigate to="/expenses" replace />} />
 
               <Route path="/applications" element={<ApplicationsView />} />
+              <Route path="/wishlist" element={<WishlistsView />} />
               <Route path="/exchange-rates" element={<CurrencyExchangeView />} />
 
               {/* Combined Tab Primary View: Monthly Expenses History */}
@@ -307,6 +311,7 @@ export default function App() {
                       transactionsCount: transactions.length,
                       shoppingListsCount: shoppingLists.length,
                       debtsCount: debts.length,
+                      wishlistItemsCount: wishlistItems.length,
                     }}
                   />
                 }
@@ -320,6 +325,7 @@ export default function App() {
                       transactionsCount: transactions.length,
                       shoppingListsCount: shoppingLists.length,
                       debtsCount: debts.length,
+                      wishlistItemsCount: wishlistItems.length,
                     }}
                   />
                 }
