@@ -692,7 +692,6 @@ export const MonthlyExpensesView: React.FC<MonthlyExpensesViewProps> = ({ transa
         accounts={accounts}
         currency={currency}
         onDeleteRequest={(tx) => {
-          setSelectedTxForDetail(null);
           setTxToDelete(tx);
         }}
       />

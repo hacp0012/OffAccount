@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import type { ShoppingItem, Currency } from '../../types';
 import { Modal } from '../Modal';
 import { formatMoney } from '../../utils/formatters';
@@ -22,6 +22,7 @@ interface ShoppingItemDetailModalProps {
   onToggleCheck: (item: ShoppingItem) => void;
   onEdit: (item: ShoppingItem) => void;
   onDelete: (item: ShoppingItem) => void;
+  onExitComplete?: () => void;
   isListCompleted?: boolean;
 }
 
@@ -33,20 +34,25 @@ export const ShoppingItemDetailModal: React.FC<ShoppingItemDetailModalProps> = (
   onToggleCheck,
   onEdit,
   onDelete,
+  onExitComplete,
   isListCompleted = false,
 }) => {
-  if (!item) return null;
-
-  const total = (item.unitPrice || 0) * (item.quantity || 1);
+  const nextActionRef = useRef<(() => void) | null>(null);
+  const total = item ? (item.unitPrice || 0) * (item.quantity || 1) : 0;
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
+      onExitComplete={() => {
+        onExitComplete?.();
+        nextActionRef.current?.();
+        nextActionRef.current = null;
+      }}
       title="Détails de l'article"
       description="Consultez les informations complètes et gérez l'état de l'article."
     >
-      <div className="space-y-4">
+      {item && <div className="space-y-4">
         {/* Item Header & Status */}
         <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
@@ -175,8 +181,8 @@ export const ShoppingItemDetailModal: React.FC<ShoppingItemDetailModalProps> = (
               <>
                 <button
                   onClick={() => {
+                    nextActionRef.current = () => onEdit(item);
                     onClose();
-                    onEdit(item);
                   }}
                   className="flex-1 py-2 sm:py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
@@ -185,8 +191,8 @@ export const ShoppingItemDetailModal: React.FC<ShoppingItemDetailModalProps> = (
                 </button>
                 <button
                   onClick={() => {
+                    nextActionRef.current = () => onDelete(item);
                     onClose();
-                    onDelete(item);
                   }}
                   className="flex-1 py-2 sm:py-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
@@ -203,7 +209,7 @@ export const ShoppingItemDetailModal: React.FC<ShoppingItemDetailModalProps> = (
             </button>
           </div>
         </div>
-      </div>
+      </div>}
     </Modal>
   );
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ArrowLeft,
   ChartNoAxesCombined,
@@ -7,9 +7,11 @@ import {
   ShoppingCart,
   Users,
   TrendingDown,
+  Calculator,
 } from "lucide-react";
 import { PWAInstallButton } from "./PWAInstallButton";
 import { useNavigate, useLocation } from "react-router-dom";
+import { CalculatorToolsModal } from "./CalculatorToolsModal";
 
 interface NavigationProps {
   debtsCount?: number;
@@ -25,6 +27,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+  const [isToolsModalOpen, setIsToolsModalOpen] = useState(false);
 
   // Determine active high-level tab
   const isFinancesActive =
@@ -129,6 +132,15 @@ export const Navigation: React.FC<NavigationProps> = ({
           <div className="flex items-center gap-2">
             <button
               type="button"
+              onClick={() => setIsToolsModalOpen(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-slate-100 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-300"
+              aria-label="Ouvrir la calculatrice et le convertisseur"
+              title="Calculatrice et convertisseur"
+            >
+              <Calculator className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
               onClick={() => navigate("/overview")}
               className="md:hidden flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
               aria-label="Vue d’ensemble"
@@ -154,6 +166,11 @@ export const Navigation: React.FC<NavigationProps> = ({
           </div>
         </div>
       </header>
+
+      <CalculatorToolsModal
+        isOpen={isToolsModalOpen}
+        onClose={() => setIsToolsModalOpen(false)}
+      />
 
       {showMobileNavigation && (
         /* Fixed Bottom Tab Bar for routes that request mobile navigation */

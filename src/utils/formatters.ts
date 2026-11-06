@@ -140,6 +140,8 @@ function isShoppingList(value: unknown): value is ShoppingList {
   return (
     isRecord(value) &&
     hasStringFields(value, ['id', 'title', 'currency', 'createdAt']) &&
+    (value.emoji === undefined || typeof value.emoji === 'string') &&
+    (value.isPinned === undefined || typeof value.isPinned === 'boolean') &&
     ['active', 'completed', 'archived'].includes(value.status as string) &&
     ['paidFromAccountId', 'reimbursementDebtId', 'completedAt'].every(
       (field) => value[field] === undefined || typeof value[field] === 'string',
@@ -166,6 +168,7 @@ function isDebt(value: unknown): value is Debt {
   if (
     !isRecord(value) ||
     !hasStringFields(value, ['id', 'personName', 'currency', 'status', 'createdAt', 'updatedAt']) ||
+    (value.isPinned !== undefined && typeof value.isPinned !== 'boolean') ||
     !['they_owe_me', 'i_owe_them'].includes(value.direction as string) ||
     !['active', 'settled'].includes(value.status as string) ||
     typeof value.totalAmount !== 'number' ||
@@ -237,7 +240,11 @@ function isWishlistItem(value: unknown): value is WishlistItem {
     value.priority >= 0 &&
     value.priority <= 5 &&
     (value.dueDate === undefined || typeof value.dueDate === 'string') &&
-    (value.theme === undefined || typeof value.theme === 'string')
+    (value.theme === undefined || typeof value.theme === 'string') &&
+    (value.label === undefined || typeof value.label === 'string') &&
+    (value.amountCurrency === undefined || typeof value.amountCurrency === 'string') &&
+    (value.amount === undefined ||
+      (typeof value.amount === 'number' && Number.isFinite(value.amount) && value.amount >= 0))
   );
 }
 

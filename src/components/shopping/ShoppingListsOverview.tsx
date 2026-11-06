@@ -18,6 +18,7 @@ import {
   Tag,
   Edit2,
   Tags,
+  Pin,
 } from 'lucide-react';
 
 interface ShoppingListsOverviewProps {
@@ -35,10 +36,12 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
   const { currency } = useAppCurrency();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
+  const [newListEmoji, setNewListEmoji] = useState('🛒');
   const [filterTab, setFilterTab] = useState<'active' | 'completed'>('active');
   const [listToDelete, setListToDelete] = useState<ShoppingList | null>(null);
   const [listToRename, setListToRename] = useState<ShoppingList | null>(null);
   const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
+  const [listActionError, setListActionError] = useState('');
 
   // Compute cost for each list
   const getListStats = (listId: string) => {
@@ -73,6 +76,7 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
       const newList: ShoppingList = {
         id: `list_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
         title: newListTitle.trim(),
+        emoji: newListEmoji || undefined,
         currency,
         status: 'active',
         createdAt: now,
@@ -80,6 +84,7 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
 
       await db.shoppingLists.add(newList);
       setNewListTitle('');
+      setNewListEmoji('🛒');
       setIsCreateModalOpen(false);
       onSelectList(newList);
     } catch (err) {
@@ -101,7 +106,20 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
     }
   };
 
-  const displayedLists = filterTab === 'active' ? activeLists : completedLists;
+  const togglePinned = async (list: ShoppingList) => {
+    try {
+      setListActionError('');
+      await db.shoppingLists.update(list.id, { isPinned: !list.isPinned });
+    } catch (error) {
+      console.error('Failed to update shopping list pin:', error);
+      setListActionError(
+        error instanceof Error ? error.message : 'Impossible de modifier l’épingle de cette liste.',
+      );
+    }
+  };
+
+  const displayedLists = [...(filterTab === 'active' ? activeLists : completedLists)]
+    .sort((a, b) => Number(Boolean(b.isPinned)) - Number(Boolean(a.isPinned)));
 
   return (
     <div className="space-y-3.5 pb-48 sm:space-y-4 sm:pb-20">
@@ -131,7 +149,10 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
             <span>Prix</span>
           </button>
           <button
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={() => {
+              setNewListEmoji('🛒');
+              setIsCreateModalOpen(true);
+            }}
             className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-xs transition active:scale-95 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -188,6 +209,12 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
         </button>
       </div>
 
+      {listActionError && (
+        <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
+          {listActionError}
+        </p>
+      )}
+
       {/* Shopping Lists Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
         {displayedLists.length === 0 ? (
@@ -213,9 +240,12 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0">
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
-                      {list.title}
-                    </h3>
+                    <div className="flex min-w-0 items-center gap-1.5">
+                      {list.emoji && <span className="shrink-0 text-base leading-none" aria-hidden="true">{list.emoji}</span>}
+                      <h3 className="truncate text-sm font-bold text-slate-900 transition-colors group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400">
+                        {list.title}
+                      </h3>
+                    </div>
                     <div className="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-400 mt-0.5">
                       <span className="font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-1.5 sm:px-2 py-0.5 rounded-md">
                         {list.currency}
@@ -231,6 +261,23 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
 
                   <div className="flex shrink-0 items-center gap-1">
                     <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      void togglePinned(list);
+                    }}
+                    className={`rounded-lg p-1.5 transition ${
+                      list.isPinned
+                        ? 'text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/30'
+                        : 'text-slate-400 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-950/30 dark:hover:text-amber-400'
+                    }`}
+                    title={list.isPinned ? 'Désépingler la liste' : 'Épingler la liste'}
+                    aria-label={list.isPinned ? `Désépingler ${list.title}` : `Épingler ${list.title}`}
+                    aria-pressed={Boolean(list.isPinned)}
+                  >
+                    <Pin className={`h-4 w-4 ${list.isPinned ? 'fill-current' : ''}`} />
+                  </button>
+                  <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -317,6 +364,42 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
             />
           </div>
 
+          <fieldset>
+            <legend className="mb-1.5 block text-xs font-bold text-slate-700 dark:text-slate-300">
+              Icône de la liste
+            </legend>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => setNewListEmoji('')}
+                aria-pressed={!newListEmoji}
+                className={`flex h-9 min-w-9 items-center justify-center rounded-lg border px-2 text-[10px] font-semibold transition ${
+                  !newListEmoji
+                    ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-200 dark:bg-emerald-950/50 dark:ring-emerald-900'
+                    : 'border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700'
+                }`}
+              >
+                Aucun
+              </button>
+              {['🛒', '🛍️', '🥬', '🍎', '🥖', '🥛', '🍽️', '🏠', '🎉', '🧹', '💊', '✨'].map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => setNewListEmoji(emoji)}
+                  aria-label={`Choisir l’emoji ${emoji}`}
+                  aria-pressed={newListEmoji === emoji}
+                  className={`flex h-9 w-9 items-center justify-center rounded-lg border text-lg transition ${
+                    newListEmoji === emoji
+                      ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-200 dark:bg-emerald-950/50 dark:ring-emerald-900'
+                      : 'border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
           <div className="p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 rounded-xl flex items-center justify-between text-xs">
             <span className="font-semibold text-slate-600 dark:text-slate-300">Devise de l'application :</span>
             <span className="font-black text-emerald-800 dark:text-emerald-300 bg-emerald-100/70 dark:bg-emerald-950/60 px-2.5 py-1 rounded-md">
@@ -369,7 +452,10 @@ export const ShoppingListsOverview: React.FC<ShoppingListsOverviewProps> = ({
 
       {/* Mobile Floating Action Button (FAB) */}
       <button
-        onClick={() => setIsCreateModalOpen(true)}
+        onClick={() => {
+          setNewListEmoji('🛒');
+          setIsCreateModalOpen(true);
+        }}
         className="sm:hidden fixed bottom-20 right-4 z-30 w-14 h-14 rounded-full bg-emerald-600 text-white shadow-xl shadow-emerald-950/40 flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
         aria-label="Nouvelle liste"
         title="Ajouter une nouvelle liste"

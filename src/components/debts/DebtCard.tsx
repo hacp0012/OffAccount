@@ -13,6 +13,7 @@ import {
   Clock,
   ArrowDownLeft,
   ArrowUpRight,
+  Pin,
 } from 'lucide-react';
 
 interface DebtCardProps {
@@ -20,6 +21,7 @@ interface DebtCardProps {
   onRecordPayment: (debt: Debt) => void;
   onEdit: (debt: Debt) => void;
   onDelete: (debt: Debt) => void;
+  onTogglePinned: (debt: Debt) => void;
 }
 
 export const DebtCard: React.FC<DebtCardProps> = ({
@@ -27,6 +29,7 @@ export const DebtCard: React.FC<DebtCardProps> = ({
   onRecordPayment,
   onEdit,
   onDelete,
+  onTogglePinned,
 }) => {
   const [showHistory, setShowHistory] = useState(false);
 
@@ -94,6 +97,20 @@ export const DebtCard: React.FC<DebtCardProps> = ({
 
         {/* Action icons */}
         <div className="flex items-center gap-1 shrink-0">
+          <button
+            type="button"
+            onClick={() => onTogglePinned(debt)}
+            className={`p-1 sm:p-1.5 rounded-lg transition cursor-pointer ${
+              debt.isPinned
+                ? 'text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/30'
+                : 'text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:text-amber-400 dark:hover:bg-amber-950/30'
+            }`}
+            title={debt.isPinned ? 'Désépingler la fiche' : 'Épingler la fiche'}
+            aria-label={debt.isPinned ? `Désépingler la fiche de ${debt.personName}` : `Épingler la fiche de ${debt.personName}`}
+            aria-pressed={Boolean(debt.isPinned)}
+          >
+            <Pin className={`w-3.5 h-3.5 ${debt.isPinned ? 'fill-current' : ''}`} />
+          </button>
           <button
             onClick={() => onEdit(debt)}
             className="p-1 sm:p-1.5 rounded-lg text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition cursor-pointer"

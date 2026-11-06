@@ -36,6 +36,8 @@ export interface Transaction {
 export interface ShoppingList {
   id: string;
   title: string;
+  emoji?: string;
+  isPinned?: boolean;
   currency: Currency;
   status: 'active' | 'completed' | 'archived';
   paidFromAccountId?: string;
@@ -74,6 +76,9 @@ export interface WishlistItem {
   dueDate?: string;
   completed: boolean;
   theme?: string;
+  amount?: number;
+  amountCurrency?: Currency;
+  label?: string;
   priority: number;
   createdAt: string;
   updatedAt: string;
@@ -105,6 +110,7 @@ export interface DebtPayment {
 export interface Debt {
   id: string;
   personName: string;
+  isPinned?: boolean;
   phone?: string;
   direction: DebtDirection;
   totalAmount: number;

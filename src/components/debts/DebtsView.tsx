@@ -15,6 +15,7 @@ import {
   Users,
   CheckCircle2,
   Clock,
+  Pin,
 } from 'lucide-react';
 
 interface DebtsViewProps {
@@ -34,6 +35,7 @@ export const DebtsView: React.FC<DebtsViewProps> = ({ debts, accounts }) => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [debtForPayment, setDebtForPayment] = useState<Debt | null>(null);
   const [debtToDelete, setDebtToDelete] = useState<Debt | null>(null);
+  const [pinError, setPinError] = useState('');
 
   // Filtered list
   const filteredDebts = debts.filter((d) => {
@@ -48,7 +50,7 @@ export const DebtsView: React.FC<DebtsViewProps> = ({ debts, accounts }) => {
       if (!matchName && !matchNotes) return false;
     }
     return true;
-  });
+  }).sort((a, b) => Number(Boolean(b.isPinned)) - Number(Boolean(a.isPinned)));
 
   // Calculate totals for active debts/receivables in global currency
   const activeDirectionDebts = debts.filter(
@@ -67,6 +69,16 @@ export const DebtsView: React.FC<DebtsViewProps> = ({ debts, accounts }) => {
       setDebtToDelete(null);
     } catch (err) {
       console.error('Failed to delete debt:', err);
+    }
+  };
+
+  const togglePinned = async (debt: Debt) => {
+    try {
+      setPinError('');
+      await db.debts.update(debt.id, { isPinned: !debt.isPinned });
+    } catch (error) {
+      console.error('Failed to update debt pin:', error);
+      setPinError(error instanceof Error ? error.message : 'Impossible de modifier l’épingle de cette fiche.');
     }
   };
 
@@ -189,6 +201,11 @@ export const DebtsView: React.FC<DebtsViewProps> = ({ debts, accounts }) => {
       </div>
 
       {/* Debts Grid */}
+      {pinError && (
+        <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
+          {pinError}
+        </p>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
         {filteredDebts.length === 0 ? (
           <div className="col-span-full py-10 sm:py-12 text-center text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-6">
@@ -206,6 +223,7 @@ export const DebtsView: React.FC<DebtsViewProps> = ({ debts, accounts }) => {
             <DebtCard
               key={debt.id}
               debt={debt}
+              onTogglePinned={togglePinned}
               onRecordPayment={(d) => {
                 setDebtForPayment(d);
                 setIsPaymentModalOpen(true);

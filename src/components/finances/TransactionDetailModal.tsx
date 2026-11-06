@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import type { Transaction, Account } from '../../types';
 import { Modal } from '../Modal';
 import { formatMoney, formatDate } from '../../utils/formatters';
@@ -32,22 +32,27 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   currency,
   onDeleteRequest,
 }) => {
-  if (!transaction) return null;
+  const pendingDeleteRef = useRef<Transaction | null>(null);
 
-  const isExpense = transaction.type === 'expense';
-  const isIncome = transaction.type === 'income';
+  const isExpense = transaction?.type === 'expense';
+  const isIncome = transaction?.type === 'income';
 
-  const account = accounts.find((a) => a.id === transaction.accountId);
+  const account = transaction ? accounts.find((a) => a.id === transaction.accountId) : undefined;
   const accountName = account?.name || 'Compte introuvable';
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
+      onExitComplete={() => {
+        const transactionToDelete = pendingDeleteRef.current;
+        pendingDeleteRef.current = null;
+        if (transactionToDelete) onDeleteRequest(transactionToDelete);
+      }}
       title="Détails de l'opération"
       description="Consultez les informations complètes de cette écriture comptable."
     >
-      <div className="space-y-4">
+      {transaction && <div className="space-y-4">
         {/* Header Amount & Type Card */}
         <div
           className={`p-4 rounded-2xl border flex items-center justify-between ${
@@ -174,8 +179,8 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           <button
             type="button"
             onClick={() => {
+              pendingDeleteRef.current = transaction;
               onClose();
-              onDeleteRequest(transaction);
             }}
             className="flex-1 py-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
           >
@@ -190,7 +195,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             Fermer
           </button>
         </div>
-      </div>
+      </div>}
     </Modal>
   );
 };

@@ -7,6 +7,7 @@ import { PayAndRecordModal } from './PayAndRecordModal';
 import { ShoppingCategoriesModal } from './ShoppingCategoriesModal';
 import { ShoppingItemDetailModal } from './ShoppingItemDetailModal';
 import { ShoppingListRenameModal } from './ShoppingListRenameModal';
+import { ConfirmModal } from '../ConfirmModal';
 import {
   ArrowLeft,
   Plus,
@@ -41,6 +42,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
   const [itemToEdit, setItemToEdit] = useState<ShoppingItem | null>(null);
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
   const [selectedItemForDetail, setSelectedItemForDetail] = useState<ShoppingItem | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<ShoppingItem | null>(null);
   const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
 
@@ -83,6 +85,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
   const deleteItem = async (item: ShoppingItem) => {
     try {
       await db.shoppingItems.delete(item.id);
+      setItemToDelete(null);
     } catch (err) {
       console.error('Error deleting item:', err);
     }
@@ -114,7 +117,10 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
           </button>
           <div>
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">{list.title}</h1>
+              <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
+                {list.emoji && <span className="mr-1.5" aria-hidden="true">{list.emoji}</span>}
+                {list.title}
+              </h1>
               <button
                 type="button"
                 onClick={() => setIsRenameModalOpen(true)}
@@ -357,7 +363,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
-                        onClick={() => deleteItem(item)}
+                        onClick={() => setItemToDelete(item)}
                         className="p-1 sm:p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition cursor-pointer"
                         title="Supprimer l'article"
                       >
@@ -448,8 +454,19 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
           setItemToEdit(item);
           setIsItemModalOpen(true);
         }}
-        onDelete={(item) => deleteItem(item)}
+        onDelete={(item) => setItemToDelete(item)}
         isListCompleted={isCompleted}
+      />
+
+      <ConfirmModal
+        isOpen={itemToDelete !== null}
+        onClose={() => setItemToDelete(null)}
+        onConfirm={() => {
+          if (itemToDelete) void deleteItem(itemToDelete);
+        }}
+        title="Supprimer cet article ?"
+        message={`Voulez-vous vraiment supprimer « ${itemToDelete?.name ?? ''} » de cette liste de courses ?`}
+        confirmLabel="Supprimer l’article"
       />
 
       {/* Shopping Categories / Rayons Manager Modal */}
