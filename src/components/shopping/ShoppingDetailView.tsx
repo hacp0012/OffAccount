@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import type { ShoppingList, ShoppingItem, Account } from '../../types';
-import { formatMoney } from '../../utils/formatters';
-import { db } from '../../db/database';
-import { ShoppingItemModal } from './ShoppingItemModal';
-import { PayAndRecordModal } from './PayAndRecordModal';
-import { ShoppingCategoriesModal } from './ShoppingCategoriesModal';
-import { ShoppingItemDetailModal } from './ShoppingItemDetailModal';
-import { ShoppingListRenameModal } from './ShoppingListRenameModal';
-import { ConfirmModal } from '../ConfirmModal';
+import React, { useState } from "react";
+import type { ShoppingList, ShoppingItem, Account } from "../../types";
+import { formatMoney } from "../../utils/formatters";
+import { db } from "../../db/database";
+import { ShoppingItemModal } from "./ShoppingItemModal";
+import { PayAndRecordModal } from "./PayAndRecordModal";
+import { ShoppingCategoriesModal } from "./ShoppingCategoriesModal";
+import { ShoppingItemDetailModal } from "./ShoppingItemDetailModal";
+import { ShoppingListRenameModal } from "./ShoppingListRenameModal";
+import { ConfirmModal } from "../ConfirmModal";
 import {
   ArrowLeft,
   Plus,
@@ -20,8 +20,9 @@ import {
   CheckCheck,
   Tag,
   Search,
+  Star,
   X,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface ShoppingDetailViewProps {
   list: ShoppingList;
@@ -30,14 +31,9 @@ interface ShoppingDetailViewProps {
   onBack: () => void;
 }
 
-export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
-  list,
-  items,
-  accounts,
-  onBack,
-}) => {
-  const [filterMode, setFilterMode] = useState<'all' | 'todo' | 'done'>('all');
-  const [searchTerm, setSearchTerm] = useState('');
+export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({ list, items, accounts, onBack }) => {
+  const [filterMode, setFilterMode] = useState<"all" | "todo" | "done">("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<ShoppingItem | null>(null);
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
@@ -55,22 +51,34 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
 
   const normalizedSearch = searchTerm
     .trim()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase();
-  const filteredItems = items.filter((it) => {
-    if (filterMode === 'todo' && it.checked) return false;
-    if (filterMode === 'done' && !it.checked) return false;
-    if (!normalizedSearch) return true;
+  const filteredItems = items
+    .filter((it) => {
+      if (filterMode === "todo" && it.checked) return false;
+      if (filterMode === "done" && !it.checked) return false;
+      if (!normalizedSearch) return true;
 
-    return [it.name, it.category].some((value) =>
-      value
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLocaleLowerCase()
-        .includes(normalizedSearch)
-    );
-  });
+      return [it.name, it.category].some((value) =>
+        value
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLocaleLowerCase()
+          .includes(normalizedSearch),
+      );
+    })
+    .sort((a, b) => Number(Boolean(b.isPriority)) - Number(Boolean(a.isPriority)));
+
+  const toggleItemPriority = async (item: ShoppingItem) => {
+    try {
+      await db.shoppingItems.update(item.id, {
+        isPriority: !item.isPriority,
+      });
+    } catch (err) {
+      console.error("Error toggling item priority:", err);
+    }
+  };
 
   const toggleItemCheck = async (item: ShoppingItem) => {
     try {
@@ -78,7 +86,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
         checked: !item.checked,
       });
     } catch (err) {
-      console.error('Error toggling item:', err);
+      console.error("Error toggling item:", err);
     }
   };
 
@@ -87,21 +95,19 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
       await db.shoppingItems.delete(item.id);
       setItemToDelete(null);
     } catch (err) {
-      console.error('Error deleting item:', err);
+      console.error("Error deleting item:", err);
     }
   };
 
   const checkAll = async (targetState: boolean) => {
     try {
-      await Promise.all(
-        items.map((it) => db.shoppingItems.update(it.id, { checked: targetState }))
-      );
+      await Promise.all(items.map((it) => db.shoppingItems.update(it.id, { checked: targetState })));
     } catch (err) {
-      console.error('Error checking all items:', err);
+      console.error("Error checking all items:", err);
     }
   };
 
-  const isCompleted = list.status === 'completed';
+  const isCompleted = list.status === "completed";
 
   return (
     <div className="space-y-3.5 pb-40 sm:space-y-4">
@@ -118,7 +124,11 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
           <div>
             <div className="flex items-center gap-1.5 sm:gap-2">
               <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                {list.emoji && <span className="mr-1.5" aria-hidden="true">{list.emoji}</span>}
+                {list.emoji && (
+                  <span className="mr-1.5" aria-hidden="true">
+                    {list.emoji}
+                  </span>
+                )}
                 {list.title}
               </h1>
               <button
@@ -130,16 +140,19 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
               >
                 <Edit2 className="h-3.5 w-3.5" />
               </button>
-              <span className={`text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md ${
-                isCompleted
-                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                  : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300'
-              }`}>
-                {isCompleted ? 'Payée & Soldée' : 'En cours'}
+              <span
+                className={`text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md ${
+                  isCompleted
+                    ? "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                    : "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300"
+                }`}
+              >
+                {isCompleted ? "Payée & Soldée" : "En cours"}
               </span>
             </div>
             <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
-              {items.length} article{items.length > 1 ? 's' : ''} ({checkedItems.length} coché{checkedItems.length > 1 ? 's' : ''})
+              {items.length} article{items.length > 1 ? "s" : ""} ({checkedItems.length} coché
+              {checkedItems.length > 1 ? "s" : ""})
             </p>
           </div>
         </div>
@@ -173,19 +186,25 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
       {/* Dynamic Total Cost KPI Dashboard */}
       <div className="grid grid-cols-3 gap-2 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs">
         <div>
-          <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 dark:text-slate-500 block">Total Estimé</span>
+          <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 dark:text-slate-500 block">
+            Total Estimé
+          </span>
           <div className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white tabular-nums mt-0.5">
             {formatMoney(totalEstimated, list.currency)}
           </div>
         </div>
         <div className="border-x border-slate-100 dark:border-slate-800 px-2 sm:px-3">
-          <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 block">Coché / Acheté</span>
+          <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 block">
+            Coché / Acheté
+          </span>
           <div className="text-xs sm:text-base font-extrabold text-emerald-700 dark:text-emerald-400 tabular-nums mt-0.5">
             {formatMoney(totalChecked, list.currency)}
           </div>
         </div>
         <div>
-          <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 dark:text-slate-500 block">Restant à régler</span>
+          <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 dark:text-slate-500 block">
+            Restant à régler
+          </span>
           <div className="text-xs sm:text-base font-extrabold text-slate-600 dark:text-slate-400 tabular-nums mt-0.5">
             {formatMoney(totalRemaining, list.currency)}
           </div>
@@ -196,31 +215,31 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-center gap-1 overflow-x-auto p-1 bg-slate-100 dark:bg-slate-900 border border-transparent dark:border-slate-800 rounded-xl">
           <button
-            onClick={() => setFilterMode('all')}
+            onClick={() => setFilterMode("all")}
             className={`shrink-0 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
-              filterMode === 'all'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              filterMode === "all"
+                ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             Tous ({items.length})
           </button>
           <button
-            onClick={() => setFilterMode('todo')}
+            onClick={() => setFilterMode("todo")}
             className={`shrink-0 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
-              filterMode === 'todo'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              filterMode === "todo"
+                ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             À acheter ({remainingItems.length})
           </button>
           <button
-            onClick={() => setFilterMode('done')}
+            onClick={() => setFilterMode("done")}
             className={`shrink-0 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
-              filterMode === 'done'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              filterMode === "done"
+                ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             Achetés ({checkedItems.length})
@@ -241,7 +260,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
             {searchTerm && (
               <button
                 type="button"
-                onClick={() => setSearchTerm('')}
+                onClick={() => setSearchTerm("")}
                 className="shrink-0 rounded p-0.5 hover:bg-slate-100 dark:hover:bg-slate-800"
                 aria-label="Effacer la recherche"
               >
@@ -257,7 +276,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
             >
               <CheckCheck className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">
-                {checkedItems.length === items.length ? 'Décocher tout' : 'Tout cocher'}
+                {checkedItems.length === items.length ? "Décocher tout" : "Tout cocher"}
               </span>
             </button>
           )}
@@ -270,11 +289,11 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
           <div className="py-10 sm:py-12 text-center text-slate-400 dark:text-slate-500 p-4">
             <ShoppingBag className="w-8 h-8 sm:w-10 sm:h-10 mx-auto text-slate-300 dark:text-slate-600 stroke-[1.5] mb-2" />
             <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
-              {normalizedSearch ? 'Aucun article trouvé' : 'Aucun article dans cette vue'}
+              {normalizedSearch ? "Aucun article trouvé" : "Aucun article dans cette vue"}
             </p>
             <p className="text-[11px] sm:text-xs text-slate-400 dark:text-slate-500 mt-1">
               {normalizedSearch
-                ? 'Essayez un autre nom ou une autre catégorie.'
+                ? "Essayez un autre nom ou une autre catégorie."
                 : 'Appuyez sur "Ajouter Article" pour garnir votre panier.'}
             </p>
           </div>
@@ -288,8 +307,8 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
                 onClick={() => setSelectedItemForDetail(item)}
                 className={`p-3 sm:p-4 flex items-center justify-between gap-2.5 transition-colors cursor-pointer ${
                   item.checked
-                    ? 'bg-emerald-50/40 dark:bg-emerald-950/20 text-slate-400 dark:text-slate-500 hover:bg-emerald-50/70 dark:hover:bg-emerald-950/30'
-                    : 'hover:bg-slate-50 dark:hover:bg-slate-800/70'
+                    ? "bg-emerald-50/40 dark:bg-emerald-950/20 text-slate-400 dark:text-slate-500 hover:bg-emerald-50/70 dark:hover:bg-emerald-950/30"
+                    : "hover:bg-slate-50 dark:hover:bg-slate-800/70"
                 }`}
               >
                 {/* Left: Direct Checkbox & Item info */}
@@ -300,11 +319,11 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
                       e.stopPropagation();
                       if (!isCompleted) toggleItemCheck(item);
                     }}
-                    title={item.checked ? 'Marquer à acheter' : 'Cocher comme acheté'}
+                    title={item.checked ? "Marquer à acheter" : "Cocher comme acheté"}
                     className={`min-h-[38px] min-w-[38px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center shrink-0 rounded-xl transition cursor-pointer ${
                       item.checked
-                        ? 'text-emerald-700 dark:text-emerald-400 hover:scale-105'
-                        : 'text-slate-300 dark:text-slate-600 hover:text-emerald-600 dark:hover:text-emerald-400 hover:scale-105'
+                        ? "text-emerald-700 dark:text-emerald-400 hover:scale-105"
+                        : "text-slate-300 dark:text-slate-600 hover:text-emerald-600 dark:hover:text-emerald-400 hover:scale-105"
                     }`}
                   >
                     {item.checked ? (
@@ -317,7 +336,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
                   <div className="min-w-0">
                     <p
                       className={`text-xs sm:text-sm font-bold truncate ${
-                        item.checked ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-white'
+                        item.checked ? "line-through text-slate-400 dark:text-slate-500" : "text-slate-900 dark:text-white"
                       }`}
                     >
                       {item.name}
@@ -329,7 +348,9 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
                       {item.unitPrice > 0 && (
                         <>
                           <span aria-hidden="true">·</span>
-                          <span>{formatMoney(item.unitPrice, list.currency)}/{item.unit}</span>
+                          <span>
+                            {formatMoney(item.unitPrice, list.currency)}/{item.unit}
+                          </span>
                         </>
                       )}
                       <span aria-hidden="true">·</span>
@@ -343,7 +364,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
                   <div className="text-right">
                     <span
                       className={`text-xs sm:text-sm font-extrabold tabular-nums ${
-                        item.checked ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-white'
+                        item.checked ? "text-slate-400 dark:text-slate-500" : "text-slate-900 dark:text-white"
                       }`}
                     >
                       {formatMoney(subtotal, list.currency)}
@@ -352,6 +373,22 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
 
                   {!isCompleted && (
                     <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        onClick={() => toggleItemPriority(item)}
+                        className={`rounded-lg p-1 sm:p-1.5 transition cursor-pointer ${
+                          item.isPriority
+                            ? "text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                            : "text-slate-300 hover:bg-amber-50 hover:text-amber-500 dark:text-slate-600 dark:hover:bg-amber-950/30"
+                        }`}
+                        title={item.isPriority ? "Retirer la priorité" : "Marquer comme prioritaire"}
+                        aria-label={
+                          item.isPriority ? `Retirer la priorité de ${item.name}` : `Marquer ${item.name} comme prioritaire`
+                        }
+                        aria-pressed={Boolean(item.isPriority)}
+                      >
+                        <Star className={`w-3.5 h-3.5 ${item.isPriority ? "fill-current" : ""}`} />
+                      </button>
                       <button
                         onClick={() => {
                           setItemToEdit(item);
@@ -414,11 +451,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
       )}
 
       {/* Item Modal */}
-      <ShoppingListRenameModal
-        list={list}
-        isOpen={isRenameModalOpen}
-        onClose={() => setIsRenameModalOpen(false)}
-      />
+      <ShoppingListRenameModal list={list} isOpen={isRenameModalOpen} onClose={() => setIsRenameModalOpen(false)} />
 
       <ShoppingItemModal
         isOpen={isItemModalOpen}
@@ -465,15 +498,12 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({
           if (itemToDelete) void deleteItem(itemToDelete);
         }}
         title="Supprimer cet article ?"
-        message={`Voulez-vous vraiment supprimer « ${itemToDelete?.name ?? ''} » de cette liste de courses ?`}
+        message={`Voulez-vous vraiment supprimer « ${itemToDelete?.name ?? ""} » de cette liste de courses ?`}
         confirmLabel="Supprimer l’article"
       />
 
       {/* Shopping Categories / Rayons Manager Modal */}
-      <ShoppingCategoriesModal
-        isOpen={isCategoriesModalOpen}
-        onClose={() => setIsCategoriesModalOpen(false)}
-      />
+      <ShoppingCategoriesModal isOpen={isCategoriesModalOpen} onClose={() => setIsCategoriesModalOpen(false)} />
     </div>
   );
 };

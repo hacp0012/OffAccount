@@ -56,6 +56,7 @@ export interface ShoppingItem {
   unitPrice: number;
   category: string; // 'Fruits & Légumes', 'Épicerie', 'Hygiène', 'Frais', 'Divers', etc.
   checked: boolean;
+  isPriority?: boolean;
   notes?: string;
   createdAt: string;
 }

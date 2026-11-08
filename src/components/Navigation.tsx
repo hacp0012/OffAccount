@@ -167,71 +167,67 @@ export const Navigation: React.FC<NavigationProps> = ({
         </div>
       </header>
 
-      <CalculatorToolsModal
-        isOpen={isToolsModalOpen}
-        onClose={() => setIsToolsModalOpen(false)}
-      />
+      <CalculatorToolsModal isOpen={isToolsModalOpen} onClose={() => setIsToolsModalOpen(false)} />
 
       {showMobileNavigation && (
         /* Fixed Bottom Tab Bar for routes that request mobile navigation */
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200/80 dark:border-slate-800 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-4px_16px_rgba(0,0,0,0.06)] print:hidden">
           <div className="grid grid-cols-3 h-14 max-w-md mx-auto items-center px-1">
-          <button
-            onClick={() => navigate("/expenses")}
-            className={`min-h-[44px] flex flex-col items-center justify-center transition cursor-pointer ${
-              isFinancesActive
-                ? "text-emerald-700 dark:text-emerald-400 font-bold"
-                : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 font-medium"
-            }`}
-          >
-            <WalletCards className={`w-4 h-4 transition-transform ${isFinancesActive ? "scale-110" : ""}`} />
-            <span className="text-[10px] mt-0.5 tracking-tight truncate">Dépenses</span>
-          </button>
+            <button
+              onClick={() => navigate("/expenses")}
+              className={`mx-1 min-h-[44px] flex flex-col items-center justify-center rounded-xl transition cursor-pointer ${
+                isFinancesActive
+                  ? "bg-emerald-100/80 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold"
+                  : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 font-medium"
+              }`}
+            >
+              <WalletCards className={`w-4 h-4 transition-transform ${isFinancesActive ? "scale-110" : ""}`} />
+              <span className="text-[10px] mt-0.5 tracking-tight truncate">Dépenses</span>
+            </button>
 
-          <button
-            onClick={() => navigate("/shopping")}
-            className={`min-h-[44px] flex flex-col items-center justify-center transition cursor-pointer relative ${
-              isShoppingActive
-                ? "text-emerald-700 dark:text-emerald-400 font-bold"
-                : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 font-medium"
-            }`}
-          >
-            <span className="relative inline-flex">
-              <ShoppingCart className={`w-4 h-4 transition-transform ${isShoppingActive ? "scale-110" : ""}`} />
-              {shoppingActiveCount > 0 && (
-                <span
-                  aria-label={`${shoppingActiveCount} liste${shoppingActiveCount > 1 ? "s" : ""} de courses active${shoppingActiveCount > 1 ? "s" : ""}`}
-                  className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-600 px-1 text-[9px] font-bold leading-none text-white ring-2 ring-white dark:ring-slate-900"
-                >
-                  {shoppingActiveCount}
-                </span>
-              )}
-            </span>
-            <span className="text-[10px] mt-0.5 tracking-tight truncate">Courses</span>
-          </button>
+            <button
+              onClick={() => navigate("/shopping")}
+              className={`mx-1 min-h-[44px] flex flex-col items-center justify-center rounded-xl transition cursor-pointer relative ${
+                isShoppingActive
+                  ? "bg-emerald-100/80 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold"
+                  : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 font-medium"
+              }`}
+            >
+              <span className="relative inline-flex">
+                <ShoppingCart className={`w-4 h-4 transition-transform ${isShoppingActive ? "scale-110" : ""}`} />
+                {shoppingActiveCount > 0 && (
+                  <span
+                    aria-label={`${shoppingActiveCount} liste${shoppingActiveCount > 1 ? "s" : ""} de courses active${shoppingActiveCount > 1 ? "s" : ""}`}
+                    className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-600 px-1 text-[9px] font-bold leading-none text-white ring-2 ring-white dark:ring-slate-900"
+                  >
+                    {shoppingActiveCount}
+                  </span>
+                )}
+              </span>
+              <span className="text-[10px] mt-0.5 tracking-tight truncate">Courses</span>
+            </button>
 
-          <button
-            onClick={() => navigate("/debts")}
-            className={`min-h-[44px] flex flex-col items-center justify-center transition cursor-pointer relative ${
-              isDebtsActive
-                ? "text-emerald-700 dark:text-emerald-400 font-bold"
-                : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 font-medium"
-            }`}
-          >
-            <span className="relative inline-flex">
-              <Users className={`w-4 h-4 transition-transform ${isDebtsActive ? "scale-110" : ""}`} />
-              {debtsCount > 0 && (
-                <span
-                  aria-label={`${debtsCount} dette${debtsCount > 1 ? "s" : ""} active${debtsCount > 1 ? "s" : ""}`}
-                  className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold leading-none text-white ring-2 ring-white dark:ring-slate-900"
-                >
-                  {debtsCount}
-                </span>
-              )}
-            </span>
-            <span className="text-[10px] mt-0.5 tracking-tight truncate">Dettes</span>
-          </button>
-
+            <button
+              onClick={() => navigate("/debts")}
+              className={`mx-1 min-h-[44px] flex flex-col items-center justify-center rounded-xl transition cursor-pointer relative ${
+                isDebtsActive
+                  ? "bg-emerald-100/80 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold"
+                  : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 font-medium"
+              }`}
+            >
+              <span className="relative inline-flex">
+                <Users className={`w-4 h-4 transition-transform ${isDebtsActive ? "scale-110" : ""}`} />
+                {debtsCount > 0 && (
+                  <span
+                    aria-label={`${debtsCount} dette${debtsCount > 1 ? "s" : ""} active${debtsCount > 1 ? "s" : ""}`}
+                    className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold leading-none text-white ring-2 ring-white dark:ring-slate-900"
+                  >
+                    {debtsCount}
+                  </span>
+                )}
+              </span>
+              <span className="text-[10px] mt-0.5 tracking-tight truncate">Dettes</span>
+            </button>
           </div>
         </div>
       )}
