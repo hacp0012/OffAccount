@@ -13,7 +13,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
-import type { ProductPrice, ShoppingList } from '../../types';
+import type { Currency, ProductPrice, ShoppingList } from '../../types';
 import { db } from '../../db/database';
 import { useAppCurrency } from '../../context/CurrencyContext';
 import { formatMoney } from '../../utils/formatters';
@@ -40,6 +40,14 @@ export const ProductPricesView: React.FC<ProductPricesViewProps> = ({ lists }) =
       `${product.name} ${product.label ?? ''}`.toLocaleLowerCase('fr').includes(query),
     );
   }, [products, search]);
+  const priceTotalsByCurrency = useMemo(
+    () =>
+      products.reduce<Partial<Record<Currency, number>>>((totals, product) => {
+        totals[product.currency] = (totals[product.currency] ?? 0) + product.unitPrice;
+        return totals;
+      }, {}),
+    [products],
+  );
   const [productToEdit, setProductToEdit] = useState<ProductPrice | null>(null);
   const [productToDelete, setProductToDelete] = useState<ProductPrice | null>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -226,6 +234,14 @@ export const ProductPricesView: React.FC<ProductPricesViewProps> = ({ lists }) =
                 ? `${filteredProducts.length} résultat${filteredProducts.length === 1 ? '' : 's'} sur ${products.length} produit${products.length === 1 ? '' : 's'}`
                 : `${products.length} produit${products.length === 1 ? '' : 's'} enregistré${products.length === 1 ? '' : 's'}`}
             </p>
+            {products.length > 0 && (
+              <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                Total enregistré :{' '}
+                {Object.entries(priceTotalsByCurrency)
+                  .map(([totalCurrency, total]) => formatMoney(total ?? 0, totalCurrency))
+                  .join(' · ')}
+              </p>
+            )}
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">

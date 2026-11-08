@@ -4,6 +4,7 @@ import { Modal } from '../Modal';
 import type { ShoppingItem, Currency, Category } from '../../types';
 import { db, DEFAULT_SHOPPING_CATEGORIES } from '../../db/database';
 import { Plus, Check, X } from 'lucide-react';
+import { DEFAULT_SHOPPING_UNITS } from '../../utils/shoppingUnits';
 
 interface ShoppingItemModalProps {
   isOpen: boolean;
@@ -18,8 +19,6 @@ interface ShoppingItemModalProps {
   } | null;
 }
 
-const COMMON_UNITS = ['pcs', 'kg', 'g', 'L', 'bouteille', 'paquet', 'sac', 'boîte'];
-
 export const ShoppingItemModal: React.FC<ShoppingItemModalProps> = ({
   isOpen,
   onClose,
@@ -31,6 +30,7 @@ export const ShoppingItemModal: React.FC<ShoppingItemModalProps> = ({
   // Query shopping categories from Dexie
   const dbCategories =
     useLiveQuery(() => db.categories.where('type').equals('shopping').toArray()) || [];
+  const settings = useLiveQuery(() => db.settings.get('default_config'));
 
   const availableCategories =
     dbCategories.length > 0
@@ -40,6 +40,11 @@ export const ShoppingItemModal: React.FC<ShoppingItemModalProps> = ({
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [unit, setUnit] = useState('pcs');
+  const availableUnits = Array.from(new Set([
+    ...DEFAULT_SHOPPING_UNITS,
+    ...(settings?.shoppingUnits ?? []),
+    unit,
+  ]));
   const [unitPrice, setUnitPrice] = useState('');
   const [category, setCategory] = useState(availableCategories[0] || 'Autre');
   const [notes, setNotes] = useState('');
@@ -162,7 +167,7 @@ export const ShoppingItemModal: React.FC<ShoppingItemModalProps> = ({
               onChange={(e) => setUnit(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             >
-              {COMMON_UNITS.map((u) => (
+              {availableUnits.map((u) => (
                 <option key={u} value={u} className="dark:bg-slate-800">
                   {u}
                 </option>

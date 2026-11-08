@@ -131,6 +131,8 @@ export interface AppSettings {
   defaultCurrency: Currency;
   userName?: string;
   lastBackupDate?: string;
+  shoppingUnits?: string[];
+  pinnedApplications?: string[];
 }
 
 export interface Category {

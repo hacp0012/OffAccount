@@ -7,6 +7,7 @@ import { PayAndRecordModal } from "./PayAndRecordModal";
 import { ShoppingCategoriesModal } from "./ShoppingCategoriesModal";
 import { ShoppingItemDetailModal } from "./ShoppingItemDetailModal";
 import { ShoppingListRenameModal } from "./ShoppingListRenameModal";
+import { ShoppingUnitsModal } from "./ShoppingUnitsModal";
 import { ConfirmModal } from "../ConfirmModal";
 import {
   ArrowLeft,
@@ -19,6 +20,7 @@ import {
   ShoppingBag,
   CheckCheck,
   Tag,
+  Ruler,
   Search,
   Star,
   X,
@@ -40,6 +42,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({ list, it
   const [selectedItemForDetail, setSelectedItemForDetail] = useState<ShoppingItem | null>(null);
   const [itemToDelete, setItemToDelete] = useState<ShoppingItem | null>(null);
   const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
+  const [isUnitsModalOpen, setIsUnitsModalOpen] = useState(false);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
 
   // Dynamic cost calculations
@@ -159,6 +162,15 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({ list, it
 
         {/* Header Action Buttons */}
         <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setIsUnitsModalOpen(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+            title="Gérer les unités de mesure"
+            aria-label="Gérer les unités de mesure"
+          >
+            <Ruler className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          </button>
           <button
             onClick={() => setIsCategoriesModalOpen(true)}
             className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl shadow-2xs transition cursor-pointer"
@@ -504,6 +516,7 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({ list, it
 
       {/* Shopping Categories / Rayons Manager Modal */}
       <ShoppingCategoriesModal isOpen={isCategoriesModalOpen} onClose={() => setIsCategoriesModalOpen(false)} />
+      <ShoppingUnitsModal isOpen={isUnitsModalOpen} onClose={() => setIsUnitsModalOpen(false)} />
     </div>
   );
 };
