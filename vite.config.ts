@@ -26,7 +26,7 @@ export default defineConfig(() => {
           short_name: 'OA',
           description:
             'Application PWA 100% hors-ligne de gestion financière, comptes, suivi des dépenses mensuelles et graphiques en FRw, FC et USD.',
-          theme_color: '#059669',
+          // theme_color: '#059669',
           background_color: '#f8faf8',
           display: 'standalone',
           orientation: 'portrait-primary',
