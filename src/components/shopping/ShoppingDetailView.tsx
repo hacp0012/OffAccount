@@ -51,6 +51,11 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({ list, it
   const totalChecked = checkedItems.reduce((acc, it) => acc + (it.unitPrice || 0) * (it.quantity || 1), 0);
   const remainingItems = items.filter((i) => !i.checked);
   const totalRemaining = remainingItems.reduce((acc, it) => acc + (it.unitPrice || 0) * (it.quantity || 1), 0);
+  const priorityUncheckedItems = items.filter((i) => i.isPriority && !i.checked);
+  const totalPriorityUnchecked = priorityUncheckedItems.reduce(
+    (acc, it) => acc + (it.unitPrice || 0) * (it.quantity || 1),
+    0,
+  );
 
   const normalizedSearch = searchTerm
     .trim()
@@ -219,6 +224,14 @@ export const ShoppingDetailView: React.FC<ShoppingDetailViewProps> = ({ list, it
           </span>
           <div className="text-xs sm:text-base font-extrabold text-slate-600 dark:text-slate-400 tabular-nums mt-0.5">
             {formatMoney(totalRemaining, list.currency)}
+          </div>
+        </div>
+        <div>
+          <span className="text-[10px] sm:text-[11px] font-semibold text-amber-500 dark:text-amber-400 block">
+            Priorité non cochés
+          </span>
+          <div className="text-xs sm:text-base font-extrabold text-amber-500 dark:text-amber-400 tabular-nums mt-0.5">
+            {formatMoney(totalPriorityUnchecked, list.currency)}
           </div>
         </div>
       </div>
